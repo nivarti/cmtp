@@ -1,0 +1,6 @@
+This project contains source code for CFD Methods Course
+The following 2nd order solvers exist as part of the package
+
+1. laplace: Solver for Laplace equation in 2D
+2. wave: 1D wave equation solver
+3. energy: 2D energy equation solver for given flow field
