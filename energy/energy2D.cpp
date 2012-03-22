@@ -6,78 +6,20 @@
 // With given boundary conditions and initial condition //
 //////////////////////////////////////////////////////////
 
+#include"header.h"
 
-#include<iostream>
-#include<stdio.h>
-#include<stdlib.h>
-
-using namespace std;
-
-#define pi 3.14159265358979323846264338327950288419716939937510    // Value of pi
-
-const double CFL = 0.4;					           // CFL number 
-const double Lx  = 5.0;						   // Domain size x
-const double Ly = 1.0;						   // Domain size y
-
-const double Re = 50;						   // Reynolds Number
-const double Pr = 0.7;						   // Prandtl Number
-const double Ec = 0.1;						   // Eckert Number
-
-//______________________________________________________________________________________//
-
-
-class Cell{
+int main(){  
+  clock_t ti, tf;
+  ti = clock();
   
-  double T;							   // Control Volume Average Temperature
-  double u;							   // Control Volume Average Velocity (x)
-  double v;							   // Control Volume Average Velocity (y)
+  Grid Domain(10,10, 1);	       // Define Grid of required size
   
-  double dx;							   // Cell Size (x direction)
-  double dy;							   // Cell Size (y direction)
-  int I;
-  int J;
-     
-public:
+  //SolveGoverningEquation(&Domain);
+  Domain.PrintCVData();
   
-  Cell(){
-    T = 0.0;
-    
-  }
-  
-  Cell(double Temp){
-    T = Temp;
-  }
+  tf = clock();
 
-
-  void setFields(double Temp, double Velx, double Vely){
-    T = Temp;
-    u = Velx;
-    v = Vely;
-  }
-  
-  double showFields(){
-    return T;}
-
-  // Computations of Source can be done within CV
-  // Printing of fields can be done within CV
-  // Flux Integrals have to be computed outside CV
-
-};// End of Class Definition
-
-
-Cell** buildArray(int width, int height);
-void computeExactFluxes(Cell** Mesh);
-
-
-int main(){
-  
-  
-  int x = 10;
-  Cell **Mesh = buildArray(x,x);
-  
-  
-
-  free(Mesh); 
+  cout<<"\nSolver Run-Time: "<<(double)(tf - ti)/CLOCKS_PER_SEC<<" seconds"<<endl;
   return 0;
 }
 
@@ -85,14 +27,66 @@ int main(){
 //________________________________________________________________________________________//
 
 
-Cell** buildArray(int width, int height){
+Grid::Grid(int Nx, int Ny, int nGC){
+    
+  SIZEx = Nx;
+  SIZEy = Ny;
   
-  Cell** array = (Cell**)malloc(width*sizeof(int));
+  Imin = nGC;
+  Imax = SIZEx - nGC - 1;					   // 
   
-  for(int i = 0; i < width; i++)
-    array[i] = (Cell*)malloc(height*sizeof(Cell));
+  Jmin = nGC;
+  Jmax = SIZEy - nGC - 1;					   // 
   
-  return array;
+  GhostCells = nGC;
+
+  Mesh = (Cell**)malloc(Nx*sizeof(int));
+  
+  for(int i = 0; i < Nx; i++)
+    Mesh[i] = (Cell*)malloc(Ny*sizeof(Cell));
+
+  for(int i = 0; i < Nx; i++)
+    for(int j = 0; j < Ny; j++)
+      Mesh[i][j].SetFieldValues(2.*i/j, 0.0, 0.0);
+  
+}
+
+Grid::~Grid(){
+
+  for(int i = 0; i <SIZEx ; i++)
+    delete Mesh[i];
+
+}
+
+void Grid::PrintCVData(){
+    
+  int i,j;
+  
+  for(i = Imin; i <= Imax; i++){     
+    for(j = Jmin; j <= Jmax; j++){
+      Mesh[i][j].PrintFieldValue();
+    } 
+    cout<<endl;							       
+  }   
+  
+  cout<<endl;  
+
+  
+}
+
+
+void Cell::SetFieldValues(double Temp, double Ux, double Uy){
+
+  T = Temp;
+  u = Ux;
+  v = Uy;
+  
+}
+
+void Cell::PrintFieldValue(){
+  
+  cout<<setw(15)<<setprecision(10)<<T;
+
 }
 
 // void ExperimentArray(Cell **Mesh){
@@ -113,15 +107,33 @@ Cell** buildArray(int width, int height){
 // }
 
 
-// void initializeCell(Cell **Mesh){
+
+void Grid::ComputeExactFluxIntegral(){
+
+  double dx, dy, x, y, u, v, T, FI;
+  double u0, v0, T0;
   
-//   int i,j;
+  u0 = 1.0;
+  v0 = 1.0;
+  T0 = 1.0;
   
-//   for(i = 0; i < SIZE; i++){     
-//     for(j = 0; j < SIZE; j++){
-//       Mesh[i][j].setvalue(0.0);		                                      // Set 0.0 as initial guess for Temperature
-//     }
-//   }   
-//   cout<<"Field Initialized...\n";			      
-  
-// } // End of Initialization of Fields
+  for(int i = Imin; i<= Imax;i++){
+    for(int j = Imin; j <= Jmax; j++)
+       {
+
+	 x = dx*(2.0*(double)i -1)/2;
+	 y = dy*(2.0*(double)j - 1)/2;
+
+	 T = T0*cos(pi*x)*sin(pi*y);
+	 u = u0*y*sin(pi*x);
+	 v = v0*x*cos(pi*y);
+	 
+	 FI = u0*T0*pi*cos(2*pi*x)*y*sin(pi*y) 
+	   + v0*T0*pi*x*cos(pi*x)*cos(2*pi*x) 
+	   + 2*T0*pi*pi*cos(pi*x)*sin(pi*y)/(Re*Pr);	 	 
+	 
+	 Mesh[i][j].SetFluxIntegral(FI);	 	 
+       }
+  }
+
+}
