@@ -4,7 +4,8 @@
 /* structure for a 2D energy equation solver */
 /*********************************************/
 
-#include<iostream>		
+#include<iostream>
+#include<fstream>		
 #include<iomanip>
 
 #include<stdio.h>
@@ -152,7 +153,7 @@ void Cell::ComputeExactFluxIntegral(){
   eFI = u0*T0*pi*cos(2*pi*x)*y*sin(pi*y) 
     + v0*T0*pi*x*cos(pi*x)*cos(2*pi*y) 
     + 1/(Re*Pr)*2*T0*pi*pi*cos(pi*x)*sin(pi*y);	 	 
-  eFI = -eFI;
+  eFI = -eFI;			/* flip sign while taking integral to RHS */
   
 }
 
@@ -174,8 +175,7 @@ void Cell::PrintCoordinates(){
 
 }
 
-
-// Output Required Field on Screen
+/* Print Required Field of Cell */
 void Cell::PrintField(int f){
   
   switch(f){
@@ -192,6 +192,7 @@ void Cell::PrintField(int f){
   default:
     cout<<"\nError: Field Unavailable";
     exit(0);
+    break;
   }
   
 }
@@ -199,6 +200,7 @@ void Cell::PrintField(int f){
 
 //________________________________________________________________________________________//
 
+/* Construct Grid Object */
 Grid::Grid(int Nx, int Ny, int nGC){
 
   int SIZEx;
@@ -227,6 +229,7 @@ Grid::Grid(int Nx, int Ny, int nGC){
   
 }
 
+/* Delete Grid Object */
 Grid::~Grid(){
 
   for(int i = 0; i <= Imax + 1 ; i++)
@@ -234,11 +237,11 @@ Grid::~Grid(){
 
 }
 
-
+/* Evaluate Values of Coordinates for each Cell & Store them */
 void Grid::EvaluateCellCoordinates(){
  
   double x, y;
-
+  
   /* Store values in array, that reflect i,j similar to math */
   /* Move in x first then in y, and so on */
   for(int j = 0; j <= Jmax + Imin; j++){
@@ -248,33 +251,36 @@ void Grid::EvaluateCellCoordinates(){
       y = dy*(2.0*(double)j - (double)Jmin)/2.0; /* Give values to y, that change with j */
       
       Mesh[i][j].SetCellCoordinates(x, y);
-	
-	/* //cout<<"i = "<<i<<", j = "<<j<<": "; */
-	/* Mesh[i][j].PrintCoordinates(); */
-	/* cout<<" "; */
+      
+      /* //cout<<"i = "<<i<<", j = "<<j<<": "; */
+      /* Mesh[i][j].PrintCoordinates(); */
+      /* cout<<" "; */
+      
+    }
+  }  
   
-	}
-      }  
-    
   cout<<"\nEvaluated Cell Coordinates for Grid...";    
   
 }
 
+
+/* Function to evaluate integrals/fields using exact solution */
 void Grid::EvaluateExactIntegrals(){
 
     for(int i = 0; i <= Imax + Imin; i++){
       for(int j = 0; j <= Jmax + Imin; j++){ 	
 
-	Mesh[i][j].ComputeExactField();
-	Mesh[i][j].ComputeExactFluxIntegral();
-	Mesh[i][j].ComputeExactSourceTerm();
+	Mesh[i][j].ComputeExactField(); /* Compute Fields using given Exact Functions */
+	Mesh[i][j].ComputeExactFluxIntegral(); /* Compute Flux Integrals using Exact Functions */
+	Mesh[i][j].ComputeExactSourceTerm();   /* Similarly with Source Terms */
 	
       }
     }
-
-  cout<<"\nEvaluated Exact Field Values for Grid...";
-
+    
+    cout<<"\nEvaluated Exact Field Values for Grid...";
+  
 }
+
 
 void Grid::EvaluateFluxIntegrals(){
   
@@ -287,8 +293,8 @@ void Grid::EvaluateFluxIntegrals(){
       a = -1/(2.0*dx)*(Mesh[i+1][j].U.u*Mesh[i+1][j].U.T - Mesh[i-1][j].U.u*Mesh[i-1][j].U.T);		     
       b = -1/(2.0*dy)*(Mesh[i][j+1].U.v*Mesh[i][j+1].U.T - Mesh[i][j-1].U.v*Mesh[i][j-1].U.T);
       
-      d = 1/(Re*Pr*dx*dx)*(Mesh[i+1][j].U.T - 2*Mesh[i][j].U.T + Mesh[i-1][j].U.T)
-	+ 1/(Re*Pr*dy*dy)*( Mesh[i][j+1].U.T - 2*Mesh[i][j].U.T + Mesh[i][j-1].U.T);
+      d = 1/(Re*Pr*dx*dx)*(Mesh[i+1][j].U.T - 2*Mesh[i][j].U.T + Mesh[i-1][j].U.T);
+      d += 1/(Re*Pr*dy*dy)*(Mesh[i][j+1].U.T - 2*Mesh[i][j].U.T + Mesh[i][j-1].U.T);
       
       Mesh[i][j].FI = a + b + d;
       
@@ -360,6 +366,8 @@ void Grid::EvaluateSourceTerms(){
 void Grid::EvaluateL2Norm(){
   
   double ErrorS = 0.0, ErrorF = 0.0, L2NormF = 0.0, L2NormS = 0.0;
+  ofstream fileF;
+  ofstream fileS;
   int i, j;
 
   for(i = Imin; i <= Imax; i++){     
@@ -376,10 +384,19 @@ void Grid::EvaluateL2Norm(){
   L2NormF = sqrt(L2NormF/(Lx*Ly));				      
   L2NormS = sqrt(L2NormS/(Lx*Ly));				      
   
-  cout<<"\nErrors Calculated...\nFlux Error Norm (l2): "<<L2NormF<<"\n";
-  cout<<"Source Error Norm (l2): "<<L2NormS<<"\n";
+  fileF.open("Ef", ios::app);	                                      // Plot in a file with name F   
+  fileS.open("Es", ios::app);
+  fileF<<setprecision(15)<<dx<<" "<<L2NormF<<endl;		      // Plot at each point in domain 
+  fileS<<setprecision(15)<<dx<<" "<<L2NormS<<endl;
+  
+  cout<<"Errors Calculated and Written to File...\n";
+  cout<<"Flux Error Norm (l2): "<<L2NormF<<"\n";
+  cout<<"Source Error Norm (l2): "<<L2NormS<<"\n";      
+  
+  fileF.close();						      // Close file
+  fileS.close();
+}// End of File Write
 
-}
 
 void Grid::PrintCellCoordinates(){
 
@@ -488,8 +505,7 @@ void Grid::PrintSources(){
     } 
     cout<<endl;							       
   }     
-
-
+  
   cout<<"\nPrinting Exact Sources...\n";
   
 
@@ -503,49 +519,31 @@ void Grid::PrintSources(){
     } 
     cout<<endl;			
   }				       
-
   
 }
 
+//________________________________________________________________________________________//
 
-
-//void Grid::FluxVerification(){
-
-//   double dx, dy, x, y, u, v, T, FI;
-//   double u0, v0, T0;
+void EvaluateGridParameters(Grid &Domain){
   
-//   u0 = 1.0;
-//   v0 = 1.0;
-//   T0 = 1.0;
+  Domain.EvaluateCellCoordinates();    
+  Domain.EvaluateExactIntegrals();   
   
-//   for(int i = Imin; i<= Imax;i++){
-//     for(int j = Imin; j <= Jmax; j++)
-//       {	 
-	
-//       }
-//   }
+  //Domain.PrintCellCoordinates();
+  // cout<<"\nOutputting Field Values for T...\n";
+  // Domain.PrintFieldValues(1);
+  // cout<<"\nOutputting Field Values for u...\n";
+  // Domain.PrintFieldValues(2);
+  // cout<<"\nOutputting Field Values for v...\n";
+  // Domain.PrintFieldValues(3);
   
-// }
-
-
-
-// void Grid::SourceVerification(){
-
-//   double dx, dy, x, y, u, v, T, S;
-//   double u0, v0, T0;
+  Domain.EvaluateFluxIntegrals();
+  Domain.EvaluateSourceTerms();
   
-//   u0 = 1.0;
-//   v0 = 1.0;
-//   T0 = 1.0;
+  // cout<<"\nOutputting Flux Values using Exact Functions...\n";
+  // Domain.PrintFluxes();
+  // Domain.PrintSources();
   
-//   for(int i = Imin; i<= Imax;i++){
-//     for(int j = Imin; j <= Jmax; j++)
-//        {
-
-	 
-// 	 Mesh[i][j].S;
-//        }
-//   }
-
+  Domain.EvaluateL2Norm();
   
-// }
+}
