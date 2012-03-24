@@ -12,12 +12,30 @@ int main(){
   clock_t ti, tf, RunTime;
   ti = clock();
   
-
   Grid Domain(10,10, 1);	       // Define Grid of required size  
-  Domain.EvaluateCellData();
-  Domain.PrintFieldValues(3);
   
+  Domain.EvaluateCellCoordinates();
+  Domain.PrintCellCoordinates();
 
+  Domain.EvaluateExactIntegrals();   
+
+  cout<<"\nOutputting Field Values for T...\n";
+  Domain.PrintFieldValues(1);
+  cout<<"\nOutputting Field Values for u...\n";
+  Domain.PrintFieldValues(2);
+  cout<<"\nOutputting Field Values for v...\n";
+  Domain.PrintFieldValues(3);
+
+  Domain.EvaluateFluxIntegrals();
+  Domain.EvaluateSourceTerms();
+  
+  cout<<"\nOutputting Flux Values using Exact Functions...\n";
+  Domain.PrintFluxes();
+  Domain.PrintSources();
+ 
+  Domain.EvaluateL2Norm();
+  
+  
   
   tf = clock();
   RunTime = (double)(tf - ti)/CLOCKS_PER_SEC;
