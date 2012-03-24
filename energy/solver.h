@@ -111,6 +111,12 @@ Cell::Cell(){
 
   x = 0.0;
   y = 0.0;
+
+  eFI = 0.0;
+  eS = 0.0;
+
+  S = 0.0;
+  FI = 0.0;
   
 }
 
@@ -146,15 +152,17 @@ void Cell::ComputeExactFluxIntegral(){
   eFI = u0*T0*pi*cos(2*pi*x)*y*sin(pi*y) 
     + v0*T0*pi*x*cos(pi*x)*cos(2*pi*y) 
     + 1/(Re*Pr)*2*T0*pi*pi*cos(pi*x)*sin(pi*y);	 	 
+  eFI = -eFI;
   
 }
 
 
 void Cell::ComputeExactSourceTerm(){
-  
-  eS = (Ec/Re)*(2*(u0*pi*cos(pi*x)*y)*(u0*pi*cos(pi*x)*y)
-		+ 2*(v0*pi*sin(pi*y)*x)*(v0*pi*sin(pi*y)*x)
-		+ (u0*sin(pi*x) + v0*cos(pi*y))*(u0*sin(pi*x) + v0*cos(pi*y)));
+      
+  eS  = 2*(u0*pi*cos(pi*x)*y)*(u0*pi*cos(pi*x)*y);
+  eS += 2*(v0*pi*sin(pi*y)*x)*(v0*pi*sin(pi*y)*x);
+  eS += (u0*sin(pi*x) + v0*cos(pi*y))*(u0*sin(pi*x) + v0*cos(pi*y));
+  eS = (Ec/Re)*eS;
   
 }
 
@@ -270,49 +278,53 @@ void Grid::EvaluateExactIntegrals(){
 
 void Grid::EvaluateFluxIntegrals(){
   
-  double flux;
+  double a = 0.0, b = 0.0, d = 0.0;
   
   cout<<endl;
   for(int j = Jmin; j <= Jmax; j++){
     for(int i = Imin; i<= Imax;i++){
       
-      cout<<i-1<<","<<j<<" : ";
-      Mesh[i-1][j].PrintCoordinates();
-      cout<<" : T = ";
-      Mesh[i-1][j].PrintField(1);
-      cout<<", u = ";
-      Mesh[i-1][j].PrintField(2);
-      cout<<", v = ";
-      Mesh[i-1][j].PrintField(3);
-      cout<<endl;
+      a = -1/(2.0*dx)*(Mesh[i+1][j].U.u*Mesh[i+1][j].U.T - Mesh[i-1][j].U.u*Mesh[i-1][j].U.T);		     
+      b = -1/(2.0*dy)*(Mesh[i][j+1].U.v*Mesh[i][j+1].U.T - Mesh[i][j-1].U.v*Mesh[i][j-1].U.T);
       
-      cout<<i<<","<<j<<" : ";
-      Mesh[i][j].PrintCoordinates();      
-      cout<<" : T = ";
-      Mesh[i][j].PrintField(1);
-      cout<<", u = ";
-      Mesh[i][j].PrintField(2);
-      cout<<", v = ";
-      Mesh[i][j].PrintField(3);
-      cout<<endl;
+      d = 1/(Re*Pr*dx*dx)*(Mesh[i+1][j].U.T - 2*Mesh[i][j].U.T + Mesh[i-1][j].U.T)
+	+ 1/(Re*Pr*dy*dy)*( Mesh[i][j+1].U.T - 2*Mesh[i][j].U.T + Mesh[i][j-1].U.T);
+      
+      Mesh[i][j].FI = a + b + d;
+      
+      /* cout<<i-1<<","<<j<<" : "; */
+      /* Mesh[i-1][j].PrintCoordinates(); */
+      /* cout<<" : T = "; */
+      /* Mesh[i-1][j].PrintField(1); */
+      /* cout<<", u = "; */
+      /* Mesh[i-1][j].PrintField(2); */
+      /* cout<<", v = "; */
+      /* Mesh[i-1][j].PrintField(3); */
+      /* cout<<", FI = "<<Mesh[i-1][j].FI;       */
+      /* cout<<endl; */
+      
+      /* cout<<i<<","<<j<<" : "; */
+      /* Mesh[i][j].PrintCoordinates();       */
+      /* cout<<" : T = "; */
+      /* Mesh[i][j].PrintField(1); */
+      /* cout<<", u = "; */
+      /* Mesh[i][j].PrintField(2); */
+      /* cout<<", v = "; */
+      /* Mesh[i][j].PrintField(3); */
+      /* cout<<", FI = "<<Mesh[i][j].FI;       */
+      /* cout<<endl; */
 
-      cout<<i<<","<<j<<" : ";
-      Mesh[i+1][j].PrintCoordinates();      
-      cout<<" : T = ";
-      Mesh[i+1][j].PrintField(1);
-      cout<<", u = ";
-      Mesh[i+1][j].PrintField(2);
-      cout<<", v = ";
-      Mesh[i+1][j].PrintField(3);
-      cout<<endl<<endl;
-           
+      /* cout<<i+1<<","<<j<<" : "; */
+      /* Mesh[i+1][j].PrintCoordinates();       */
+      /* cout<<" : T = "; */
+      /* Mesh[i+1][j].PrintField(1); */
+      /* cout<<", u = "; */
+      /* Mesh[i+1][j].PrintField(2); */
+      /* cout<<", v = "; */
+      /* Mesh[i+1][j].PrintField(3); */
+      /* cout<<", FI = "<<Mesh[i+1][j].FI;       */
+      /* cout<<endl<<endl; */
       
-      flux = - 1/dx*(1/2.0*(Mesh[i+1][j].U.u*Mesh[i+1][j].U.T - Mesh[i-1][j].U.u*Mesh[i-1][j].U.T)
-		     - 1/(Re*Pr*dx)*(Mesh[i+1][j].U.T - 2*Mesh[i][j].U.T + Mesh[i-1][j].U.T))
-	-1/dy*((Mesh[i][j+1].U.v*Mesh[i][j+1].U.T - Mesh[i][j-1].U.v*Mesh[i][j-1].U.T)/2.0
-	       -1/(Re*Pr*dy)*( Mesh[i][j-1].U.T - 2*Mesh[i][j].U.T + Mesh[i][j-1].U.T));
-      
-      Mesh[i][j].FI = flux;
     }
   } 
   
@@ -320,8 +332,8 @@ void Grid::EvaluateFluxIntegrals(){
 
 void Grid::EvaluateSourceTerms(){
   
-  double source = 0.0, a = 0.0, b = 0.0;
-
+  double a = 0.0, b = 0.0, c = 0.0, d = 0.0;
+  
   for(int j = Jmin; j <= Jmax; j++){
     for(int i = Imin; i<= Imax;i++){
             
@@ -332,18 +344,16 @@ void Grid::EvaluateSourceTerms(){
       b = (Mesh[i][j+1].U.v - Mesh[i][j-1].U.v)/(2.0*dy);
       b = 2.0*b*b;
 
-      source += (Ec/Re)*(a + b);
-
-      a = (Mesh[i+1][j].U.v - Mesh[i-1][j].U.v)/(2.0*dx);
-      b = (Mesh[i][j+1].U.u - Mesh[i][j-1].U.u)/(2.0*dy);
-    
-      source += (Ec/Re)*(a + b)*(a + b);     
       
-      Mesh[i][j].S = source;
+
+      c = (Mesh[i+1][j].U.v - Mesh[i-1][j].U.v)/(2.0*dx);
+      d = (Mesh[i][j+1].U.u - Mesh[i][j-1].U.u)/(2.0*dy);
+    
+      Mesh[i][j].S = (Ec/Re)*(a + b + (c + d)*(c + d));     
+      
     }
-  } 
-
-
+  }   
+  
 }
 
 
