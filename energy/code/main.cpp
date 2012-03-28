@@ -28,7 +28,9 @@ int main(){
     SolveEnergyEquation(Domain, tFinal);			   // Solve energy equation for problem 5
     
     Domain.PrintFieldValues(Temperature);
-    //Domain.PrintFieldValues(Temperature, MeshX - 1, -1);        
+    Domain.PrintFieldValues(xVelocity);        
+    Domain.PrintFieldValues(yVelocity);        
+
     
     MeshX *= 2;							   // Double mesh size
     MeshY *= 2;

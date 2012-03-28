@@ -26,119 +26,161 @@ void EvaluateGridParameters(Grid &Domain){
   
 }
 
-// Solve energy equation for problems 5, 6, and 7
-void SolveEnergyEquation(Grid &Domain, double tFinal){
+
+void SolveEnergyEquation(Grid& Domain, double tFinal){
   
   int n = 0, N;
-  double t = 0.0, dt;
-  Field dU;		       
+  double dt, t = 0.0, dT;
+  Field dU;
+  Domain.EvaluateCellCoordinates();				   // Evaluate cell coordinates
+  Domain.EvaluateInitialFields();
   
-  Domain.EvaluateCellCoordinates();				   // Calculate coordinates and store in cells for entire grid  
-  Domain.EvaluateInitialFields();				   // Calculate initial fields
-  Domain.EvaluateBoundaryConditions();
-  // Domain.PrintFieldValues(Temperature);
-  // Domain.PrintFieldValues(xVelocity);
-  // Domain.PrintFieldValues(yVelocity);
+  Domain.EvaluateSourceTerms();
 
-  // Domain.EvaluateBoundaryConditions();
-  // Domain.EvaluateFluxIntegrals();
-  Domain.EvaluateFluxIntegrals();
-  Domain.EvaluateSourceTerms();  
+  //Domain.EvaluateBoundaryConditions();
+  //Domain.EvaluateFluxIntegrals();
   
-  Domain.PrintSources();
-  Domain.PrintFieldValues(Temperature);
-  //Domain.PrintFieldValues(xVelocity);
-  //Domain.PrintFieldValues(yVelocity);
+  //Domain.PrintFluxes();
+  //Domain.PrintSources();
+  dt = Domain.EvaluateTimeStep(ExplicitEuler);
+
+  do{    
+    
+    dU = Domain.EulerExplicitTimeAdvance();
+    
+    cout<<"Maximum change in solution: "<<dU.T<<endl;
+    n++;
+
+    
+  }while(dU.T > 0.001);
+  
   
   Domain.PrintFluxes();
-
-  //Domain.PrintFieldValues(yVelocity, 1, -1);
-  //Domain.PrintFieldValues(yVelocity, 25, -1);
-  
-  //dt = Domain.EvaluateTimeStep(ExplicitEuler);		   // Calculate stable time step  
-  
-  //dt = 0.1;
-  
-  
-  Domain.EvaluateTimeStep(ExplicitEuler);
-  dU = Domain.EulerExplicitTimeAdvance();
-  
-  Domain.EvaluateFluxIntegrals();
-  //Domain.EvaluateSourceTerms();  
-  
-  Domain.PrintFluxes();
-
   Domain.PrintSources();
 
-  
-  
-  
-  // N = tFinal/dt;		                                   // Modify dt to 
-  // dt = tFinal/N;		                                   // make sure you march to tFinal
-  
-  // do{
-    
-  // dU = Domain.EulerExplicitTimeAdvance();
+  cout<<"\nSolution converged in "<<n<<" steps\n";
 
-  // Domain.PrintFieldValues(Temperature);
-  // Domain.PrintFieldValues(xVelocity);
-  // Domain.PrintFieldValues(yVelocity);
-
-  
-  // Domain.PrintFluxes();
-
-    
-  // // t += dt;
-  // n++;
-    
-  // //   cout<<"\nSolution marched to time, t = "<<t;         
-    
-  // }while(n < N);			                   
-        
-  // cout<<"\nFinal time reached: "<<t<<" in "<<n<<" time steps";
-  
 }
 
 
-// void MarchTime(Grid& Domain, TimeScheme TS){
+
+
+
+/// / Solve energy equation for problems 5, 6, and 7
+// void SolveEnergyEquation(Grid &Domain, double tFinal){
   
-//   switch(TS){
+//   int n = 0, N;
+//   double t = 0.0, dt = 0.0;
+//   Field dU;		       
+  
+//   Domain.EvaluateCellCoordinates();				   // Calculate coordinates and store in cells for entire grid  
+//   Domain.EvaluateInitialFields();				   // Calculate initial fields
+  
+//   Domain.EvaluateBoundaryConditions();
+//   // // Domain.PrintFieldValues(Temperature);
+//   // // Domain.PrintFieldValues(xVelocity);
+//   // // Domain.PrintFieldValues(yVelocity);
 
-//   case 0: Domain.EulerExplicitTimeAdvance();
-//     break;
-//   // case 1: Domain.EulerImplicitTimeAdvance();
-//   //   break;
-//   // case 2: Domain.RK2ExplicitTimeAdvance();
-//   //   break;
-//   default:
-//     break;
-//   }  
+//   // // Domain.EvaluateBoundaryConditions();
+//   // // Domain.EvaluateFluxIntegrals();
+//   // Domain.EvaluateFluxIntegrals();
+//   // Domain.EvaluateSourceTerms();  
+  
+//   // Domain.PrintSources();
+//   // Domain.PrintFieldValues(Temperature);
+//   // //Domain.PrintFieldValues(xVelocity);
+//   // //Domain.PrintFieldValues(yVelocity);
+  
+//   // Domain.PrintFluxes();
 
-// }
+//   //Domain.PrintFieldValues(yVelocity, 1, -1);
+//   //Domain.PrintFieldValues(yVelocity, 25, -1);
+  
+//   //dt = Domain.EvaluateTimeStep(ExplicitEuler);		   // Calculate stable time step  
+  
+//   //dt = 0.1;
+  
+  
+//   dt = Domain.EvaluateTimeStep(ExplicitEuler);
+//   // dU = Domain.EulerExplicitTimeAdvance();
+  
+//   // Domain.EvaluateFluxIntegrals();
+//   // //Domain.EvaluateSourceTerms();  
+  
+//   // Domain.PrintFluxes();
 
-// void SolveRK2Explicit(Grid &Domain){
+//   // Domain.PrintSources();
+
+//   Domain.EvaluateSourceTerms();
+  
+  
+//   N = tFinal/dt;		                                   // Modify dt to 
+//   dt = tFinal/N;		                                   // make sure you march to tFinal
+  
+//   do{
+    
+//   dU = Domain.EulerExplicitTimeAdvance();
+
+//   Domain.PrintFieldValues(Temperature, 24, -1);
+//   // Domain.PrintFieldValues(xVelocity);
+//   // Domain.PrintFieldValues(yVelocity);
+
+  
+//   Domain.PrintFluxes();
+//   Domain.PrintSources();
+    
+//   // t += dt;
+//   n++;
+    
+//   //   cout<<"\nSolution marched to time, t = "<<t;         
+    
+//   }while(n < N);			                   
         
-//   double dt = Domain.dt;
-
-//   EvaluateBoundaryConditions();	                                   // Implement ghost cell values for flux calculation  
-//   EvaluateFluxIntegrals();	         	                   // Evaluate Fluxes from solution at time step n. Change to Limited flux as required
- 
-//   for(int i = Imin; i <= Imax; i++){
-//     for(int j = Jmin; j <= Jmax; j++){
-      
-//       Mesh[i][j].Ubuf.T = Mesh[i][j].U.T + dt*Mesh[i][j].FI;	   // Calculate intermediate step solution, store in separate array
-//     }
-//   }
-  
-//   EvaluateBoundaryConditions();	                                   // Repeat procedure, use fluxes at n+1/2 to calculate solution at n+1 
-//   EvaluateFluxIntegrals();				   
-  
-//   for(int i = Imin; i <= Imax; i++){
-//     for(int j = Jmin; j <= Jmax; j++){
-      
-//       Mesh[i][j].T = Mesh[i][j].T + dt*Mesh[i][j].FI;		   // Calculate intermediate step solution, store in separate array
-
-//     }  
-//   }
+//   cout<<"\nFinal time reached: "<<t<<" in "<<n<<" time steps";
   
 // }
+
+
+
+// // void MarchTime(Grid& Domain, TimeScheme TS){
+  
+// //   switch(TS){
+
+// //   case 0: Domain.EulerExplicitTimeAdvance();
+// //     break;
+// //   // case 1: Domain.EulerImplicitTimeAdvance();
+// //   //   break;
+// //   // case 2: Domain.RK2ExplicitTimeAdvance();
+// //   //   break;
+// //   default:
+// //     break;
+// //   }  
+
+// // }
+
+// // void SolveRK2Explicit(Grid &Domain){
+        
+// //   double dt = Domain.dt;
+
+// //   EvaluateBoundaryConditions();	                                   // Implement ghost cell values for flux calculation  
+// //   EvaluateFluxIntegrals();	         	                   // Evaluate Fluxes from solution at time step n. Change to Limited flux as required
+ 
+// //   for(int i = Imin; i <= Imax; i++){
+// //     for(int j = Jmin; j <= Jmax; j++){
+      
+// //       Mesh[i][j].Ubuf.T = Mesh[i][j].U.T + dt*Mesh[i][j].FI;	   // Calculate intermediate step solution, store in separate array
+// //     }
+// //   }
+  
+// //   EvaluateBoundaryConditions();	                                   // Repeat procedure, use fluxes at n+1/2 to calculate solution at n+1 
+// //   EvaluateFluxIntegrals();				   
+  
+// //   for(int i = Imin; i <= Imax; i++){
+// //     for(int j = Jmin; j <= Jmax; j++){
+      
+// //       Mesh[i][j].T = Mesh[i][j].T + dt*Mesh[i][j].FI;		   // Calculate intermediate step solution, store in separate array
+
+// //     }  
+// //   }
+  
+// // }

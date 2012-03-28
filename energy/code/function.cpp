@@ -302,8 +302,8 @@ double Grid::EvaluateTimeStep(TimeScheme TS){
 
   case 0: 
     Umax = 9.0/2.0;
-    //dt = 0.6*dx/Umax;   
-    dt = 0.1;
+    dt = 0.6*dx/Umax;   
+    dt = 0.01;
     break;
   default:
     break;
@@ -334,14 +334,14 @@ Field Grid::EulerExplicitTimeAdvance(){
 
   Field dU, dUmax;
 
-  //EvaluateBoundaryConditions();	                                   // Implement ghost cell values for flux calculation  
-  //EvaluateFluxIntegrals();	         	                   // Evaluate Fluxes from solution at time step n. Change to Limited flux as required
+  EvaluateBoundaryConditions();	                                   // Implement ghost cell values for flux calculation  
+  EvaluateFluxIntegrals();	         	                   // Evaluate Fluxes from solution at time step n. Change to Limited flux as required
 
   for(int i = Imin; i <= Imax; i++){
-    for(int j = Jmin; j <= Jmax; j++){
+    for(int j = Jmin; j <= Jmax; j++){      
       
-      
-      Mesh[i][j].U.T += dt*(Mesh[i][j].S + Mesh[i][j].FI);
+      dU.T = dt*(Mesh[i][j].S + Mesh[i][j].FI);
+      Mesh[i][j].U.T += dU.T;
       
       if(dU.T >= dUmax.T)
 	dUmax = dU;						   // Find maximum change in solution
@@ -417,7 +417,6 @@ void Grid::SourceVerification(){
 }// End of File Write
 
 
-
 void Grid::PrintCellCoordinates(){
 
   int i, j;
@@ -459,7 +458,7 @@ void Grid::PrintFieldValues(FieldName FN, int Row, int Column){
 
   cout<<"\nPrinting Field Values...\n";
   if(Row == -1){
-    for(int i = Imax; i >= Imin; i--)
+    for(int i = Imax; i >= Imax; i--)
       {
 	Mesh[i][Column].PrintField(FN);
 	cout<<endl;
@@ -484,7 +483,7 @@ void Grid::PrintFluxes(){
   cout<<"\nPrinting Numerical Fluxes...\n";
   
   for(j = Jmax; j >= Jmin; j--){
-    for(i = Imin; i <=  Imax/2; i++){     
+    for(i = Imin; i <=  Imax; i++){     
       
       cout<<Mesh[i][j].FI<<" ";
       
@@ -511,8 +510,8 @@ void Grid::PrintSources(){
   
   cout<<"\nPrinting Numerical Sources...\n";
   
-  for(j = Jmax; j >= Jmin; j--){
-    for(i = Imin; i <= Imax; i++){     
+  for(j = Jmax + Jmin; j >= 0; j--){
+    for(i = 0; i <= Imax + Imin; i++){     
       
       cout<<Mesh[i][j].S;
       
