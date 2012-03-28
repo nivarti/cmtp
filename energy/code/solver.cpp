@@ -1,9 +1,10 @@
 #include "header.h"
 
+// For problem 1, evaluate exact integrals and compare with numerical values...
 void EvaluateGridParameters(Grid &Domain){
   
-  Domain.EvaluateCellCoordinates();    
-  Domain.EvaluateExactIntegrals();   
+  Domain.EvaluateCellCoordinates();				   // Evaluate cell coordinates
+  Domain.EvaluateExactIntegrals();                                 // Evaluate exact integrals for problem 1, and 2
   
   //Domain.PrintCellCoordinates();
   // cout<<"\nOutputting Field Values for T...\n";
@@ -11,73 +12,133 @@ void EvaluateGridParameters(Grid &Domain){
   // cout<<"\nOutputting Field Values for u...\n";
   // Domain.PrintFieldValues(2);
   // cout<<"\nOutputting Field Values for v...\n";
-  // Domain.PrintFieldValues(3);
+  // Domain.PrintFieldValues(3);  
   
-  Domain.EvaluateFluxIntegrals();
-  Domain.EvaluateSourceTerms();
+  Domain.EvaluateFluxIntegrals();				   // Evaluate Flux Integrals for problem 1, 2 
+  Domain.EvaluateSourceTerms();					   // Evaluate Source Terms for problem 1, 2
   
-  // cout<<"\nOutputting Flux Values using Exact Functions...\n";
-  // Domain.PrintFluxes();
-  // Domain.PrintSources();
-  
-  Domain.EvaluateL2Norm();
+  cout<<"\nOutputting Flux Values using Exact Functions...\n";
+  Domain.PrintFluxes();
+  Domain.PrintSources();
+
+  Domain.FluxVerification();
+  Domain.SourceVerification();
   
 }
 
-// void SolveRK4Explicit(Grid &Domain){
-      
-//   int i,  j;  
+// Solve energy equation for problems 5, 6, and 7
+void SolveEnergyEquation(Grid &Domain, double tFinal){
   
-//   //PeriodicBC(T);	                                           // Implement ghost cell values for flux calculation  
-//   EvaluateFluxIntegral(Unlimited, T, F);	         	   // Evaluate Fluxes from solution at time step n. Change to Limited flux as required
+  int n = 0, N;
+  double t = 0.0, dt;
+  Field dU;		       
+  
+  Domain.EvaluateCellCoordinates();				   // Calculate coordinates and store in cells for entire grid  
+  Domain.EvaluateInitialFields();				   // Calculate initial fields
+  Domain.EvaluateBoundaryConditions();
+  // Domain.PrintFieldValues(Temperature);
+  // Domain.PrintFieldValues(xVelocity);
+  // Domain.PrintFieldValues(yVelocity);
+
+  // Domain.EvaluateBoundaryConditions();
+  // Domain.EvaluateFluxIntegrals();
+  Domain.EvaluateFluxIntegrals();
+  Domain.EvaluateSourceTerms();  
+  
+  Domain.PrintSources();
+  Domain.PrintFieldValues(Temperature);
+  //Domain.PrintFieldValues(xVelocity);
+  //Domain.PrintFieldValues(yVelocity);
+  
+  Domain.PrintFluxes();
+
+  //Domain.PrintFieldValues(yVelocity, 1, -1);
+  //Domain.PrintFieldValues(yVelocity, 25, -1);
+  
+  //dt = Domain.EvaluateTimeStep(ExplicitEuler);		   // Calculate stable time step  
+  
+  //dt = 0.1;
+  
+  
+  Domain.EvaluateTimeStep(ExplicitEuler);
+  dU = Domain.EulerExplicitTimeAdvance();
+  
+  Domain.EvaluateFluxIntegrals();
+  //Domain.EvaluateSourceTerms();  
+  
+  Domain.PrintFluxes();
+
+  Domain.PrintSources();
+
+  
+  
+  
+  // N = tFinal/dt;		                                   // Modify dt to 
+  // dt = tFinal/N;		                                   // make sure you march to tFinal
+  
+  // do{
+    
+  // dU = Domain.EulerExplicitTimeAdvance();
+
+  // Domain.PrintFieldValues(Temperature);
+  // Domain.PrintFieldValues(xVelocity);
+  // Domain.PrintFieldValues(yVelocity);
+
+  
+  // Domain.PrintFluxes();
+
+    
+  // // t += dt;
+  // n++;
+    
+  // //   cout<<"\nSolution marched to time, t = "<<t;         
+    
+  // }while(n < N);			                   
+        
+  // cout<<"\nFinal time reached: "<<t<<" in "<<n<<" time steps";
+  
+}
+
+
+// void MarchTime(Grid& Domain, TimeScheme TS){
+  
+//   switch(TS){
+
+//   case 0: Domain.EulerExplicitTimeAdvance();
+//     break;
+//   // case 1: Domain.EulerImplicitTimeAdvance();
+//   //   break;
+//   // case 2: Domain.RK2ExplicitTimeAdvance();
+//   //   break;
+//   default:
+//     break;
+//   }  
+
+// }
+
+// void SolveRK2Explicit(Grid &Domain){
+        
+//   double dt = Domain.dt;
+
+//   EvaluateBoundaryConditions();	                                   // Implement ghost cell values for flux calculation  
+//   EvaluateFluxIntegrals();	         	                   // Evaluate Fluxes from solution at time step n. Change to Limited flux as required
  
-//   for(i = Imin; i <= Imax; i++){
-//     for(j = Jmin; j <= Jmax; j++){
+//   for(int i = Imin; i <= Imax; i++){
+//     for(int j = Jmin; j <= Jmax; j++){
       
-//       Mesh[i][j].T = Mesh[i][j].T + dt*Mesh[i][j].FI;		   // Calculate intermediate step solution, store in separate array
+//       Mesh[i][j].Ubuf.T = Mesh[i][j].U.T + dt*Mesh[i][j].FI;	   // Calculate intermediate step solution, store in separate array
 //     }
 //   }
   
-//   //PeriodicBC(T1);		                                   // Repeat procedure, use fluxes at n+1/2 to calculate solution at n+1 
+//   EvaluateBoundaryConditions();	                                   // Repeat procedure, use fluxes at n+1/2 to calculate solution at n+1 
 //   EvaluateFluxIntegrals();				   
-
-//   CopyToField(T, T1);
-
-//   for(i = Imin; i <= Imax; i ++){
-    
-//     T[i] = T[i] - (dt/dx)*(F1[i] - F1[i-1]);
-//   }  
-// }
-
-
-// }
-
-// void SolveWaveEquation(double T[], double tFinal){
   
-//   int i, n = 0, N;
-//   double t = 0.0;
-//   N = tFinal/dt + 1;
-  
-//   do{
-           
-//     RK2TimeAdvance(T);
-//     t += dt;
-//     n++;
+//   for(int i = Imin; i <= Imax; i++){
+//     for(int j = Jmin; j <= Jmax; j++){
+      
+//       Mesh[i][j].T = Mesh[i][j].T + dt*Mesh[i][j].FI;		   // Calculate intermediate step solution, store in separate array
 
-//     //cout<<"\nRunge-Kutta Solution marched to time, t = "<<t; 
-    
-//     if(n < N && (t - tFinal) > dt/2.0){
-//     n++;
+//     }  
 //   }
   
-//   else if(n == N && (t - tFinal) < -dt/2.0){
-//     n--;
-//   }
-    
-//   }while(n < N);				   // Make sure you reach the final time not less not more
-        
-//   cout<<"\nFinal time reached: "<<t<<" in "<<n<<" time steps";
-  
-// } // End Wave Solver
-
-
+// }

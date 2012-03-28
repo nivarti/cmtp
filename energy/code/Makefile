@@ -23,4 +23,4 @@ clean:
 	\rm *.o energy
 
 tar:
-	tar cfv SolveEE.tar main.cpp header.h function.cpp solver.cpp
+	tar cfvz energy2D.tgz main.cpp header.h function.cpp solver.cpp

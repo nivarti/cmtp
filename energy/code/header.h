@@ -17,6 +17,9 @@
 
 using namespace std;
 
+enum FieldName{Temperature, xVelocity, yVelocity};
+enum TimeScheme{ExplicitEuler, ImplicitEuler, ExplicitRK2, ExplicitRK4};
+
 //__________________________________Field Definition____________________________________//
 
 struct Field{
@@ -27,6 +30,8 @@ struct Field{
 
   Field();
   Field& operator=(const Field &RHS);
+  Field& operator+=(const Field &RHS);
+  //friend ostream& operator<<(ostream &out, const Field U); 
 
 };							
 
@@ -53,13 +58,16 @@ public:
   
   void SetCellCoordinates(double, double);
   void SetCellField(double, double, double);
-  
+
+  void SetInitialField();
+  double SetFDTemperatureField();
+
   void ComputeExactField();					   // Computing Exact Values is easy within CV
   void ComputeExactFluxIntegral();  
   void ComputeExactSourceTerm();
   
   void PrintCoordinates();
-  void PrintField(int f);
+  void PrintField(FieldName);
     
 };// End of Class Definition
 
@@ -74,28 +82,38 @@ class Grid{
 
   double dx;		 					   // 
   double dy;							   // In essence cell size should stay with cell
-  
+
+  double dt;
 
 public:
   
   Grid();
-  Grid(int Nx, int Ny, int nGC);
+  Grid(int, int, int);
   ~Grid();			
   
-  void PrintFieldValues(int f);
   void PrintCellCoordinates();
   void PrintFluxes();
   void PrintSources();
-  void WriteFieldValues(int f);
   
-  void EvaluateCellCoordinates();
-  void EvaluateCellData();
+  void PrintFieldValues(FieldName);
+  void PrintFieldValues(FieldName, int, int);
+  void WriteFieldValues(FieldName);
 
   void EvaluateExactIntegrals();
+
+  void EvaluateCellCoordinates();
+  void EvaluateInitialFields();   
   void EvaluateFluxIntegrals();
   void EvaluateSourceTerms();
+  void EvaluateBoundaryConditions();
   
-  void EvaluateL2Norm();
+  double EvaluateTimeStep(TimeScheme);
+  
+  //void EulerExplicitTimeAdvance();
+  Field EulerExplicitTimeAdvance();
+  void EulerImplicitTimeAdvance();  
+  void RK2ExplicitTimeAdvance();
+
   void FluxVerification();
   void SourceVerification();
   
@@ -103,4 +121,6 @@ public:
 
 //_________________________________Function Declarations__________________________________//
 
-void EvaluateGridParameters(Grid &Domain);
+void EvaluateGridParameters(Grid&);
+void MarchTime(Grid&, TimeScheme);
+void SolveEnergyEquation(Grid&, double);
