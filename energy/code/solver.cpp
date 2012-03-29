@@ -14,7 +14,7 @@ void EvaluateGridParameters(Grid &Domain){
   // cout<<"\nOutputting Field Values for v...\n";
   // Domain.PrintFieldValues(3);  
   
-  Domain.EvaluateFluxIntegrals();				   // Evaluate Flux Integrals for problem 1, 2 
+  Domain.EvaluateFluxes();				   // Evaluate Flux Integrals for problem 1, 2 
   Domain.EvaluateSourceTerms();					   // Evaluate Source Terms for problem 1, 2
   
   cout<<"\nOutputting Flux Values using Exact Functions...\n";
@@ -38,33 +38,83 @@ void SolveEnergyEquation(Grid& Domain, double tFinal){
   Domain.EvaluateSourceTerms();
 
   //Domain.EvaluateBoundaryConditions();
-  //Domain.EvaluateFluxIntegrals();
+  //Domain.EvaluateFluxes();
   
   //Domain.PrintFluxes();
   //Domain.PrintSources();
-  dt = Domain.EvaluateTimeStep(ExplicitEuler);
+  dt = Domain.EvaluateTimeStep(ImplicitEuler);
 
   do{    
     
-    dU = Domain.EulerExplicitTimeAdvance();
+    dU = Domain.EulerImplicitTimeAdvance();
     
     cout<<"Maximum change in solution: "<<dU.T<<endl;
     n++;
 
     
   }while(dU.T > 0.001);
-  
-  
-  Domain.PrintFluxes();
-  Domain.PrintSources();
+    
+  //Domain.PrintFluxes();
+  //Domain.PrintSources();
 
   cout<<"\nSolution converged in "<<n<<" steps\n";
 
 }
 
+void SolveThomas(double LHS[NMAX][3], double RHS[NMAX],
+		 const int iSize)
+{
+  int i;
+  LHS[0][0] = LHS[iSize+1][2] = 0;
+  /* Forward elimination */
+  for (i = 0; i < iSize+1; i++) {
+    LHS[i][2] /= LHS[i][1];
+    RHS[i] /= LHS[i][1];
+    LHS[i+1][1] -= LHS[i][2]*LHS[i+1][0];
+    RHS[i+1] -= LHS[i+1][0]*RHS[i];
+  }
+  /* Last line of elimination */
+  RHS[iSize+1] /= LHS[iSize+1][1];
 
+  /* Back-substitution */
+  for (i = iSize; i >= 0; i--) {
+    RHS[i] -= RHS[i+1]*LHS[i][2];
+  }
+}
 
+void CopyToLHS(double** Dx, double LHS [NMAX][3], const int Size){
 
+  for(int i = 0; i <= Size; i++){
+    
+    LHS[i][0] = Dx[i][0];
+    LHS[i][1] = Dx[i][1];
+    LHS[i][2] = Dx[i][2];
+
+  }
+
+}
+
+void CopyToRHS(double** FI, double RHS[NMAX], const int Size, const int J){
+
+  for(int i = 0; i <= Size; i++){
+    
+    RHS[i] = FI[i][J];
+    RHS[i] = FI[i][J];
+    RHS[i] = FI[i][J];
+    
+  }
+
+}
+
+void CopyFromRHS(double** FI, double RHS[NMAX], const int Size, const int I){
+
+    for (int i = 0; i <= Size; i++) {
+      
+      FI[I][i] = RHS[i];
+
+    }
+
+}
 
 /// / Solve energy equation for problems 5, 6, and 7
 // void SolveEnergyEquation(Grid &Domain, double tFinal){
@@ -82,8 +132,8 @@ void SolveEnergyEquation(Grid& Domain, double tFinal){
 //   // // Domain.PrintFieldValues(yVelocity);
 
 //   // // Domain.EvaluateBoundaryConditions();
-//   // // Domain.EvaluateFluxIntegrals();
-//   // Domain.EvaluateFluxIntegrals();
+//   // // Domain.EvaluateFluxes();
+//   // Domain.EvaluateFluxes();
 //   // Domain.EvaluateSourceTerms();  
   
 //   // Domain.PrintSources();
@@ -104,7 +154,7 @@ void SolveEnergyEquation(Grid& Domain, double tFinal){
 //   dt = Domain.EvaluateTimeStep(ExplicitEuler);
 //   // dU = Domain.EulerExplicitTimeAdvance();
   
-//   // Domain.EvaluateFluxIntegrals();
+//   // Domain.EvaluateFluxes();
 //   // //Domain.EvaluateSourceTerms();  
   
 //   // Domain.PrintFluxes();
@@ -163,7 +213,7 @@ void SolveEnergyEquation(Grid& Domain, double tFinal){
 // //   double dt = Domain.dt;
 
 // //   EvaluateBoundaryConditions();	                                   // Implement ghost cell values for flux calculation  
-// //   EvaluateFluxIntegrals();	         	                   // Evaluate Fluxes from solution at time step n. Change to Limited flux as required
+// //   EvaluateFluxes();	         	                   // Evaluate Fluxes from solution at time step n. Change to Limited flux as required
  
 // //   for(int i = Imin; i <= Imax; i++){
 // //     for(int j = Jmin; j <= Jmax; j++){
@@ -173,7 +223,7 @@ void SolveEnergyEquation(Grid& Domain, double tFinal){
 // //   }
   
 // //   EvaluateBoundaryConditions();	                                   // Repeat procedure, use fluxes at n+1/2 to calculate solution at n+1 
-// //   EvaluateFluxIntegrals();				   
+// //   EvaluateFluxes();				   
   
 // //   for(int i = Imin; i <= Imax; i++){
 // //     for(int j = Jmin; j <= Jmax; j++){

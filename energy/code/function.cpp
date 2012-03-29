@@ -34,11 +34,11 @@ Cell::Cell(){
   x = 0.0;
   y = 0.0;
 
-  eFI = 0.0;
+  eF = 0.0;
   eS = 0.0;
 
   S = 0.0;
-  FI = 0.0;
+  F = 0.0;
   
 }
 
@@ -90,10 +90,10 @@ double Cell::SetFDTemperatureField(){
 
 void Cell::ComputeExactFluxIntegral(){
 
-  eFI = u0*T0*pi*cos(2*pi*x)*y*sin(pi*y) 
+  eF = u0*T0*pi*cos(2*pi*x)*y*sin(pi*y) 
     + v0*T0*pi*x*cos(pi*x)*cos(2*pi*y) 
     + 1/(Re*Pr)*2*T0*pi*pi*cos(pi*x)*sin(pi*y);	 	 
-  eFI = -eFI;			/* flip sign while taking integral to RHS */
+  eF = -eF;			/* flip sign while taking integral to RHS */
   
 }
 
@@ -221,6 +221,7 @@ void Grid::EvaluateInitialFields(){
     }
   }
 
+  cout<<"\nEvaluating Initial Condition on Fields...";
 }
 
 // Evaluate ghost cell values using BCs
@@ -231,23 +232,24 @@ void Grid::EvaluateBoundaryConditions(){
   for(int j = Jmin; j <= Jmax; j++){
         
     Tfd = Mesh[0][j].SetFDTemperatureField();
-    Mesh[0][j].U.T = 2.0*Tfd - Mesh[1][j].U.T;
-    
+    Mesh[0][j].U.T = 2.0*Tfd - Mesh[1][j].U.T;   
+ 
     Mesh[Imin + Imax][j].U.T = Mesh[Imax][j].U.T;
-    
   }  
   
   for(int i = Imin; i <= Imax; i++){
     
-    Mesh[i][0].U.T = - Mesh[i][1].U.T;
+    Mesh[i][0].U.T = - Mesh[i][1].U.T; 
     Mesh[i][Jmin + Jmax].U.T = 2.0 - Mesh[i][Jmax].U.T;
     
+    Mesh[i][0].U.u = -Mesh[i][0].U.u;
+    Mesh[i][Jmin + Jmax].U.u = -Mesh[i][Jmax].U.u;
   }
   
 }
 
 // Evaluate Flux Integrals using CV Averages
-void Grid::EvaluateFluxIntegrals(){
+void Grid::EvaluateFluxes(){
   
   double a = 0.0, b = 0.0, d = 0.0;
   
@@ -261,11 +263,9 @@ void Grid::EvaluateFluxIntegrals(){
       d = 1.0/(Re*Pr*dx*dx)*(Mesh[i+1][j].U.T - 2.0*Mesh[i][j].U.T + Mesh[i-1][j].U.T);
       d += 1.0/(Re*Pr*dy*dy)*(Mesh[i][j+1].U.T - 2.0*Mesh[i][j].U.T + Mesh[i][j-1].U.T);
       
-      Mesh[i][j].FI = a + b + d;
+      Mesh[i][j].F = a + b + d;
 
-      cout<<Mesh[i][j].FI<<" ";
     }
-    cout<<endl;
   } 
   
 }
@@ -291,6 +291,105 @@ void Grid::EvaluateSourceTerms(){
       
     }
   }     
+
+  cout<<"\nEvaluating Source Terms on Grid...";
+
+}
+
+
+void Grid::InitialiseDxDyFI(){
+
+  Dx = new double*[Imax + 2];
+  for(int i = 0; i < Imax + 2; i++)
+    Dx[i] = new double[3];
+
+  Dy = new double*[Jmax + 2];
+  for(int i = 0; i < Jmax + 2; i++)
+    Dy[i] = new double[3];
+
+  FI = new double*[Imax + 2];
+  for(int i = 0; i < Imax + 2; i++)
+    FI[i] = new double[Jmax + 2];
+    
+  
+  for(int i = 0; i <= Imax + Imin; i++){  
+    for(int j = 0; j < 3; j++){
+            
+      Dx[i][j] = 0.0;
+
+    }
+  }
+
+  for(int j = 0; j <= Jmax + Jmin; j++){  
+    for(int i = 0; i < 3; i++){
+      
+      Dy[j][i] = 0.0;
+
+    }
+
+  }
+
+  for(int i = 0; i <= Imax + Imin; i++){  
+    for(int j = 0; j <= Jmax + Jmin; j++){
+            
+      FI[i][j] = 0.0;
+
+    }
+  }
+
+}
+
+
+void Grid::EvaluateDx(int J){
+   
+  Dx[0][0] = 0.0;
+  Dx[0][1] = 1.0;
+  Dx[0][2] = 1.0;
+  
+  for(int i = Imin; i <= Imax; i++){
+    
+    Dx[i][0] = - (Mesh[i - 1][J].U.u*dt)/(2.0*dx) - dt/(Re*Pr*dx*dx);
+    Dx[i][1] = 1.0 + (2.0*dt)/(Re*Pr*dx*dx);
+    Dx[i][2] = (Mesh[i + 1][J].U.u*dt)/(2.0*dx) - dt/(Re*Pr*dx*dx);
+    
+  }  
+  
+  Dx[Imax + 1][0] = -1.0;
+  Dx[Imax + 1][1] = 1.0;
+  Dx[Imax + 1][2] = 0.0;
+
+}
+
+void Grid::EvaluateDy(int I){    
+
+  Dy[0][0] = 0.0;
+  Dy[0][1] = 1.0;
+  Dy[0][2] = 1.0;
+
+  for(int j = Jmin; j <= Jmax; j++){
+    
+    Dy[j][0] = -(Mesh[I][j - 1].U.v*dt)/(2.0*dy) - dt/(Re*Pr*dy*dy);
+    Dy[j][1] = 1.0 + (2.0*dt)/(Re*Pr*dy*dy);
+    Dy[j][2] = (Mesh[I][j + 1].U.v*dt)/(2.0*dy) - dt/(Re*Pr*dy*dy);
+    
+  }  
+  
+  Dy[Jmax + 1][0] = 1.0;
+  Dy[Jmax + 1][1] = 1.0;
+  Dy[Jmax + 1][2] = 0.0;
+    
+}
+
+void Grid::EvaluateFI(int J){
+  
+  for(int i = Imin; i <= Imax; i++){
+    
+    FI[i][J] = dt*(Mesh[i][J].F + Mesh[i][J].S);
+
+  }
+
+  FI[0][J] = FI[Imax + Imin][J] = 0.0;
+
 }
 
 
@@ -304,6 +403,11 @@ double Grid::EvaluateTimeStep(TimeScheme TS){
     Umax = 9.0/2.0;
     dt = 0.6*dx/Umax;   
     dt = 0.01;
+    cout<<"\nCalculating time step for Explicit Euler...";
+    break;
+  case 1:
+    dt = 0.01;
+    cout<<"\nCalculating time step for Implicit Euler...";
     break;
   default:
     break;
@@ -315,15 +419,15 @@ double Grid::EvaluateTimeStep(TimeScheme TS){
 
 // void Grid::EulerExplicitTimeAdvance(){
   
-//   EvaluateBoundaryConditions();	                                   // Implement ghost cell values for flux calculation  
-//   EvaluateFluxIntegrals();	         	                   // Evaluate Fluxes from solution at time step n. Change to Limited flux as required
+//   EvaluateBoundaryConditions();	                           // Implement ghost cell values for flux calculation  
+//   EvaluateFluxes();	         	                   // Evaluate Fluxes from solution at time step n. Change to Limited flux as required
 //   //  EvaluateSourceTerms();					   // Source terms could change with time for NSE
 
 //   for(int i = Imin; i <= Imax; i++){
 //     for(int j = Jmin; j <= Jmax; j++){
       
 //       Mesh[i][j].U.T = Mesh[i][j].U.T
-// 	+ dt*Mesh[i][j].FI 
+// 	+ dt*Mesh[i][j].F 
 // 	+ dt*Mesh[i][j].S;	                                   // Calculate intermediate step solution, store in separate array
 //     }
 //   }
@@ -335,12 +439,12 @@ Field Grid::EulerExplicitTimeAdvance(){
   Field dU, dUmax;
 
   EvaluateBoundaryConditions();	                                   // Implement ghost cell values for flux calculation  
-  EvaluateFluxIntegrals();	         	                   // Evaluate Fluxes from solution at time step n. Change to Limited flux as required
+  EvaluateFluxes();	         	                           // Evaluate Fluxes from solution at time step n. Change to Limited flux as required
 
   for(int i = Imin; i <= Imax; i++){
     for(int j = Jmin; j <= Jmax; j++){      
       
-      dU.T = dt*(Mesh[i][j].S + Mesh[i][j].FI);
+      dU.T = dt*(Mesh[i][j].S + Mesh[i][j].F);
       Mesh[i][j].U.T += dU.T;
       
       if(dU.T >= dUmax.T)
@@ -352,17 +456,75 @@ Field Grid::EulerExplicitTimeAdvance(){
   return dUmax;
 }
 
-void Grid::EulerImplicitTimeAdvance(){
+//Compute solution using Implicit scheme
+Field Grid::EulerImplicitTimeAdvance(){
 
-  Field dU;
+  Field dU, dUmax;
+  double RHS[NMAX], LHS[NMAX][3];
 
   EvaluateBoundaryConditions();
-  EvaluateFluxIntegrals();
-  //  EvaluateCoefficientMatrix();
-  //SolveThomas();
+  EvaluateFluxes();
   
+  //PrintFluxes();
+  
+  InitialiseDxDyFI();
+  
+    for(int j = Jmin; j <= Jmax; j++){      
+            
+      EvaluateDx(j);				          	   // Evaluate tridiagonal on x
+      EvaluateFI(j);				                   // evaluate the RHS which is (FI + S)*dt
+      cout<<endl;
+      
+      CopyToLHS(Dx, LHS, Imax + 1);
+                  
+      CopyToRHS(FI, RHS, Imax + 1, j);
+      for(int i = 0; i <= Imax + Imin; i++){
+	
+	cout<<LHS[i][0]<<" "<<LHS[i][1]<<" "<<LHS[i][2]<<endl;
+	//cout<<RHS[i]<<endl;
+	  }      
+
+      /*
+       * Solve Thomas seems to be giving nan
+       * Copying to RHS and LHS works fine
+       * Must add functionality to copy to RHS & copy from RHS
+       * add copy from RHS after every solve thomas routine
+       */
+      SolveThomas(LHS, RHS, Imax);      
+      
+      
+
+
+      //CopyFromRHS(FI, RHS, Imax + 1, j);
+    }
+
+    for(int i = Imin; i <= Imax; i++){
+
+      EvaluateDy(i);  
+      CopyToLHS(Dy, LHS, Jmax + 1);
+      //CopyToRHS(FI, RHS, Jmax + 1, i);
+      SolveThomas(LHS, RHS, Jmax);  
+      CopyFromRHS(FI, RHS, Jmax + 1, i);
+      
+    }
+    
+    
+    for(int i = Imin; i <= Imax; i++){
+      for(int j = Jmin; j <= Jmax; j++){      
+	
+      dU.T = FI[i][j];
+      Mesh[i][j].U.T += dU.T;
+      
+      if(dU.T >= dUmax.T)
+	dUmax = dU;						   // Find maximum change in solution
+      
+      }
+    }
+    
+    return dU;    
 }
 
+//Verify fluxes when exact values are provided
 void Grid::FluxVerification(){
   
   double ErrorF = 0.0, L2NormF = 0.0;
@@ -371,7 +533,7 @@ void Grid::FluxVerification(){
   for(int i = Imin; i <= Imax; i++){     
     for(int j = Jmin; j <= Jmax; j++){
      
-      ErrorF = Mesh[i][j].FI - Mesh[i][j].eFI;                                 
+      ErrorF = Mesh[i][j].F - Mesh[i][j].eF;                                 
       L2NormF += ErrorF*ErrorF;	    
 
     }
@@ -390,6 +552,7 @@ void Grid::FluxVerification(){
 }// End of File Write
 
 
+// 
 void Grid::SourceVerification(){
   
   double ErrorS = 0.0, L2NormS = 0.0;
@@ -417,6 +580,33 @@ void Grid::SourceVerification(){
 }// End of File Write
 
 
+void Grid::FieldVerification(){
+
+  double ErrorT = 0.0, L2NormT = 0.0;
+  ofstream fileT;
+
+  for(int i = Imin; i <= Imax; i++){     
+    for(int j = Jmin; j <= Jmax; j++){
+      
+      ErrorT = Mesh[i][j].U.T - Mesh[i][j].eU.T;
+      L2NormT += ErrorT*ErrorT;
+      
+    }
+  }  
+  
+  L2NormT = sqrt(L2NormT/(Imax*Jmax));				      
+  
+  fileT.open("Et", ios::app);
+  fileT<<setprecision(15)<<dx<<" "<<L2NormT<<endl;
+  
+  cout<<"Temperature Field Errors Calculated and Written to File...\n";
+  cout<<"Error Norm (l2): "<<L2NormT<<"\n";      
+  
+  fileT.close();
+
+}
+
+//Print Cell coordinates for entire mesh
 void Grid::PrintCellCoordinates(){
 
   int i, j;
@@ -485,7 +675,7 @@ void Grid::PrintFluxes(){
   for(j = Jmax; j >= Jmin; j--){
     for(i = Imin; i <=  Imax; i++){     
       
-      cout<<Mesh[i][j].FI<<" ";
+      cout<<Mesh[i][j].F<<" ";
       
     } 
     cout<<endl;							       
@@ -496,7 +686,7 @@ void Grid::PrintFluxes(){
   // for(j = Jmax; j >= Jmin; j--){
   //   for(i = Imin; i <= Imax; i++){     
       
-  //     cout<<Mesh[i][j].eFI;
+  //     cout<<Mesh[i][j].eF;
       
   //   } 
   //   cout<<endl;			

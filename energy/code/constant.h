@@ -3,6 +3,7 @@
  */
 
 #define pi 3.14159265358979323846264338327950288419716939937510    // Value of pi
+#define NMAX 500
 
 //const double CFL = 0.4;					           // CFL number 
 const double Lx  = 5.0;						   // Domain size x
