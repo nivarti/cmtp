@@ -22,7 +22,7 @@ using namespace std;
 /* Create enumerations to make life easy */
 enum FieldName{Temperature, xVelocity, yVelocity};
 enum TimeScheme{ExplicitEuler, ImplicitEuler, ExplicitRK2, ExplicitRK4};
-
+enum Direction{Row, Column};
 //__________________________________Field Definition____________________________________//
 
 struct Field{
@@ -140,6 +140,6 @@ void EvaluateGridParameters(Grid&);				/*  */
 void MarchTime(Grid&, TimeScheme);				/* march in time with given scheme */
 void SolveEnergyEquation(Grid&, double);			/* Solve Energy equation for  */
 void SolveThomas(double[NMAX][3], double[], const int);		/* Use Carl's Thomas Algorithm */
-void CopyToRHS(double**, double RHS[], const int, const int);
+void CopyToRHS(double**, double RHS[], const int, const int, Direction RC);
 void CopyToLHS(double**, double LHS [NMAX][3], const int);
-void CopyFromRHS(double**, double RHS[], const int, const int);
+void CopyFromRHS(double**, double RHS[], const int, const int, Direction RC);

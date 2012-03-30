@@ -477,7 +477,7 @@ Field Grid::EulerImplicitTimeAdvance(){
       
       CopyToLHS(Dx, LHS, Imax + 1);
                   
-      CopyToRHS(FI, RHS, Imax + 1, j);
+      CopyToRHS(FI, RHS, Imax + 1, j, Column);
       for(int i = 0; i <= Imax + Imin; i++){
 	
 	cout<<LHS[i][0]<<" "<<LHS[i][1]<<" "<<LHS[i][2]<<endl;
@@ -486,25 +486,36 @@ Field Grid::EulerImplicitTimeAdvance(){
 
       /*
        * Solve Thomas seems to be giving nan
-       * Copying to RHS and LHS works fine
+       * Copying to RHS and LHS work fine
        * Must add functionality to copy to RHS & copy from RHS
        * add copy from RHS after every solve thomas routine
        */
       SolveThomas(LHS, RHS, Imax);      
       
       
+      for(int i = 0; i <= Imax + Imin; i++){
+	
+	//	cout<<LHS[i][0]<<" "<<LHS[i][1]<<" "<<LHS[i][2]<<endl;
+	cout<<RHS[i]<<endl;
+	  }      
 
 
-      //CopyFromRHS(FI, RHS, Imax + 1, j);
+      /*
+       * Copy from RHS into FI matrix
+       *
+       */
+
+      CopyFromRHS(FI, RHS, Imax + 1, j, Column);
     }
 
     for(int i = Imin; i <= Imax; i++){
 
       EvaluateDy(i);  
       CopyToLHS(Dy, LHS, Jmax + 1);
-      //CopyToRHS(FI, RHS, Jmax + 1, i);
+      
+      CopyToRHS(FI, RHS, Jmax + 1, i, Row);
       SolveThomas(LHS, RHS, Jmax);  
-      CopyFromRHS(FI, RHS, Jmax + 1, i);
+      CopyFromRHS(FI, RHS, Jmax + 1, i, Row);
       
     }
     

@@ -52,7 +52,7 @@ void SolveEnergyEquation(Grid& Domain, double tFinal){
     n++;
 
     
-  }while(dU.T > 0.001);
+  }while(dU.T > 0.000001);
     
   //Domain.PrintFluxes();
   //Domain.PrintSources();
@@ -94,24 +94,40 @@ void CopyToLHS(double** Dx, double LHS [NMAX][3], const int Size){
 
 }
 
-void CopyToRHS(double** FI, double RHS[NMAX], const int Size, const int J){
+void CopyToRHS(double** FI, double RHS[NMAX], const int Size, const int J, Direction RC){
 
-  for(int i = 0; i <= Size; i++){
-    
-    RHS[i] = FI[i][J];
-    RHS[i] = FI[i][J];
-    RHS[i] = FI[i][J];
-    
-  }
-
+  if(RC == Column)
+    for(int i = 0; i <= Size; i++){
+      
+      RHS[i] = FI[i][J];
+      RHS[i] = FI[i][J];
+      RHS[i] = FI[i][J];
+      
+    }
+  
+  else if(RC == Row)
+    for(int i = 0; i <= Size; i++){
+      
+      RHS[i] = FI[J][i];
+      RHS[i] = FI[J][i];
+      RHS[i] = FI[J][i];
+      
+    }
 }
 
-void CopyFromRHS(double** FI, double RHS[NMAX], const int Size, const int I){
+void CopyFromRHS(double** FI, double RHS[NMAX], const int Size, const int I, Direction RC){
 
+  if(RC == Row)
     for (int i = 0; i <= Size; i++) {
       
       FI[I][i] = RHS[i];
-
+      
+    }
+  else if(RC == Column)
+    for (int i = 0; i <= Size; i++) {
+      
+      FI[i][I] = RHS[i];
+      
     }
 
 }
