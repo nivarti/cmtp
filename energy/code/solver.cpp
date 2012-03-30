@@ -58,6 +58,7 @@ void SolveEnergyEquation(Grid& Domain, double tFinal){
   //Domain.PrintSources();
 
   cout<<"\nSolution converged in "<<n<<" steps\n";
+  Domain.FieldVerification();
 
 }
 

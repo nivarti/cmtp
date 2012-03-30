@@ -11,7 +11,7 @@ const double Ly = 1.0;						   // Domain size y
 
 const double Re = 50;						   // Reynolds Number
 const double Pr = 0.7;						   // Prandtl Number
-const double Ec = 0.1;						   // Eckert Number
+const double Ec = 0.001;						   // Eckert Number
 
 const double u0 = 1.0;		/* desired constant specifications */
 const double v0 = 1.0;

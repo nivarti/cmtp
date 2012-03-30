@@ -62,9 +62,17 @@ void Cell::SetCellField(double U1, double U2, double U3){
 // Compute Exact Values of Fields from Formulae
 void Cell::ComputeExactField(){
   
-  U.T = T0*cos(pi*x)*sin(pi*y);  
-  U.u = u0*y*sin(pi*x);
-  U.v = v0*x*cos(pi*y);
+  // U.T = T0*cos(pi*x)*sin(pi*y);  
+  // U.u = u0*y*sin(pi*x);
+  // U.v = v0*x*cos(pi*y);
+  
+  double a = 0.0;
+  a = 1 - 2.0*y;
+  a = a*a*a*a;
+  
+  eU.T = y + 0.75*Pr*Ec*Uav*Uav*(1 - a);
+  eU.u = 6.0*Uav*y*(1 - y);
+  eU.v = 0.0;
 
 }
 
@@ -86,6 +94,18 @@ double Cell::SetFDTemperatureField(){
   U.T = y + 0.75*Pr*Ec*Uav*Uav*(1 - a);
   
   return U.T;
+}
+
+double Cell::SetBCTemperatureField(){
+
+  if(x >= 1.0 && x <= 3.0)
+    U.T = 2.0 - cos(pi*(x - 1.0));
+  else
+    U.T = 1.0;
+
+
+  return U.T;
+
 }
 
 void Cell::ComputeExactFluxIntegral(){
@@ -194,6 +214,18 @@ void Grid::EvaluateCellCoordinates(){
   
 }
 
+void Grid::EvaluateExactFields(){
+
+  for(int i = Imin; i <= Imax; i++){
+      for(int j = Imin; j <= Jmax; j++){ 	
+	
+	Mesh[i][j].ComputeExactField();
+
+      }
+  }
+
+}
+
 // Function to evaluate integrals/fields using exact solution
 void Grid::EvaluateExactIntegrals(){
 
@@ -227,7 +259,12 @@ void Grid::EvaluateInitialFields(){
 // Evaluate ghost cell values using BCs
 void Grid::EvaluateBoundaryConditions(){
 
-  double Tfd = 0.0;
+  /*
+   * @Tfd Allows setting the FD field at inflow
+   * @Tbc Allows setting the BC field on top wall
+   */
+
+  double Tfd = 0.0, Tbc = 0.0;
   
   for(int j = Jmin; j <= Jmax; j++){
         
@@ -240,7 +277,9 @@ void Grid::EvaluateBoundaryConditions(){
   for(int i = Imin; i <= Imax; i++){
     
     Mesh[i][0].U.T = - Mesh[i][1].U.T; 
-    Mesh[i][Jmin + Jmax].U.T = 2.0 - Mesh[i][Jmax].U.T;
+    
+    Tbc = Mesh[i][Jmin + Jmax].SetBCTemperatureField();
+    Mesh[i][Jmin + Jmax].U.T = 2.0*Tbc - Mesh[i][Jmax].U.T;
     
     Mesh[i][0].U.u = -Mesh[i][0].U.u;
     Mesh[i][Jmin + Jmax].U.u = -Mesh[i][Jmax].U.u;
@@ -473,16 +512,15 @@ Field Grid::EulerImplicitTimeAdvance(){
             
       EvaluateDx(j);				          	   // Evaluate tridiagonal on x
       EvaluateFI(j);				                   // evaluate the RHS which is (FI + S)*dt
-      cout<<endl;
       
       CopyToLHS(Dx, LHS, Imax + 1);
                   
       CopyToRHS(FI, RHS, Imax + 1, j, Column);
-      for(int i = 0; i <= Imax + Imin; i++){
+      // for(int i = 0; i <= Imax + Imin; i++){
 	
-	cout<<LHS[i][0]<<" "<<LHS[i][1]<<" "<<LHS[i][2]<<endl;
-	//cout<<RHS[i]<<endl;
-	  }      
+      // 	cout<<LHS[i][0]<<" "<<LHS[i][1]<<" "<<LHS[i][2]<<endl;
+      // 	//cout<<RHS[i]<<endl;
+      // 	  }      
 
       /*
        * Solve Thomas seems to be giving nan
@@ -493,11 +531,11 @@ Field Grid::EulerImplicitTimeAdvance(){
       SolveThomas(LHS, RHS, Imax);      
       
       
-      for(int i = 0; i <= Imax + Imin; i++){
+      // for(int i = 0; i <= Imax + Imin; i++){
 	
-	//	cout<<LHS[i][0]<<" "<<LHS[i][1]<<" "<<LHS[i][2]<<endl;
-	cout<<RHS[i]<<endl;
-	  }      
+      // 	//	cout<<LHS[i][0]<<" "<<LHS[i][1]<<" "<<LHS[i][2]<<endl;
+      // 	cout<<RHS[i]<<endl;
+      // 	  }      
 
 
       /*
@@ -595,6 +633,8 @@ void Grid::FieldVerification(){
 
   double ErrorT = 0.0, L2NormT = 0.0;
   ofstream fileT;
+
+  EvaluateExactFields();
 
   for(int i = Imin; i <= Imax; i++){     
     for(int j = Jmin; j <= Jmax; j++){

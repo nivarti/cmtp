@@ -64,7 +64,8 @@ public:
 
   void SetInitialField();					/* Set initial field for pertinent problem */
   double SetFDTemperatureField();				/* Set fully developed temperature field */
-
+  double SetBCTemperatureField();				/* Set BC temperature field for top wall */
+  
   void ComputeExactField();					   // Computing Exact Values is easy within CV
   void ComputeExactFluxIntegral();				/* Compute exact flux integral */
   void ComputeExactSourceTerm();				/* Compute exact source term */
@@ -108,7 +109,7 @@ public:
   void WriteFieldValues(FieldName);
 
   void EvaluateExactIntegrals();				/* Evaluate exact functions, fields, etc */
-  void EvaluateExactFieldValues();
+  void EvaluateExactFields();
 
   void EvaluateCellCoordinates();				/* Stepwise in sequence desired */
   void EvaluateInitialFields();   

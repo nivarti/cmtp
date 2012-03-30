@@ -18,7 +18,7 @@ int main(){
   cout.precision(5);
   cout.width(10);
   
-  while(MeshX <= 25){
+  while(MeshX <= 100){
     
     Grid Domain(MeshX, MeshY, 1);          	                   // Define Grid of required size  
     
