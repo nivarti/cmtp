@@ -9,6 +9,8 @@
 #include<fstream>		
 #include<iomanip>
 
+#include<sstream>
+#include<string.h>
 #include<stdio.h>
 #include<stdlib.h>
 #include<math.h>
@@ -72,7 +74,8 @@ public:
   
   void PrintCoordinates();					/* Print coordinates of cell */
   void PrintField(FieldName);					/* Print Field values of given field */
-    
+  double GetField(FieldName);
+
 };// End of Class Definition
 
 //_________________________________Grid Definition________________________________________//
@@ -116,13 +119,14 @@ public:
   void EvaluateFluxes();
   void EvaluateSourceTerms();
   void EvaluateBoundaryConditions();
+  void EvaluateGradients();
   
   void InitialiseDxDyFI();
   void EvaluateDx(int);						/* Evaluate coefficient matrices */
   void EvaluateDy(int);
   void EvaluateFI(int);
 
-  double EvaluateTimeStep(TimeScheme);				/* take a different time step based on scheme */
+  void EvaluateTimeStep(TimeScheme);				/* take a different time step based on scheme */
   
   //void EulerExplicitTimeAdvance();
   //void RK2ExplicitTimeAdvance();
@@ -139,8 +143,10 @@ public:
 
 void EvaluateGridParameters(Grid&);				/*  */
 void MarchTime(Grid&, TimeScheme);				/* march in time with given scheme */
-void SolveEnergyEquation(Grid&, double);			/* Solve Energy equation for  */
+void SolveEnergyEquation(Grid&);	         		/* Solve Energy equation for  */
 void SolveThomas(double[NMAX][3], double[], const int);		/* Use Carl's Thomas Algorithm */
 void CopyToRHS(double**, double RHS[], const int, const int, Direction RC);
 void CopyToLHS(double**, double LHS [NMAX][3], const int);
 void CopyFromRHS(double**, double RHS[], const int, const int, Direction RC);
+void CalculateSlope(ifstream file);
+void CalculateErrorBound();

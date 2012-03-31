@@ -133,7 +133,7 @@ void Cell::PrintCoordinates(){
   cout<<x<<",";
   cout<<y; 
 
-}
+} 
 
 /* Print Required Field of Cell */
 void Cell::PrintField(FieldName FN){
@@ -151,12 +151,33 @@ void Cell::PrintField(FieldName FN){
     break;
   default:
     cout<<"\nError: Field Unavailable";
-    exit(0);
     break;
   }
   
 }
 
+
+/* Print Required Field of Cell */
+double Cell::GetField(FieldName FN){
+  
+  switch(FN){
+  
+  case 0:
+    return U.T;
+    break;
+  case 1:
+    return U.u;
+    break;
+  case 2:
+    return U.v;
+    break;
+  default:
+    cout<<"\nError: Field Unavailable";
+    return 0.0;
+    break;
+  }
+  
+}
 
 //________________________________________________________________________________________//
 
@@ -217,13 +238,13 @@ void Grid::EvaluateCellCoordinates(){
 void Grid::EvaluateExactFields(){
 
   for(int i = Imin; i <= Imax; i++){
-      for(int j = Imin; j <= Jmax; j++){ 	
-	
-	Mesh[i][j].ComputeExactField();
-
-      }
+    for(int j = Imin; j <= Jmax; j++){ 	
+      
+      Mesh[i][j].ComputeExactField();
+      
+    }
   }
-
+  
 }
 
 // Function to evaluate integrals/fields using exact solution
@@ -279,6 +300,7 @@ void Grid::EvaluateBoundaryConditions(){
     Mesh[i][0].U.T = - Mesh[i][1].U.T; 
     
     Tbc = Mesh[i][Jmin + Jmax].SetBCTemperatureField();
+    //Tbc = 1.0;
     Mesh[i][Jmin + Jmax].U.T = 2.0*Tbc - Mesh[i][Jmax].U.T;
     
     Mesh[i][0].U.u = -Mesh[i][0].U.u;
@@ -292,7 +314,6 @@ void Grid::EvaluateFluxes(){
   
   double a = 0.0, b = 0.0, d = 0.0;
   
-  cout<<endl;
   for(int j = Jmin; j <= Jmax; j++){
     for(int i = Imin; i <= Imax; i++){
       
@@ -333,6 +354,51 @@ void Grid::EvaluateSourceTerms(){
 
   cout<<"\nEvaluating Source Terms on Grid...";
 
+}
+
+void Grid::EvaluateGradients(){
+  static int Run = 0;
+  EvaluateBoundaryConditions();
+  
+  ostringstream buf;
+  string FileName;
+  int iMax = 0;
+  double dTdyMax = 0.0;
+  double* dTdy;
+  ofstream file, phi;
+
+  buf << "dTdy" << Run;
+  FileName = buf.str();
+  
+  phi.open("phi", ios::app);
+  file.open(FileName.c_str());
+  
+  dTdy = new double[Imax + 2]; //to be consistent with indices in loops
+  
+  dTdy[0] = dTdy[Imax + 1] = 0.0;
+  
+  for(int i = Imin; i <= Imax; i ++){
+    
+    dTdy[i] = (Mesh[i][1].U.T - Mesh[i][0].U.T)/dy;    
+    
+    if(dTdy[i] >= dTdyMax){
+      dTdyMax = dTdy[i];
+      iMax = i;
+    }
+    
+    file<<Mesh[i][1].x<<" "<<dTdy[i]<<endl;
+    
+  }
+  
+  cout<<"\nTemperature gradient at bottom wall evaluated...";
+  cout<<"\nWriting to file: "<<FileName;
+  cout<<"\nMaximum Temperature gradient = "<<dTdyMax<<" at "<<Mesh[iMax][1].x;
+  phi<<dx<<" "<<dy<<" "<<setprecision(15)<<dTdyMax<<" "<<Mesh[iMax][1].x<<endl;
+  
+  Run++;
+  file.close();
+  phi.close();
+  
 }
 
 
@@ -432,7 +498,7 @@ void Grid::EvaluateFI(int J){
 }
 
 
-double Grid::EvaluateTimeStep(TimeScheme TS){
+void Grid::EvaluateTimeStep(TimeScheme TS){
 
   double Umax;
 
@@ -440,12 +506,12 @@ double Grid::EvaluateTimeStep(TimeScheme TS){
 
   case 0: 
     Umax = 9.0/2.0;
-    dt = 0.6*dx/Umax;   
+    dt = 0.8*dx/Umax;   
     dt = 0.01;
     cout<<"\nCalculating time step for Explicit Euler...";
     break;
   case 1:
-    dt = 0.01;
+    dt = 0.1;
     cout<<"\nCalculating time step for Implicit Euler...";
     break;
   default:
@@ -453,7 +519,6 @@ double Grid::EvaluateTimeStep(TimeScheme TS){
     
   }
 
-  return dt;
 }
 
 // void Grid::EulerExplicitTimeAdvance(){
@@ -504,73 +569,66 @@ Field Grid::EulerImplicitTimeAdvance(){
   EvaluateBoundaryConditions();
   EvaluateFluxes();
   
-  //PrintFluxes();
+  // Start approximate factorisation solution
   
   InitialiseDxDyFI();
   
+  for(int j = Jmin; j <= Jmax; j++){      
+    
+    EvaluateDx(j);				          	   // Evaluate tridiagonal on x
+    EvaluateFI(j);				                   // evaluate the RHS which is (FI + S)*dt
+    
+    CopyToLHS(Dx, LHS, Imax + 1);
+    
+    CopyToRHS(FI, RHS, Imax + 1, j, Column);
+
+  //   if (j == 1){
+  //     for(int i = Imin; i <= Imax; i++){
+	
+  // 	cout<<RHS[i]<<"\n";
+	
+  //     }
+  //     cout<<endl;
+  // }
+
+    SolveThomas(LHS, RHS, Imax);                  
+    CopyFromRHS(FI, RHS, Imax + 1, j, Column);
+    
+    // if (j == 1)
+    //   for(int i = Imin; i <= Imax; i++){
+	
+    // 	cout<<FI[i][j]<<"\n";
+	
+    //   }
+
+  }
+  
+  for(int i = Imin; i <= Imax; i++){
+    
+    EvaluateDy(i);  
+    CopyToLHS(Dy, LHS, Jmax + 1);
+    
+    CopyToRHS(FI, RHS, Jmax + 1, i, Row);
+    SolveThomas(LHS, RHS, Jmax);  
+    CopyFromRHS(FI, RHS, Jmax + 1, i, Row);
+    
+  }
+  
+  // End of Approximate factorisation solution
+  
+  for(int i = Imin; i <= Imax; i++){
     for(int j = Jmin; j <= Jmax; j++){      
-            
-      EvaluateDx(j);				          	   // Evaluate tridiagonal on x
-      EvaluateFI(j);				                   // evaluate the RHS which is (FI + S)*dt
       
-      CopyToLHS(Dx, LHS, Imax + 1);
-                  
-      CopyToRHS(FI, RHS, Imax + 1, j, Column);
-      // for(int i = 0; i <= Imax + Imin; i++){
-	
-      // 	cout<<LHS[i][0]<<" "<<LHS[i][1]<<" "<<LHS[i][2]<<endl;
-      // 	//cout<<RHS[i]<<endl;
-      // 	  }      
-
-      /*
-       * Solve Thomas seems to be giving nan
-       * Copying to RHS and LHS work fine
-       * Must add functionality to copy to RHS & copy from RHS
-       * add copy from RHS after every solve thomas routine
-       */
-      SolveThomas(LHS, RHS, Imax);      
-      
-      
-      // for(int i = 0; i <= Imax + Imin; i++){
-	
-      // 	//	cout<<LHS[i][0]<<" "<<LHS[i][1]<<" "<<LHS[i][2]<<endl;
-      // 	cout<<RHS[i]<<endl;
-      // 	  }      
-
-
-      /*
-       * Copy from RHS into FI matrix
-       *
-       */
-
-      CopyFromRHS(FI, RHS, Imax + 1, j, Column);
-    }
-
-    for(int i = Imin; i <= Imax; i++){
-
-      EvaluateDy(i);  
-      CopyToLHS(Dy, LHS, Jmax + 1);
-      
-      CopyToRHS(FI, RHS, Jmax + 1, i, Row);
-      SolveThomas(LHS, RHS, Jmax);  
-      CopyFromRHS(FI, RHS, Jmax + 1, i, Row);
-      
-    }
-    
-    
-    for(int i = Imin; i <= Imax; i++){
-      for(int j = Jmin; j <= Jmax; j++){      
-	
       dU.T = FI[i][j];
       Mesh[i][j].U.T += dU.T;
       
       if(dU.T >= dUmax.T)
 	dUmax = dU;						   // Find maximum change in solution
       
-      }
     }
-    
-    return dU;    
+  }
+  
+  return dU;    
 }
 
 //Verify fluxes when exact values are provided
@@ -634,8 +692,6 @@ void Grid::FieldVerification(){
   double ErrorT = 0.0, L2NormT = 0.0;
   ofstream fileT;
 
-  EvaluateExactFields();
-
   for(int i = Imin; i <= Imax; i++){     
     for(int j = Jmin; j <= Jmax; j++){
       
@@ -680,17 +736,28 @@ void Grid::PrintCellCoordinates(){
 // Printing field values over entire mesh
 void Grid::PrintFieldValues(FieldName FN){      
   
-  cout<<"\nPrinting Field Values...\n";
-
-  for(int j = Jmax + Jmin; j >= 0; j--){
-    for(int i = 0; i <= Imin + Imax; i++){     
+  stringstream myFN;
+  string FNstring;
+  ofstream file;
+  myFN << "Field" << FN;
+  
+  FNstring = myFN.str();
+  file.open(FNstring.c_str());
+    
+  for(int i = Imin; i <= Imax; i++){     
+    for(int j = Jmin; j <= Jmax; j++){
       
-      Mesh[i][j].PrintField(FN);      
-      cout<<" ";
+      file<<Mesh[i][j].x<<","<<Mesh[i][j].y<<":    "<<Mesh[i][j].GetField(FN)<<endl;  
+      //cout<<"  "<<Mesh[i][j].eU.T;
 
     } 
-    cout<<endl;							       
+    file<<endl;							       
   }     
+  
+  cout<<"\nEvaluating Field Values...\n";
+  cout<<"\nStoring values in file: "<<FNstring;
+  
+  file.close();
   
 }
 

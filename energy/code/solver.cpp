@@ -27,38 +27,38 @@ void EvaluateGridParameters(Grid &Domain){
 }
 
 
-void SolveEnergyEquation(Grid& Domain, double tFinal){
+void SolveEnergyEquation(Grid& Domain){
   
-  int n = 0, N;
-  double dt, t = 0.0, dT;
+  int n = 0;
   Field dU;
   Domain.EvaluateCellCoordinates();				   // Evaluate cell coordinates
   Domain.EvaluateInitialFields();
-  
+  //Domain.EvaluateExactFields();  
+  //Domain.EvaluateBoundaryConditions();
   Domain.EvaluateSourceTerms();
-
+  
   //Domain.EvaluateBoundaryConditions();
   //Domain.EvaluateFluxes();
   
   //Domain.PrintFluxes();
   //Domain.PrintSources();
-  dt = Domain.EvaluateTimeStep(ImplicitEuler);
-
+  
+  Domain.EvaluateTimeStep(ImplicitEuler);
+  
   do{    
     
     dU = Domain.EulerImplicitTimeAdvance();
-    
-    cout<<"Maximum change in solution: "<<dU.T<<endl;
     n++;
-
     
-  }while(dU.T > 0.000001);
-    
+  }while(dU.T > 0.00000001);
+  
+  Domain.EvaluateBoundaryConditions();
+  Domain.EvaluateGradients();
+  
   //Domain.PrintFluxes();
   //Domain.PrintSources();
-
+  cout<<"\nMaximum change in solution: "<<dU.T<<endl;      
   cout<<"\nSolution converged in "<<n<<" steps\n";
-  Domain.FieldVerification();
 
 }
 
@@ -133,121 +133,34 @@ void CopyFromRHS(double** FI, double RHS[NMAX], const int Size, const int I, Dir
 
 }
 
-/// / Solve energy equation for problems 5, 6, and 7
-// void SolveEnergyEquation(Grid &Domain, double tFinal){
-  
-//   int n = 0, N;
-//   double t = 0.0, dt = 0.0;
-//   Field dU;		       
-  
-//   Domain.EvaluateCellCoordinates();				   // Calculate coordinates and store in cells for entire grid  
-//   Domain.EvaluateInitialFields();				   // Calculate initial fields
-  
-//   Domain.EvaluateBoundaryConditions();
-//   // // Domain.PrintFieldValues(Temperature);
-//   // // Domain.PrintFieldValues(xVelocity);
-//   // // Domain.PrintFieldValues(yVelocity);
 
-//   // // Domain.EvaluateBoundaryConditions();
-//   // // Domain.EvaluateFluxes();
-//   // Domain.EvaluateFluxes();
-//   // Domain.EvaluateSourceTerms();  
+void CalculateErrorBound (){
   
-//   // Domain.PrintSources();
-//   // Domain.PrintFieldValues(Temperature);
-//   // //Domain.PrintFieldValues(xVelocity);
-//   // //Domain.PrintFieldValues(yVelocity);
+  double p, e, e32, e21, phi1, phi2, phi3, r21, ea21, gci, phi21;	     // Declare all variables needed 
+  ifstream errf;
   
-//   // Domain.PrintFluxes();
-
-//   //Domain.PrintFieldValues(yVelocity, 1, -1);
-//   //Domain.PrintFieldValues(yVelocity, 25, -1);
+  errf.open("phi_v");						      // Open file with error profiles for 3 different meshes 
   
-//   //dt = Domain.EvaluateTimeStep(ExplicitEuler);		   // Calculate stable time step  
+  errf>>phi3
+      >>phi2
+      >>phi1;
+  // Show Mesh Error Data already Recorded
+  cout<<"Mesh Size: 0.00625"<<", Phi_1 = "<<phi3<<endl;
+  cout<<"Mesh Size: 0.0125"<<", Phi_2 = "<<phi2<<endl;
+  cout<<"Mesh Size: 0.025"<<", Phi_3 = "<<phi1<<endl;
   
-//   //dt = 0.1;
+  e32 = phi3 - phi2;
+  e21 = phi2 - phi1;
+  e = e32/e21;
   
+  r21 = 2.0;
+  ea21 = fabs((phi1 - phi2)/phi1);
   
-//   dt = Domain.EvaluateTimeStep(ExplicitEuler);
-//   // dU = Domain.EulerExplicitTimeAdvance();
+  p = fabs(log(fabs(e))/log(r21));			      // Calculate apparent order using given formula 
+  phi21 = (pow(r21,p)*phi1 - phi2)/(pow(r21,p) - 1);		      // Calculate extropalted value of P 
+  gci = 1.25*ea21/(pow(r21,p) - 1);				      // Calculate GCI_fine to get error bound on solution 
   
-//   // Domain.EvaluateFluxes();
-//   // //Domain.EvaluateSourceTerms();  
+  cout<<"\nApparent Order for solution in Position: "<< setprecision(10) << p<<endl;
+  cout<<"Solution estimate for Position = "<< setprecision(10) <<phi21<<" +/- "<< setprecision(10)<<fabs(gci)<<endl;
   
-//   // Domain.PrintFluxes();
-
-//   // Domain.PrintSources();
-
-//   Domain.EvaluateSourceTerms();
-  
-  
-//   N = tFinal/dt;		                                   // Modify dt to 
-//   dt = tFinal/N;		                                   // make sure you march to tFinal
-  
-//   do{
-    
-//   dU = Domain.EulerExplicitTimeAdvance();
-
-//   Domain.PrintFieldValues(Temperature, 24, -1);
-//   // Domain.PrintFieldValues(xVelocity);
-//   // Domain.PrintFieldValues(yVelocity);
-
-  
-//   Domain.PrintFluxes();
-//   Domain.PrintSources();
-    
-//   // t += dt;
-//   n++;
-    
-//   //   cout<<"\nSolution marched to time, t = "<<t;         
-    
-//   }while(n < N);			                   
-        
-//   cout<<"\nFinal time reached: "<<t<<" in "<<n<<" time steps";
-  
-// }
-
-
-
-// // void MarchTime(Grid& Domain, TimeScheme TS){
-  
-// //   switch(TS){
-
-// //   case 0: Domain.EulerExplicitTimeAdvance();
-// //     break;
-// //   // case 1: Domain.EulerImplicitTimeAdvance();
-// //   //   break;
-// //   // case 2: Domain.RK2ExplicitTimeAdvance();
-// //   //   break;
-// //   default:
-// //     break;
-// //   }  
-
-// // }
-
-// // void SolveRK2Explicit(Grid &Domain){
-        
-// //   double dt = Domain.dt;
-
-// //   EvaluateBoundaryConditions();	                                   // Implement ghost cell values for flux calculation  
-// //   EvaluateFluxes();	         	                   // Evaluate Fluxes from solution at time step n. Change to Limited flux as required
- 
-// //   for(int i = Imin; i <= Imax; i++){
-// //     for(int j = Jmin; j <= Jmax; j++){
-      
-// //       Mesh[i][j].Ubuf.T = Mesh[i][j].U.T + dt*Mesh[i][j].FI;	   // Calculate intermediate step solution, store in separate array
-// //     }
-// //   }
-  
-// //   EvaluateBoundaryConditions();	                                   // Repeat procedure, use fluxes at n+1/2 to calculate solution at n+1 
-// //   EvaluateFluxes();				   
-  
-// //   for(int i = Imin; i <= Imax; i++){
-// //     for(int j = Jmin; j <= Jmax; j++){
-      
-// //       Mesh[i][j].T = Mesh[i][j].T + dt*Mesh[i][j].FI;		   // Calculate intermediate step solution, store in separate array
-
-// //     }  
-// //   }
-  
-// // }
+}// End of ASME Estimate of Error bound
