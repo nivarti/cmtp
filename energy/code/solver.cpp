@@ -1,6 +1,7 @@
 #include "header.h"
 
-// For problem 1, evaluate exact integrals and compare with numerical values...
+// For problem 1,2 evaluate exact integrals and 
+// compare with numerical values...
 void EvaluateGridParameters(Grid &Domain){
   
   Domain.EvaluateCellCoordinates();				   // Evaluate cell coordinates
@@ -14,8 +15,8 @@ void EvaluateGridParameters(Grid &Domain){
   // cout<<"\nOutputting Field Values for v...\n";
   // Domain.PrintFieldValues(3);  
   
-  Domain.EvaluateFluxes();				   // Evaluate Flux Integrals for problem 1, 2 
-  Domain.EvaluateSourceTerms();					   // Evaluate Source Terms for problem 1, 2
+  Domain.EvaluateFluxes();			         	   // Evaluate Flux Integrals for problem 1, 2 
+  Domain.EvaluateSourceTerms();			 		   // Evaluate Source Terms for problem 1, 2
   
   cout<<"\nOutputting Flux Values using Exact Functions...\n";
   Domain.PrintFluxes();
@@ -27,119 +28,79 @@ void EvaluateGridParameters(Grid &Domain){
 }
 
 
+/* 
+ * Solve the energy equation using appropriate time marching
+ * scheme. 
+ */
+
 void SolveEnergyEquation(Grid& Domain){
   
   int n = 0;
   Field dU;
+
   Domain.EvaluateCellCoordinates();				   // Evaluate cell coordinates
   Domain.EvaluateInitialFields();
-  //Domain.EvaluateExactFields();  
-  //Domain.EvaluateBoundaryConditions();
   Domain.EvaluateSourceTerms();
-  
-  //Domain.EvaluateBoundaryConditions();
-  //Domain.EvaluateFluxes();
-  
-  //Domain.PrintFluxes();
-  //Domain.PrintSources();
   
   Domain.EvaluateTimeStep(ImplicitEuler);
   
   do{    
     
     dU = Domain.EulerImplicitTimeAdvance();
-    n++;
+    n++;    
     
-  }while(dU.T > 0.00000001);
+  }while(fabs(dU.T) > 0.00000001);
+
+  //Domain.EvaluateExactFields();      
+  //Domain.FieldVerification();  
+  Domain.PrintFieldValues(Temperature);
+
+  cout<<"\nMaximum change in solution: "<<dU.T;          
+  cout<<"\nSolution converged in "<<n<<" steps";
   
   Domain.EvaluateBoundaryConditions();
   Domain.EvaluateGradients();
   
   //Domain.PrintFluxes();
   //Domain.PrintSources();
-  cout<<"\nMaximum change in solution: "<<dU.T<<endl;      
-  cout<<"\nSolution converged in "<<n<<" steps\n";
 
 }
 
-void SolveThomas(double LHS[NMAX][3], double RHS[NMAX],
-		 const int iSize)
-{
-  int i;
-  LHS[0][0] = LHS[iSize+1][2] = 0;
-  /* Forward elimination */
-  for (i = 0; i < iSize+1; i++) {
-    LHS[i][2] /= LHS[i][1];
-    RHS[i] /= LHS[i][1];
-    LHS[i+1][1] -= LHS[i][2]*LHS[i+1][0];
-    RHS[i+1] -= LHS[i+1][0]*RHS[i];
-  }
-  /* Last line of elimination */
-  RHS[iSize+1] /= LHS[iSize+1][1];
+/*
+ * Calculate order of method from the slope of log plot
+ * Calculate Error Bounds using ASME Method
+ * use function from Laplace code
+ */
 
-  /* Back-substitution */
-  for (i = iSize; i >= 0; i--) {
-    RHS[i] -= RHS[i+1]*LHS[i][2];
-  }
-}
-
-void CopyToLHS(double** Dx, double LHS [NMAX][3], const int Size){
-
-  for(int i = 0; i <= Size; i++){
-    
-    LHS[i][0] = Dx[i][0];
-    LHS[i][1] = Dx[i][1];
-    LHS[i][2] = Dx[i][2];
-
-  }
-
-}
-
-void CopyToRHS(double** FI, double RHS[NMAX], const int Size, const int J, Direction RC){
-
-  if(RC == Column)
-    for(int i = 0; i <= Size; i++){
-      
-      RHS[i] = FI[i][J];
-      RHS[i] = FI[i][J];
-      RHS[i] = FI[i][J];
-      
-    }
+void CalculateOrder(){
   
-  else if(RC == Row)
-    for(int i = 0; i <= Size; i++){
-      
-      RHS[i] = FI[J][i];
-      RHS[i] = FI[J][i];
-      RHS[i] = FI[J][i];
-      
-    }
-}
+  ifstream file;
+  
+  file.open("ErrorNorm");
+  double x[3], y[3], slope;
+  int i = 0;
+  
+  while(i < 3){
+    
+    file>>x[i]>>y[i];    
+    i++;
 
-void CopyFromRHS(double** FI, double RHS[NMAX], const int Size, const int I, Direction RC){
+  };
 
-  if(RC == Row)
-    for (int i = 0; i <= Size; i++) {
-      
-      FI[I][i] = RHS[i];
-      
-    }
-  else if(RC == Column)
-    for (int i = 0; i <= Size; i++) {
-      
-      FI[i][I] = RHS[i];
-      
-    }
+  slope = (log(y[2]) - log(y[1]))/(log(x[2]) - log(x[1]));
+  cout<<"\nOrder of method: "<<slope;
+
+  file.close();
 
 }
 
 
 void CalculateErrorBound (){
   
-  double p, e, e32, e21, phi1, phi2, phi3, r21, ea21, gci, phi21;	     // Declare all variables needed 
+  double p, e, e32, e21, phi1, phi2, phi3, r21, ea21, gci, phi21;     // Declare all variables needed 
   ifstream errf;
   
-  errf.open("phi_v");						      // Open file with error profiles for 3 different meshes 
+  errf.open("phi_p");						      // Open file with error profiles for 3 different meshes 
   
   errf>>phi3
       >>phi2
@@ -156,7 +117,7 @@ void CalculateErrorBound (){
   r21 = 2.0;
   ea21 = fabs((phi1 - phi2)/phi1);
   
-  p = fabs(log(fabs(e))/log(r21));			      // Calculate apparent order using given formula 
+  p = fabs(log(fabs(e))/log(r21));			              // Calculate apparent order using given formula 
   phi21 = (pow(r21,p)*phi1 - phi2)/(pow(r21,p) - 1);		      // Calculate extropalted value of P 
   gci = 1.25*ea21/(pow(r21,p) - 1);				      // Calculate GCI_fine to get error bound on solution 
   

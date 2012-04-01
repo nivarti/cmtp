@@ -10,15 +10,13 @@
 
 int main(){  
   
-  int MeshX = 25, MeshY = 10;                                      // Set Initial Mesh Size
+  int MeshX = 200, MeshY = 80;                                      // Set Initial Mesh Size
   clock_t ti, tf, RunTime;			                   // Set clock variables
   
-  cout.precision(5);
-  cout.width(10);
+  setprecision(15);
+  setw(15);   
   
-  //CalculateErrorBound();
-  
-  while(MeshX <= 400){
+  while(MeshX <= 200){
     ti = clock();			                                   // Start clock
    
     Grid Domain(MeshX, MeshY, 1);          	                   // Define Grid of required size  
@@ -26,11 +24,7 @@ int main(){
     cout<<"\nEvaluating solution for Mesh Size: "<<MeshX<<" by "<<MeshY; 
     
     //EvaluateGridParameters(Domain);				   // Set Grid Values for problem 1, 2
-    //SolveEnergyEquation(Domain);         			   // Solve energy equation for problem 5        
-    //Domain.PrintFieldValues(Temperature);
-    //Domain.FieldVerification();
-    //Domain.PrintFieldValues(xVelocity);        
-    // Domain.PrintFieldValues(yVelocity);        
+    SolveEnergyEquation(Domain);         			   // Solve energy equation for problem 5            
     
     MeshX *= 2;							   // Double mesh size
     MeshY *= 2;
@@ -42,24 +36,8 @@ int main(){
     
   }
   
-
-  // ifstream file;
+  //CalculateErrorBound();
+  //CalculateOrder();
   
-  // file.open("../plots/order/EtEE");
-  // double x[3], y[3], slope;
-  // int i = 0;
-  
-  // while(i < 3){
-    
-  //   file>>x[i]>>y[i];    
-  //   i++;
-
-  // };
-
-  // slope = (log(y[2]) - log(y[1]))/(log(x[2]) - log(x[1]));
-  // cout<<"\nOrder of method: "<<slope;
-
-  // file.close();
-
   return 0;
 }

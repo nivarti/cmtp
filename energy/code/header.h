@@ -150,3 +150,4 @@ void CopyToLHS(double**, double LHS [NMAX][3], const int);
 void CopyFromRHS(double**, double RHS[], const int, const int, Direction RC);
 void CalculateSlope(ifstream file);
 void CalculateErrorBound();
+void CalculateOrder();

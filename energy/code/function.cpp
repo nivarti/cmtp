@@ -62,18 +62,10 @@ void Cell::SetCellField(double U1, double U2, double U3){
 // Compute Exact Values of Fields from Formulae
 void Cell::ComputeExactField(){
   
-  // U.T = T0*cos(pi*x)*sin(pi*y);  
-  // U.u = u0*y*sin(pi*x);
-  // U.v = v0*x*cos(pi*y);
+  U.T = T0*cos(pi*x)*sin(pi*y);  
+  U.u = u0*y*sin(pi*x);
+  U.v = v0*x*cos(pi*y);
   
-  double a = 0.0;
-  a = 1 - 2.0*y;
-  a = a*a*a*a;
-  
-  eU.T = y + 0.75*Pr*Ec*Uav*Uav*(1 - a);
-  eU.u = 6.0*Uav*y*(1 - y);
-  eU.v = 0.0;
-
 }
 
 void Cell::SetInitialField(){
@@ -91,9 +83,9 @@ double Cell::SetFDTemperatureField(){
   a = 1 - 2.0*y;
   a = a*a*a*a;
   
-  U.T = y + 0.75*Pr*Ec*Uav*Uav*(1 - a);
+  eU.T = y + 0.75*Pr*Ec*Uav*Uav*(1 - a);
   
-  return U.T;
+  return eU.T;
 }
 
 double Cell::SetBCTemperatureField(){
@@ -240,7 +232,9 @@ void Grid::EvaluateExactFields(){
   for(int i = Imin; i <= Imax; i++){
     for(int j = Imin; j <= Jmax; j++){ 	
       
-      Mesh[i][j].ComputeExactField();
+      //Mesh[i][j].ComputeExactField();
+      //Mesh[i][j].eU = Mesh[i][j].U;
+      Mesh[i][j].eU.T = Mesh[i][j].SetFDTemperatureField();
       
     }
   }
@@ -288,7 +282,7 @@ void Grid::EvaluateBoundaryConditions(){
   double Tfd = 0.0, Tbc = 0.0;
   
   for(int j = Jmin; j <= Jmax; j++){
-        
+    
     Tfd = Mesh[0][j].SetFDTemperatureField();
     Mesh[0][j].U.T = 2.0*Tfd - Mesh[1][j].U.T;   
  
@@ -300,7 +294,6 @@ void Grid::EvaluateBoundaryConditions(){
     Mesh[i][0].U.T = - Mesh[i][1].U.T; 
     
     Tbc = Mesh[i][Jmin + Jmax].SetBCTemperatureField();
-    //Tbc = 1.0;
     Mesh[i][Jmin + Jmax].U.T = 2.0*Tbc - Mesh[i][Jmax].U.T;
     
     Mesh[i][0].U.u = -Mesh[i][0].U.u;
@@ -357,22 +350,22 @@ void Grid::EvaluateSourceTerms(){
 }
 
 void Grid::EvaluateGradients(){
-  static int Run = 0;
-  EvaluateBoundaryConditions();
-  
+  static int Run = 0;    
   ostringstream buf;
   string FileName;
   int iMax = 0;
   double dTdyMax = 0.0;
   double* dTdy;
-  ofstream file, phi;
+  ofstream file, phi, profile;
 
   buf << "dTdy" << Run;
   FileName = buf.str();
   
   phi.open("phi", ios::app);
   file.open(FileName.c_str());
+  profile.open("grad");
   
+  EvaluateBoundaryConditions();
   dTdy = new double[Imax + 2]; //to be consistent with indices in loops
   
   dTdy[0] = dTdy[Imax + 1] = 0.0;
@@ -389,6 +382,14 @@ void Grid::EvaluateGradients(){
     file<<Mesh[i][1].x<<" "<<dTdy[i]<<endl;
     
   }
+
+  for(int j = 1; j <= Jmax + 1; j++){
+    
+    double a = 0.0;
+    a = (Mesh[iMax][j].U.T - Mesh[iMax][j-1].U.T)/dy;
+    profile<<(Mesh[iMax][j].y - dy/2.0)<<" "<<a<<endl;
+
+  }
   
   cout<<"\nTemperature gradient at bottom wall evaluated...";
   cout<<"\nWriting to file: "<<FileName;
@@ -397,6 +398,7 @@ void Grid::EvaluateGradients(){
   
   Run++;
   file.close();
+  profile.close();
   phi.close();
   
 }
@@ -451,17 +453,24 @@ void Grid::EvaluateDx(int J){
   Dx[0][1] = 1.0;
   Dx[0][2] = 1.0;
   
+  // cout<<"\nLHS for j = "<<J<<endl;
+  // cout<<Dx[0][0]<<" "<<Dx[0][1]<<" "<<Dx[0][2]<<endl;
+
   for(int i = Imin; i <= Imax; i++){
     
     Dx[i][0] = - (Mesh[i - 1][J].U.u*dt)/(2.0*dx) - dt/(Re*Pr*dx*dx);
     Dx[i][1] = 1.0 + (2.0*dt)/(Re*Pr*dx*dx);
     Dx[i][2] = (Mesh[i + 1][J].U.u*dt)/(2.0*dx) - dt/(Re*Pr*dx*dx);
     
+    //cout<<Dx[i][0]<<" "<<Dx[i][1]<<" "<<Dx[i][2]<<endl;
+
   }  
   
   Dx[Imax + 1][0] = -1.0;
   Dx[Imax + 1][1] = 1.0;
   Dx[Imax + 1][2] = 0.0;
+
+  //cout<<Dx[Imax + 1][0]<<" "<<Dx[Imax + 1][1]<<" "<<Dx[Imax + 1][2]<<endl;
 
 }
 
@@ -470,12 +479,17 @@ void Grid::EvaluateDy(int I){
   Dy[0][0] = 0.0;
   Dy[0][1] = 1.0;
   Dy[0][2] = 1.0;
-
+  
+  // cout<<"\nLHS for i = "<<I<<endl; 
+  // cout<<Dy[0][0]<<" "<<Dy[0][1]<<" "<<Dy[0][2]<<endl;
+      
   for(int j = Jmin; j <= Jmax; j++){
     
     Dy[j][0] = -(Mesh[I][j - 1].U.v*dt)/(2.0*dy) - dt/(Re*Pr*dy*dy);
     Dy[j][1] = 1.0 + (2.0*dt)/(Re*Pr*dy*dy);
     Dy[j][2] = (Mesh[I][j + 1].U.v*dt)/(2.0*dy) - dt/(Re*Pr*dy*dy);
+    
+    //cout<<Dy[j][0]<<" "<<Dy[j][1]<<" "<<Dy[j][2]<<endl;
     
   }  
   
@@ -483,17 +497,26 @@ void Grid::EvaluateDy(int I){
   Dy[Jmax + 1][1] = 1.0;
   Dy[Jmax + 1][2] = 0.0;
     
+  //cout<<Dy[Jmax + 1][0]<<" "<<Dy[Jmax + 1][1]<<" "<<Dy[Jmax + 1][2]<<endl;
+
+
 }
 
 void Grid::EvaluateFI(int J){
   
+  FI[0][J] = FI[Imax + Imin][J] = 0.0;
+  
+  // cout<<"\nRHS for j = "<<J<<endl;
+  // cout<<FI[0][J]<<endl;
+  
   for(int i = Imin; i <= Imax; i++){
     
-    FI[i][J] = dt*(Mesh[i][J].F + Mesh[i][J].S);
+    FI[i][J] = dt*(Mesh[i][J].F + Mesh[i][J].S);    
+    //cout<<FI[i][J]<<" = "<<dt<<"*"<<Mesh[i][J].F<<"+"<<Mesh[i][J].S<<endl;
 
   }
 
-  FI[0][J] = FI[Imax + Imin][J] = 0.0;
+  //cout<<FI[Imax + 1][J]<<endl;
 
 }
 
@@ -511,7 +534,7 @@ void Grid::EvaluateTimeStep(TimeScheme TS){
     cout<<"\nCalculating time step for Explicit Euler...";
     break;
   case 1:
-    dt = 0.1;
+    dt = 0.01;
     cout<<"\nCalculating time step for Implicit Euler...";
     break;
   default:
@@ -521,22 +544,6 @@ void Grid::EvaluateTimeStep(TimeScheme TS){
 
 }
 
-// void Grid::EulerExplicitTimeAdvance(){
-  
-//   EvaluateBoundaryConditions();	                           // Implement ghost cell values for flux calculation  
-//   EvaluateFluxes();	         	                   // Evaluate Fluxes from solution at time step n. Change to Limited flux as required
-//   //  EvaluateSourceTerms();					   // Source terms could change with time for NSE
-
-//   for(int i = Imin; i <= Imax; i++){
-//     for(int j = Jmin; j <= Jmax; j++){
-      
-//       Mesh[i][j].U.T = Mesh[i][j].U.T
-// 	+ dt*Mesh[i][j].F 
-// 	+ dt*Mesh[i][j].S;	                                   // Calculate intermediate step solution, store in separate array
-//     }
-//   }
-  
-// }
 
 Field Grid::EulerExplicitTimeAdvance(){
 
@@ -551,8 +558,8 @@ Field Grid::EulerExplicitTimeAdvance(){
       dU.T = dt*(Mesh[i][j].S + Mesh[i][j].F);
       Mesh[i][j].U.T += dU.T;
       
-      if(dU.T >= dUmax.T)
-	dUmax = dU;						   // Find maximum change in solution
+      if(fabs(dU.T) >= dUmax.T)
+	dUmax.T = fabs(dU.T);						   // Find maximum change in solution
       
     }
   }
@@ -568,6 +575,8 @@ Field Grid::EulerImplicitTimeAdvance(){
 
   EvaluateBoundaryConditions();
   EvaluateFluxes();
+  // PrintFluxes();  
+  // PrintFieldValues(Temperature);
   
   // Start approximate factorisation solution
   
@@ -582,7 +591,7 @@ Field Grid::EulerImplicitTimeAdvance(){
     
     CopyToRHS(FI, RHS, Imax + 1, j, Column);
 
-  //   if (j == 1){
+  //   if (i == 1){
   //     for(int i = Imin; i <= Imax; i++){
 	
   // 	cout<<RHS[i]<<"\n";
@@ -608,27 +617,41 @@ Field Grid::EulerImplicitTimeAdvance(){
     EvaluateDy(i);  
     CopyToLHS(Dy, LHS, Jmax + 1);
     
+
     CopyToRHS(FI, RHS, Jmax + 1, i, Row);
+    // if (i == 1){
+    //   cout<<"\nbringing up dT tildas for i = 1\n";
+
+    //   for(int j = Jmin; j <= Jmax; j++){	
+    // 	cout<<RHS[j]<<"\n";	
+    //   }
+    //   cout<<endl;
+    // }
+    
     SolveThomas(LHS, RHS, Jmax);  
     CopyFromRHS(FI, RHS, Jmax + 1, i, Row);
     
   }
   
   // End of Approximate factorisation solution
-  
+  //cout<<"\ndT for slice i = 1\n";
   for(int i = Imin; i <= Imax; i++){
     for(int j = Jmin; j <= Jmax; j++){      
       
       dU.T = FI[i][j];
       Mesh[i][j].U.T += dU.T;
       
-      if(dU.T >= dUmax.T)
-	dUmax = dU;						   // Find maximum change in solution
+      // if(i == 1){
+      // 	cout<<dU.T<<endl;
+      // }
+
+      if(fabs(dU.T) >= dUmax.T)
+	dUmax.T = fabs(dU.T);						   // Find maximum change in solution
       
     }
   }
   
-  return dU;    
+  return dUmax;    
 }
 
 //Verify fluxes when exact values are provided
@@ -703,11 +726,10 @@ void Grid::FieldVerification(){
   
   L2NormT = sqrt(L2NormT/(Imax*Jmax));				      
   
-  fileT.open("Et", ios::app);
+  fileT.open("ErrorNorm", ios::app);
   fileT<<setprecision(15)<<dx<<" "<<L2NormT<<endl;
   
-  cout<<"Temperature Field Errors Calculated and Written to File...\n";
-  cout<<"Error Norm (l2): "<<L2NormT<<"\n";      
+  cout<<"\nError Norm (l2): "<<L2NormT;      
   
   fileT.close();
 
@@ -738,27 +760,38 @@ void Grid::PrintFieldValues(FieldName FN){
   
   stringstream myFN;
   string FNstring;
-  ofstream file;
+  ofstream file, err, file2;
   myFN << "Field" << FN;
   
   FNstring = myFN.str();
-  file.open(FNstring.c_str());
-    
+  //file.open(FNstring.c_str());
+  file.open("T_numerical");
+  
+  err.open("T_error");
+  file2.open("T_exact");
+  
   for(int i = Imin; i <= Imax; i++){     
     for(int j = Jmin; j <= Jmax; j++){
       
-      file<<Mesh[i][j].x<<","<<Mesh[i][j].y<<":    "<<Mesh[i][j].GetField(FN)<<endl;  
-      //cout<<"  "<<Mesh[i][j].eU.T;
+      file<<Mesh[i][j].y<<"  "<<setprecision(15)<<Mesh[i][j].GetField(FN)<<endl;  
+      file2<<Mesh[i][j].x<<" "<<Mesh[i][j].y<<" "<<Mesh[i][j].eU.T<<endl;
+      
+      double error = -Mesh[i][j].U.T + Mesh[i][j].eU.T;
+      err<<Mesh[i][j].x<<" "<<Mesh[i][j].y<<" "<<error<<endl;
 
-    } 
-    file<<endl;							       
+    }
+
+    file<<endl;	
+    file2<<endl;
+    err<<endl;
   }     
   
-  cout<<"\nEvaluating Field Values...\n";
-  cout<<"\nStoring values in file: "<<FNstring;
+  // cout<<"\nEvaluating Field Values...\n";
+  // cout<<"\nStoring values in file: "<<FNstring;
   
   file.close();
-  
+  file2.close();
+  err.close();
 }
 
 // Printing field values over specific regions of mesh
