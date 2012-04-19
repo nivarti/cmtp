@@ -21,7 +21,7 @@ int main()
 		
 		nse2d.calc_fi();
 		norm = nse2d.verif_fi();
-		//plot_l2norm(norm, Lx/Nx);
+		plot_l2norm(norm, Lx/Nx);
 		
 
 		cout<<"\nAll correct";

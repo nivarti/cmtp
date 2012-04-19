@@ -1,9 +1,5 @@
 #include "header.h"
 
-// Grid::Grid()
-// {
-// 	;
-// }
 
 Grid::Grid(Rectangle rect)
 {
@@ -23,78 +19,6 @@ Grid::Grid(Rectangle rect)
 		}    
 	cout<<"\nEvaluated cell fields...";
 }
-
-// Grid::Grid(int Nx, int Ny, int Ngc)
-// {
-// 	domain.init_rect(Nx, Ny, Ngc);
-// 	mesh = new Cell*[domain.Imax + 2];
-// 	for(int i = 0; i < domain.Imax + 2; i++)
-// 		mesh[i] = new Cell[domain.Jmax + 2];
-// }
-
-// // Grid::~Grid()
-// // {
-// // 	for(int i = 0; i < domain.Imax + 2; i++)
-// // 		delete mesh[i];
-	
-// // 	delete mesh;
-// // }
-
-
-// void Grid::init_grid(Rectangle rect)
-// {
-// 	domain = rect;
-// 	for (int j = 0; j <= domain.Jmax + domain.Jmin; j++)
-// 	{
-// 		for (int i = 0; i <= domain.Imax + domain.Imin; i++)
-// 		{
-// 			mesh[i][j] = Cell();
-// 			mesh[i][j].init_cell();
-// 		}
-// 	}
-// }
-
-// void Grid::calc_cell_coord()
-// {
-// 	double x, y;
-
-// 	for (int j = 0; j <= domain.Jmax + domain.Jmin; j++)
-// 	{
-// 		for (int i = 0; i <= domain.Imax + domain.Imin; i++)
-// 		{
-// 			x = domain.dx * (2.0 * (double) i - (double) domain.Imin) / 2.0;
-// 			y = domain.dy * (2.0 * (double) j - (double) domain.Jmin) / 2.0;
-
-// 			mesh[i][j].set_coord(x, y);
-// 		}
-// 	}
-
-// 	cout << "\nEvaluated cell coordinates for entire grid...";
-// }
-
-// void Grid::calc_e_field()
-// {
-// 	for(int j = 0; j <= domain.Jmax + domain.Jmin; j++)
-// 	{
-// 		for(int i = 0; i <= domain.Imax + domain.Imin; i++)
-// 		{
-// 			mesh[i][j].set_e_field();
-// 		}
-// 	}
-// 	cout<<"\nEvaluated exact fields...";
-// }
-
-// void Grid::calc_e_fi()
-// {
-// 	for(int j = 0; j <= domain.Jmax + domain.Jmin; j++)
-// 	{
-// 		for(int i = 0; i <= domain.Imax + domain.Imin; i++)
-// 		{
-// 			mesh[i][j].set_e_fi();
-// 		}
-// 	}
-// 	cout<<"\nEvaluated exact flux integrals...";
-// }
 
 void Grid::calc_fi()
 {
@@ -140,7 +64,9 @@ void Grid::calc_fi()
 					Gy /= -domain.dy;
 					
 					mesh[i][j].FI += Fx;
-					mesh[i][j].FI += Gy;
+					mesh[i][j].FI += Gy;					
+					
+					calc_Jacobian(i, j);
 				}
 		}
 
@@ -173,4 +99,92 @@ Field Grid::verif_fi()
 
 	cout<<"\nL2 Norm for flux integral:"<<l2norm;
 	return l2norm;
+}
+
+void Grid::calc_Jacobian(int i, int j)
+{
+	Field Fx, Gy;
+	double uN, uS, uE, uW, uP, vN, vS, vW, vE, vP;
+	double dx = domain.dx, dy = domain.dy;
+
+	double dt = 0.1;
+
+	uP = mesh[i][j].U.C[1];
+	uE = mesh[i+1][j].U.C[1];
+	uW = mesh[i-1][j].U.C[1];
+	uN = mesh[i][j+1].U.C[1];
+	uS = mesh[i][j-1].U.C[1];
+	
+	vP = mesh[i][j].U.C[2];
+	vN = mesh[i][j+1].U.C[2];
+	vS = mesh[i][j-1].U.C[2];
+	vE = mesh[i+1][j].U.C[2];
+	vW = mesh[i-1][j].U.C[2];	
+						
+	// I + dt*Bx + dt*By
+	mesh[i][j].jP[0][0] = 1.0;
+	mesh[i][j].jP[0][1] = 0.0;
+	mesh[i][j].jP[0][2] = 0.0;
+	
+	mesh[i][j].jP[1][0] = 0.0;
+	mesh[i][j].jP[1][1] = 1.0 + dt*(((uE - uW)/2.0 + 2.0/(Re*dx))/dx
+					+ ((vE - vW)/2.0 + 2.0/(Re*dy))/dy);
+	mesh[i][j].jP[1][2] = dt/dx*((uE - uW)/4.0);
+	
+	mesh[i][j].jP[2][0] = 0.0;
+	mesh[i][j].jP[2][1] = dt/dx*((vE - vW)/4.0);
+	mesh[i][j].jP[2][2] = 1.0 + dt*(((uE - uW)/2.0 + 2.0/(Re*dx))/dx
+					+ ((vE - vW)/2.0 + 2.0/(Re*dy))/dy);
+	
+	// Cx
+	mesh[i][j].jE[0][0] = 0.0;
+	mesh[i][j].jE[0][1] = dt/dx*1.0/(2.0*beta);
+	mesh[i][j].jE[0][2] = 0.0;
+	
+	mesh[i][j].jE[1][0] = dt/dx*0.5;
+	mesh[i][j].jE[1][1] = dt/dx*((uE + uP)/2.0 - 1.0/(Re*dx));
+	mesh[i][j].jE[1][2] = 0.0;
+	
+	mesh[i][j].jE[2][0] = 0.0;
+	mesh[i][j].jE[2][1] = dt/dx*((vE + vP)/4.0);
+	mesh[i][j].jE[2][2] = dt/dx*((uE + uP)/4.0 - 1.0/(Re*dx));
+	
+	// Ax
+	mesh[i][j].jW[0][0] = 0.0;
+	mesh[i][j].jW[0][1] = -dt/dx*1.0/(2.0*beta);
+	mesh[i][j].jW[0][2] = 0.0;
+	
+	mesh[i][j].jW[1][0] = -dt/dx*0.5;
+	mesh[i][j].jW[1][1] = -dt/dx*((uW + uP)/2.0 + 1.0/(Re*dx));
+	mesh[i][j].jW[1][2] = 0.0;
+	
+	mesh[i][j].jW[2][0] = 0.0;
+	mesh[i][j].jW[2][1] = -dt/dx*((vW + vP)/4.0);
+	mesh[i][j].jW[2][2] = -dt/dx*((uW + uP)/4.0 + 1.0/(Re*dx));
+	
+	// Cy 
+	mesh[i][j].jN[0][0] = 0.0;
+	mesh[i][j].jN[0][1] = dt/dy*1.0/(2.0*beta);
+	mesh[i][j].jN[0][2] = 0.0;
+
+	mesh[i][j].jN[1][0] = dt/dy*0.5;
+	mesh[i][j].jN[1][1] = dt/dy*((vN + vP)/2.0 - 1.0/(Re*dy));
+	mesh[i][j].jN[1][2] = dt/dy*((uN + uP)/4.0);
+	
+	mesh[i][j].jN[2][0] = 0.0;
+	mesh[i][j].jN[2][1] = 0.0;
+	mesh[i][j].jN[2][2] = dt/dy*((vN + vP)/4.0 - 1.0/(Re*dy));
+	
+	// Ay
+	mesh[i][j].jS[0][0] = 0.0;
+	mesh[i][j].jS[0][1] = -dt/dy*1.0/(2.0*beta);
+	mesh[i][j].jS[0][2] = 0.0;
+	
+	mesh[i][j].jS[1][0] = -dt/dy*0.5;
+	mesh[i][j].jS[1][1] = -dt/dy*((vS + vP)/2.0 + 1.0/(Re*dy));
+	mesh[i][j].jS[1][2] = -dt/dy*((uS + uP)/4.0);
+	
+	mesh[i][j].jS[2][0] = 0.0;
+	mesh[i][j].jS[2][1] = 0.0;
+	mesh[i][j].jS[2][2] = -dt/dy*((vS + vP)/4.0 + 1.0/(Re*dy));	
 }

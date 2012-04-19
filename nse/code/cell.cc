@@ -6,6 +6,18 @@ Cell::Cell()
 	x = y = 0.0;
 	U = eU = 0.0;
 	FI = eFI = 0.0;
+
+	for(int i = 0; i < 3; i++){
+		for(int j = 0; j < 3; j++){
+			
+			jP[i][j] = 0.0;
+			jE[i][j] = 0.0;
+			jW[i][j] = 0.0;
+			jN[i][j] = 0.0;
+			jS[i][j] = 0.0;					
+			
+		}
+	}
 }
 
 void Cell::init_cell(double X, double Y)
@@ -14,13 +26,8 @@ void Cell::init_cell(double X, double Y)
 	set_e_field();
 	set_e_fi();
 	U = eU;
+	
 }
-
-// void Cell::set_coord(double X, double Y)
-// {
-// 	x = X;
-// 	y = Y;
-// }
 
 void Cell::set_e_field()
 {

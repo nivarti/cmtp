@@ -15,3 +15,9 @@ void plot_l2norm(Field F, double dx)
 	
 	file.close();
 }
+
+void tab_l2norm(Field F, double dx)
+{
+	
+	
+}

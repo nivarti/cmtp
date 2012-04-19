@@ -4,7 +4,7 @@
  */
 
 #define pi 3.14159265358979323846264338327950288419716939937510
-#define MAXSIZE 50
+#define MAXSIZE 52
 
 const double Lx = 1.0;
 const double Ly = 1.0;

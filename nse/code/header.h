@@ -51,9 +51,15 @@ struct Cell
 {
 	Field U, eU;
 	Field FI, eFI;
-
+	
 	double x, y;
 
+	double jP[3][3];
+	double jE[3][3];
+	double jN[3][3];
+	double jW[3][3];
+	double jS[3][3];
+	
 	Cell();
 	void init_cell(double, double);
 	void set_e_field();
@@ -84,7 +90,6 @@ public:
 	//Grid();
 	Grid(int, int, int);
 	Grid(Rectangle);
-
 	
 	void init_grid(Rectangle);
 	void calc_cell_coord();
@@ -92,7 +97,11 @@ public:
 	void calc_e_fi();
 	void calc_fi();
 	Field verif_fi();
+	void calc_Jacobian(int, int);
 };
 
 
 void plot_l2norm(Field, double);
+void tab_l2norm(Field, double);
+
+void SolveBlockTri(double LHS[MAXSIZE][3][3][3], double RHS[MAXSIZE][3], int);
