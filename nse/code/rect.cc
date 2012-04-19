@@ -1,13 +1,12 @@
 #include "header.h"
 
-
 Rectangle::Rectangle()
 {
+	dx = dy = 1.0;
 	Imin = Imax = 1;
 	Jmin = Jmax = 1;
-
-	dx = dy = 1.0;
 }
+
 Rectangle::Rectangle(int Nx, int Ny, int Ngc)
 {
 	  dx = Lx/Nx;
@@ -30,14 +29,4 @@ Rectangle& Rectangle::operator=(const Rectangle &RHS)
 	dy = RHS.dy;
 
 	return *this;
-}
-
-
-void Rectangle::init_rect(int Nx, int Ny, int Ngc)
-{
-	  dx = Lx/Nx;
-	  dy = Ly/Ny;
-	  Imin = Jmin = Ngc;
-	  Imax = Nx + Ngc - 1;
-	  Jmax = Ny + Ngc - 1;
 }

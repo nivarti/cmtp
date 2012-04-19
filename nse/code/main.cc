@@ -9,7 +9,7 @@
 
 int main()
 {
-	int Nx = 10, Ny = 10;
+	int Nx = 20, Ny = 20;
 	clock_t ti, tf;
 	Field norm;
 
@@ -17,11 +17,11 @@ int main()
 	while(Nx <= 20)
 	{
 		Rectangle cavity(Nx, Ny, 1);
-		Grid nse2d(cavity);
+		Grid nse(cavity);
 		
-		nse2d.calc_fi();
-		norm = nse2d.verif_fi();
-		plot_l2norm(norm, Lx/Nx);
+		nse.calc_Q();
+		//norm = nse.ver_FI;
+		//plot_l2norm(norm, Lx/Nx);
 		
 
 		cout<<"\nAll correct";

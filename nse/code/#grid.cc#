@@ -170,7 +170,7 @@ void Grid::calc_BC(){
 		// Neumann on Pressure
 		mesh[0][j].U.C[0] = mesh[1][j].U.C[0];   		
 		mesh[domain.Imin + domain.Imax][j].U.C[0] = mesh[domain.Imax][j].U.C[0];
-
+		
 		// No Slip on velocities
 		mesh[0][j].U.C[1] = -mesh[1][j].U.C[1];   		
 		mesh[domain.Imin + domain.Imax][j].U.C[1] = -mesh[domain.Imax][j].U.C[1];

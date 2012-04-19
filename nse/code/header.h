@@ -42,28 +42,29 @@ struct Field
 	Field& operator/=(const Field &RHS);
 	Field& operator*=(const double &RHS);
 	Field& operator*=(const Field &RHS);
-	Field operator-(const Field &RHS);
+	Field operator*(const double A[][3]);
 
+	Field operator-(const Field &RHS);
 	friend ostream& operator<<(ostream&, Field&);
 };
 
 struct Cell
 {
-	Field U, eU;
-	Field FI, eFI;
-	
+	Field U, eU, dU, Un;
+	Field FI, eFI, FIn;	
+
 	double x, y;
 
-	double jP[3][3];
-	double jE[3][3];
-	double jN[3][3];
-	double jW[3][3];
-	double jS[3][3];
+	double Ax[3][3], Ay[3][3];
+	double Bx[3][3], By[3][3];
+	double Cx[3][3], Cy[3][3];
 	
 	Cell();
-	void init_cell(double, double);
-	void set_e_field();
-	void set_e_fi();
+	
+	void set_XY(double, double);
+	void set_eU();
+	void set_eFI();
+	void set_eQ();
 };
 
 struct Rectangle
@@ -71,12 +72,10 @@ struct Rectangle
 	int Imin, Imax;
 	int Jmin, Jmax;
 
-	double dx;
-	double dy;
-
+	double dx, dy;
+		
 	Rectangle();
 	Rectangle(int, int, int);
-	void init_rect(int, int, int);
 	Rectangle& operator=(const Rectangle &RHS);
 };
 
@@ -84,20 +83,20 @@ class Grid
 {
 	Cell mesh[MAXSIZE][MAXSIZE];
 	Rectangle domain;
-
+	
 public:
 
-	//Grid();
-	Grid(int, int, int);
 	Grid(Rectangle);
 	
-	void init_grid(Rectangle);
-	void calc_cell_coord();
-	void calc_e_field();
-	void calc_e_fi();
-	void calc_fi();
-	Field verif_fi();
-	void calc_Jacobian(int, int);
+	void calc_Q();
+	void calc_eU();
+	void calc_eFI();
+	void calc_FI(int, int);
+	void calc_BC();
+	void calc_J(int, int);
+	void calc_EJ();
+	
+	Field ver_FI();
 };
 
 

@@ -80,6 +80,16 @@ Field& Field::operator*=(const Field &RHS)
 	return *this;
 }
 
+// Field Field::operator*(const double A[3][])
+// {
+// 	Field Result;
+	
+// 	Result.C[0] = A[0][0]*C[0] + A[0][1]*C[1] + A[0][2]*C[2]; 
+// 	Result.C[1] = A[1][0]*C[0] + A[1][1]*C[1] + A[1][2]*C[2]; 
+// 	Result.C[2] = A[2][0]*C[0] + A[2][1]*C[1] + A[2][2]*C[2]; 
+
+// 	return Result;	
+// }
 
 ostream& operator<<(ostream &out, Field &f)
 {

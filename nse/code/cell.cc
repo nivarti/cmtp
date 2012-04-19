@@ -4,39 +4,32 @@
 Cell::Cell()
 {
 	x = y = 0.0;
-	U = eU = 0.0;
+	U = eU = dU = 0.0;
 	FI = eFI = 0.0;
 
 	for(int i = 0; i < 3; i++){
 		for(int j = 0; j < 3; j++){
 			
-			jP[i][j] = 0.0;
-			jE[i][j] = 0.0;
-			jW[i][j] = 0.0;
-			jN[i][j] = 0.0;
-			jS[i][j] = 0.0;					
-			
+			Ax[i][j] = Ay[i][j] = 0.0;
+			Bx[i][j] = By[i][j] = 0.0;
+			Cx[i][j] = Cy[i][j] = 0.0;								
 		}
 	}
 }
 
-void Cell::init_cell(double X, double Y)
+void Cell::set_XY(double X, double Y)
 {
 	x = X; y = Y;
-	set_e_field();
-	set_e_fi();
-	U = eU;
-	
 }
 
-void Cell::set_e_field()
+void Cell::set_eU()
 {
 	eU.C[0] = P0*cos(pi*x)*cos(pi*y);
 	eU.C[1] = u0*sin(pi*x)*sin(2.0*pi*y);
 	eU.C[2] = v0*sin(2.0*pi*x)*sin(pi*y);
 }
 
-void Cell::set_e_fi()
+void Cell::set_eFI()
 {
 	double Cx, Cy, Sx, Sy, C2x, C2y, S2x, S2y;
 
@@ -59,4 +52,11 @@ void Cell::set_e_fi()
 	eFI.C[2] = P0*pi*Cx*Sy - v0*v0*pi*S2x*S2x*S2y
 		- u0*v0*pi*Sy*S2y*(Cx*S2x + 2.0*C2x*Sx)
 		- (v0/Re)*(5.0*pi*pi*S2x*Sy);
+}
+
+void Cell::set_eQ()
+{
+	set_eU();
+	set_eFI();
+	U = eU;	
 }
