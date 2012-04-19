@@ -3,7 +3,7 @@ unset log                              # remove any log-scaling
 unset label                            # remove any previous labels 
    set xtic auto                          # set xtics automatically 
    set ytic auto                          # set ytics automatically
-   set title "Error Norms for Flux and Source"
+#   set title "Error Norms for Flux and Source"
    set xlabel "Cell Size, dx"
    set ylabel "Error Norm"
 #   set key 0.01,100

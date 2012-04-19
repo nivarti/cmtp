@@ -1,0 +1,6 @@
+This folder contains code that solves a 2D Navier Stokes equation for incompressible flow. 
+
+The code borrows some elements from the previously written code structures such as the class structure used in energy equation solver. A fundamental change was made in terms of software used for this project. Previous assignments were completed using Emacs. However, as a need for a rhobust Debugger was felt, a shift was made to Eclipse. A split files strategy has been used to decongest code over multiple sections.
+
+
+There has been an attempt to use Doxygen on this code, comments are, however, minimal.

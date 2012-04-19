@@ -1,68 +1,235 @@
-Q6. 
+Problem 5.
 
-a) 200 x 80
-   Implicit Euler: L2Norm = 0.00078931, Time = 290 ms, Steps = 17, dt = 1.79	
-   Explicit Euler: L2Norm = 0.00018154, Time = 6350 ms, Steps = 1467, dt = 0.002
+dt = 0.1, Implicit Euler, Mesh 25x10
+Maximum change in solution: 8.42116e-09
+Error Norm (l2): 0.0112145
+Solution converged in 59 steps
+Solver Run-Time: 60 ms
 
-b) 100 x 40
-   Implicit Euler: L2Norm = 0.0077998, Time = 30 ms, Steps = 6, dt = 2.2
-   Explicit Euler: L2Norm = 0.00072508, Time = 2810 ms, Steps = 3238, dt = 0.006
+dt = 0.01, Explicit Euler, Mesh 25x10
+Maximum change in solution: 9.70113e-09
+Error Norm (l2): 0.0112145
+Solution converged in 4377 steps
+Solver Run-Time: 380 ms
 
-c) 50 x 20
-   Implicit Euler: L2Norm = 0.0099181, Time = 10 ms, Steps = 8, dt = 3.5
-   Explicit Euler: 0.0028815, 640 ms, 3206 steps, dt = 0.007
 
-d) 25 x 10
-   Implicit Euler: L2Norm = 0.017774, Time = 0 ms, Steps = 5, dt = 3.6
-   Explicit Euler: 0.011214, 200 ms, 4377 steps, dt = 0.02
 
+Explicit Euler, Order of method: 1.99062
+dt = 0.002:
+
+Evaluating solution for Mesh Size: 25 by 10
+Evaluated Cell Coordinates for Grid...
+Evaluating Initial Condition on Fields...
+Evaluating Source Terms on Grid...
+Calculating time step for Explicit Euler...
+Error Norm (l2): 0.0112145
+Maximum change in solution: 9.7493e-09
+Solution converged in 2987 steps
+Solver Run-Time: 140 ms
+
+Evaluating solution for Mesh Size: 50 by 20
+Evaluated Cell Coordinates for Grid...
+Evaluating Initial Condition on Fields...
+Evaluating Source Terms on Grid...
+Calculating time step for Explicit Euler...
+Error Norm (l2): 0.00288149
+Maximum change in solution: 9.8356e-09
+Solution converged in 1617 steps
+Solver Run-Time: 300 ms
+
+Evaluating solution for Mesh Size: 100 by 40
+Evaluated Cell Coordinates for Grid...
+Evaluating Initial Condition on Fields...
+Evaluating Source Terms on Grid...
+Calculating time step for Explicit Euler...
+Error Norm (l2): 0.000725072
+Maximum change in solution: 9.81147e-09
+Solution converged in 1467 steps
+Solver Run-Time: 1090 ms
+
+Evaluating solution for Mesh Size: 200 by 80
+Evaluated Cell Coordinates for Grid...
+Evaluating Initial Condition on Fields...
+Evaluating Source Terms on Grid...
+Calculating time step for Explicit Euler...
+Error Norm (l2): 0.000181544
+Maximum change in solution: 9.98927e-09
+Solution converged in 1467 steps
+Solver Run-Time: 4350 ms
+
+
+Implicit Euler, Order of Method 1.991
+dt = 0.1
+
+Evaluating solution for Mesh Size: 25 by 10
+Evaluated Cell Coordinates for Grid...
+Evaluating Initial Condition on Fields...
+Evaluating Source Terms on Grid...
+Calculating time step for Implicit Euler...
+Error Norm (l2): 0.0112145
+Maximum change in solution: 8.42116e-09
+Solution converged in 59 steps
+Solver Run-Time: 40 ms
+
+Evaluating solution for Mesh Size: 50 by 20
+Evaluated Cell Coordinates for Grid...
+Evaluating Initial Condition on Fields...
+Evaluating Source Terms on Grid...
+Calculating time step for Implicit Euler...
+Error Norm (l2): 0.00288149
+Maximum change in solution: 7.03787e-09
+Solution converged in 52 steps
+Solver Run-Time: 100 ms
+
+Evaluating solution for Mesh Size: 100 by 40
+Evaluated Cell Coordinates for Grid...
+Evaluating Initial Condition on Fields...
+Evaluating Source Terms on Grid...
+Calculating time step for Implicit Euler...
+Error Norm (l2): 0.00072508
+Maximum change in solution: 6.5177e-09
+Solution converged in 52 steps
+Solver Run-Time: 290 ms
 
 Evaluating solution for Mesh Size: 200 by 80
 Evaluated Cell Coordinates for Grid...
 Evaluating Initial Condition on Fields...
 Evaluating Source Terms on Grid...
 Calculating time step for Implicit Euler...
-Temperature gradient at bottom wall evaluated...
-Writing to file: dTdy3
-Maximum Temperature gradient = 1.129 at 12.438
-Maximum change in solution: 9.9457e-09
+Error Norm (l2): 0.000181553
+Maximum change in solution: 9.95724e-09
+Solution converged in 101 steps
+Solver Run-Time: 1820 ms
 
-Solution converged in 848 steps
 
-Solver Run-Time: 11090 ms
+Problem 6
 
-Evaluating solution for Mesh Size: 400 by 160
-Evaluated Cell Coordinates for Grid...
-Evaluating Initial Condition on Fields...
-Evaluating Source Terms on Grid...
+Explicit Euler
+Mesh size 200x80, dt = 0.002
+Solution converged in 1467 steps
+Solver Run-Time: 4350 ms
+
+Mesh size 100x40, dt = 0.005
+Solution converged in 1168 steps
+Solver Run-Time: 870 ms
+
+Mesh size 50x20, dt = 0.007
+Solution converged in 3206 steps
+Solver Run-Time: 580 ms
+
+Mesh size 25x10, dt = 0.01
+Solution converged in 4377 steps
+Solver Run-Time: 240 ms
+
+
+
+Implicit Euler
+Mesh 25x10, dt = 10.0
+Solution converged in 639 steps
+Solver Run-Time: 470 ms
+
+Mesh 25x10, dt = 5.0
+Solution converged in 347 steps
+Solver Run-Time: 250 ms
+
+Mesh 25x10, dt = 4.0
+Solution converged in 284 steps
+Solver Run-Time: 220 ms
+Error Norm (l2): 0.0112145
+
+Mesh 50x20, dt = 5.0
+Solution converged in 775 steps
+Solver Run-Time: 1460 ms
+
+Mesh 100x40, dt = 5.0
+Solution converged in 1279 steps
+Solver Run-Time: 6980 ms
+
+Mesh 200x80, dt = 5.0
+Solution converged in 2500 steps
+Solver Run-Time: 43870 ms
+
+Problem 7.
+
+Varying size of domain
+
+Lx = 5
 Calculating time step for Implicit Euler...
+Maximum change in solution: 9.08773e-09
+Solution converged in 45 steps
 Temperature gradient at bottom wall evaluated...
-Writing to file: dTdy4
-Maximum Temperature gradient = 1.129 at 12.469
-Maximum change in solution: 9.984e-09
+Writing to file: dTdy0
+Maximum Temperature gradient = 1.04364 at 4.975
+Solver Run-Time: 250 ms
 
-Solution converged in 831 steps
-
-Solver Run-Time: 47960 ms
-
-Evaluating solution for Mesh Size: 800 by 320
-Evaluated Cell Coordinates for Grid...
-Evaluating Initial Condition on Fields...
-Evaluating Source Terms on Grid...
+Lx = 10.0
 Calculating time step for Implicit Euler...
+Maximum change in solution: 9.01429e-09
+Solution converged in 66 steps
 Temperature gradient at bottom wall evaluated...
-Writing to file: dTdy5
-Maximum Temperature gradient = 1.129 at 12.484
-Maximum change in solution: 9.8336e-09
+Writing to file: dTdy0
+Maximum Temperature gradient = 1.12011 at 9.95
+Solver Run-Time: 360 ms
 
-Solution converged in 813 steps
+Lx = 15.0
+Maximum change in solution: 7.57509e-09
+Solution converged in 84 steps
+Temperature gradient at bottom wall evaluated...
+Writing to file: dTdy0
+Maximum Temperature gradient = 1.12884 at 12.375
+Solver Run-Time: 460 ms
 
-Solver Run-Time: 190480 ms
+Lx = 20.0
+Maximum change in solution: 7.40209e-09
+Solution converged in 100 steps
+Temperature gradient at bottom wall evaluated...
+Writing to file: dTdy0
+Maximum Temperature gradient = 1.12882 at 12.5
+Solver Run-Time: 550 ms
+
+Lx = 25.0
+Maximum change in solution: 8.4925e-09
+Solution converged in 115 steps
+Temperature gradient at bottom wall evaluated...
+Writing to file: dTdy0
+Maximum Temperature gradient = 1.12882 at 12.375
+Solver Run-Time: 640 ms
+
+Lx = 30.0
+Maximum change in solution: 9.7633e-09
+Solution converged in 136 steps
+Temperature gradient at bottom wall evaluated...
+Writing to file: dTdy0
+Maximum Temperature gradient = 1.12869 at 12.45
+Solver Run-Time: 750 ms
+
+Lx = 40.0
+Maximum change in solution: 9.15755e-09
+Solution converged in 178 steps
+Temperature gradient at bottom wall evaluated...
+Writing to file: dTdy0
+Maximum Temperature gradient = 1.1288 at 12.6
+Solver Run-Time: 970 ms
 
 
+Grid Convergence
+1 0.1 1.12570929088971 13.5
+0.5 0.05 1.12832053502411 12.25
+0.25 0.025 1.12882403056881 12.375
+0.125 0.0125 1.1289677379422 12.4375
 
 
+Value: 
+Apparent Order for solution in Position: 1.808844926
+1.129025138 +/- 6.35535338e-05
+Solution estimate for Position = 12.5 +/- 0.006281407035
 
-Solution estimate for Position = 12.5 +/- 0.00313283208
-Apparent Order for solution in Position: 1.948136094
-Solution estimate for Position = 1.129018043 +/- 1.443382335e-05
+Plot: dt = 0.01, Lx = 25.0
+Evaluating solution for Mesh Size: 200 by 80
+Calculating time step for Implicit Euler...
+Maximum change in solution: 9.62455e-09
+Solution converged in 911 steps
+Temperature gradient at bottom wall evaluated...
+Writing to file: dTdy0
+Maximum Temperature gradient = 1.12897 at 12.4375
+Solver Run-Time: 15260 ms

@@ -173,7 +173,7 @@ void RK2TimeAdvance(double T[]){
   double T1[SIZE], F1[SIZE], F[SIZE];				   // Buffer arrays for RK2 intermediate steps
   
   PeriodicBC(T);	                                           // Implement ghost cell values for flux calculation  
-  EvaluateFlux(Unlimited, T, F);			         	   // Evaluate Fluxes from solution at time step n. Change to Limited flux as required
+  EvaluateFlux(Unlimited, T, F);			       	   // Evaluate Fluxes from solution at time step n. Change to Limited flux as required
  
   for(i = Imin; i <= Imax; i++){
     

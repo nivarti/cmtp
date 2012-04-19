@@ -1,0 +1,77 @@
+Q6. 
+
+a) 200 x 80
+   Implicit Euler: L2Norm = 0.00078931, Time = 290 ms, Steps = 17, dt = 1.79	
+   Explicit Euler: L2Norm = 0.00018154, Time = 6350 ms, Steps = 1467, dt = 0.002
+
+b) 100 x 40
+   Implicit Euler: L2Norm = 0.0077998, Time = 30 ms, Steps = 6, dt = 2.2
+   Explicit Euler: L2Norm = 0.00072508, Time = 2810 ms, Steps = 3238, dt = 0.006
+
+c) 50 x 20
+   Implicit Euler: L2Norm = 0.0099181, Time = 10 ms, Steps = 8, dt = 3.5
+   Explicit Euler: 0.0028815, 640 ms, 3206 steps, dt = 0.007
+
+d) 25 x 10
+   Implicit Euler: L2Norm = 0.017774, Time = 0 ms, Steps = 5, dt = 3.6
+   Explicit Euler: 0.011214, 200 ms, 4377 steps, dt = 0.02
+
+
+Evaluating solution for Mesh Size: 200 by 80
+Evaluated Cell Coordinates for Grid...
+Evaluating Initial Condition on Fields...
+Evaluating Source Terms on Grid...
+Calculating time step for Implicit Euler...
+Temperature gradient at bottom wall evaluated...
+Writing to file: dTdy3
+Maximum Temperature gradient = 1.129 at 12.438
+Maximum change in solution: 9.9457e-09
+
+Solution converged in 848 steps
+
+Solver Run-Time: 11090 ms
+
+Evaluating solution for Mesh Size: 400 by 160
+Evaluated Cell Coordinates for Grid...
+Evaluating Initial Condition on Fields...
+Evaluating Source Terms on Grid...
+Calculating time step for Implicit Euler...
+Temperature gradient at bottom wall evaluated...
+Writing to file: dTdy4
+Maximum Temperature gradient = 1.129 at 12.469
+Maximum change in solution: 9.984e-09
+
+Solution converged in 831 steps
+
+Solver Run-Time: 47960 ms
+
+Evaluating solution for Mesh Size: 800 by 320
+Evaluated Cell Coordinates for Grid...
+Evaluating Initial Condition on Fields...
+Evaluating Source Terms on Grid...
+Calculating time step for Implicit Euler...
+Temperature gradient at bottom wall evaluated...
+Writing to file: dTdy5
+Maximum Temperature gradient = 1.129 at 12.484
+Maximum change in solution: 9.8336e-09
+
+Solution converged in 813 steps
+
+Solver Run-Time: 190480 ms
+
+
+
+
+
+Solution estimate for Position = 12.5 +/- 0.00313283208
+Apparent Order for solution in Position: 1.948136094
+Solution estimate for Position = 1.129018043 +/- 1.443382335e-05
+
+
+               	   dt = 0.9*0.0112; break;	     
+            case 2:
+                dt = 0.9*0.0076; break;
+            case 4:
+                dt = 0.9*0.0052; break;
+            case 8:
+                dt = 0.9*0.0021; break;

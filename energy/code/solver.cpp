@@ -51,7 +51,7 @@ void SolveEnergyEquation(Grid& Domain){
     
   }while(fabs(dU.T) > 0.00000001);
 
-  //Domain.EvaluateExactFields();      
+  Domain.EvaluateExactFields();      
   //Domain.FieldVerification();  
   Domain.PrintFieldValues(Temperature);
 

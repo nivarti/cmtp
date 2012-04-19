@@ -293,8 +293,8 @@ void Grid::EvaluateBoundaryConditions(){
     
     Mesh[i][0].U.T = - Mesh[i][1].U.T; 
     
-    Tbc = Mesh[i][Jmin + Jmax].SetBCTemperatureField();
-    Mesh[i][Jmin + Jmax].U.T = 2.0*Tbc - Mesh[i][Jmax].U.T;
+    //Tbc = Mesh[i][Jmin + Jmax].SetBCTemperatureField();
+    Mesh[i][Jmin + Jmax].U.T = 2.0 - Mesh[i][Jmax].U.T;
     
     Mesh[i][0].U.u = -Mesh[i][0].U.u;
     Mesh[i][Jmin + Jmax].U.u = -Mesh[i][Jmax].U.u;
@@ -773,16 +773,17 @@ void Grid::PrintFieldValues(FieldName FN){
   for(int i = Imin; i <= Imax; i++){     
     for(int j = Jmin; j <= Jmax; j++){
       
-      file<<Mesh[i][j].y<<"  "<<setprecision(15)<<Mesh[i][j].GetField(FN)<<endl;  
-      file2<<Mesh[i][j].x<<" "<<Mesh[i][j].y<<" "<<Mesh[i][j].eU.T<<endl;
+      file<<Mesh[i][j].y<<"  "<<setprecision(15)<<Mesh[i][j].GetField(FN)<<endl;        
       
       double error = -Mesh[i][j].U.T + Mesh[i][j].eU.T;
       err<<Mesh[i][j].x<<" "<<Mesh[i][j].y<<" "<<error<<endl;
-
-    }
+      
+      if(i == 1)
+	file2<<Mesh[i][j].y<<" "<<Mesh[i][j].eU.T<<endl;
+    }    
 
     file<<endl;	
-    file2<<endl;
+    //file2<<endl;
     err<<endl;
   }     
   
