@@ -80,16 +80,24 @@ Field& Field::operator*=(const Field &RHS)
 	return *this;
 }
 
-// Field Field::operator*(const double A[3][])
-// {
-// 	Field Result;
+Field Field::operator*(const double A[][3])
+{
+	Field Result;
 	
-// 	Result.C[0] = A[0][0]*C[0] + A[0][1]*C[1] + A[0][2]*C[2]; 
-// 	Result.C[1] = A[1][0]*C[0] + A[1][1]*C[1] + A[1][2]*C[2]; 
-// 	Result.C[2] = A[2][0]*C[0] + A[2][1]*C[1] + A[2][2]*C[2]; 
+	Result.C[0] = A[0][0]*C[0] + A[0][1]*C[1] + A[0][2]*C[2]; 
+	Result.C[1] = A[1][0]*C[0] + A[1][1]*C[1] + A[1][2]*C[2]; 
+	Result.C[2] = A[2][0]*C[0] + A[2][1]*C[1] + A[2][2]*C[2]; 
 
-// 	return Result;	
-// }
+	return Result;	
+}
+
+bool Field::operator>=(const Field &RHS)
+{
+	if(C[0] >= RHS.C[0] || C[1] >= RHS.C[1] || C[2] >= RHS.C[2])
+		return true;
+	else
+		return false;
+}
 
 ostream& operator<<(ostream &out, Field &f)
 {
@@ -106,4 +114,11 @@ void Field::sqroot()
 	C[0] = sqrt(C[0]);
 	C[1] = sqrt(C[1]);
 	C[2] = sqrt(C[2]);     
+}
+
+void Field::abs()
+{	
+	C[0] = fabs(C[0]);
+	C[1] = fabs(C[1]);
+	C[2] = fabs(C[2]);	
 }

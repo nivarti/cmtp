@@ -1,0 +1,22 @@
+
+\begin{table}
+\begin{center}
+\begin{tabular}{|l | r | r | r |}
+\hline
+Cell Index & Error (U1) & Error (U2) & Error (U3) \\
+\hline
+9, 9 & 0 & 0 & 0 \\
+10, 9 & 1.00018e-17 & 4.99997e-12 & 4.99994e-12 \\
+11, 9 & 0 & 0 & 0 \\
+9, 10 & 1.00018e-17 & 4.99994e-12 & 5.00008e-12 \\
+10, 10 & 0 & 1.00668e-16 & 1.00668e-16 \\
+11, 10 & -1.00018e-17 & -4.99998e-12 & -4.99987e-12 \\
+9, 11 & 0 & 0 & 0 \\
+10, 11 & -1.00018e-17 & -4.99987e-12 & -4.99998e-12 \\
+11, 11 & 0 & 0 & 0 \\
+\hline
+\end{tabular}
+\caption{Approximation error in change in flux integral with time step.}
+\label{approxE}
+\end{center}
+\end{table}

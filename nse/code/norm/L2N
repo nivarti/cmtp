@@ -1,0 +1,15 @@
+
+\begin{table}
+\begin{center}
+\begin{tabular}{|l | r | r | r |}
+\hline
+Mesh Size & Error (U1) & Error (U2) & Error (U3) \\
+\hline
+20, 20 & 0.0119834 & 0.0500259 & 0.0500259 \\
+40, 40 & 0.0029957 & 0.0125859 & 0.0125859 \\
+\hline
+\end{tabular}
+\caption{Tabulation of $L_2$ Norms for different mesh sizes.}
+\label{approxE}
+\end{center}
+\end{table}

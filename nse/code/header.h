@@ -28,12 +28,15 @@
 
 using namespace std;
 
+enum Direction{Row, Column};
+
 struct Field
 {
 	double C[3];
 	
 	Field();
 	void sqroot();
+	void abs();
 
 	Field& operator=(const double &RHS);
 	Field& operator=(const Field &RHS);
@@ -43,6 +46,7 @@ struct Field
 	Field& operator*=(const double &RHS);
 	Field& operator*=(const Field &RHS);
 	Field operator*(const double A[][3]);
+	bool operator>=(const Field &RHS);
 
 	Field operator-(const Field &RHS);
 	friend ostream& operator<<(ostream&, Field&);
@@ -51,7 +55,7 @@ struct Field
 struct Cell
 {
 	Field U, eU, dU, Un;
-	Field FI, eFI, FIn;	
+	Field FI, eFI, FIn;
 
 	double x, y;
 
@@ -93,14 +97,19 @@ public:
 	void calc_eFI();
 	void calc_FI(int, int);
 	void calc_BC();
+	void calc_IBC();
 	void calc_J(int, int);
 	void calc_EJ();
 	
 	Field ver_FI();
 };
 
+void spew_matrix(double M[][3]);
+void mult_matrix(double M[][3], double K);
+void init_matrix(double M[][3], double K);
 
-void plot_l2norm(Field, double);
-void tab_l2norm(Field, double);
+//void plot_l2norm(Field, double);
+void tab_L2N(int, int, Field);
+void tab_EJ(int, int, Field);
 
 void SolveBlockTri(double LHS[MAXSIZE][3][3][3], double RHS[MAXSIZE][3], int);
