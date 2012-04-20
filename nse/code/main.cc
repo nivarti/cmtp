@@ -19,10 +19,11 @@ int main()
 		Rectangle cavity(Nx, Ny, 1);
 		Grid nse(cavity);
 		
-		nse.calc_Q();
-		L2norm = nse.ver_FI();
-		tab_L2N(Nx, Ny, L2norm);		
+		//nse.calc_Q();
+		//L2norm = nse.ver_FI();
+		//tab_L2N(Nx, Ny, L2norm);		
 
+		//solve(nse);
 		
 		Nx *= 2;
 		Ny *= 2;

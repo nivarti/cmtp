@@ -235,34 +235,34 @@ void Grid::calc_Q()
 	for(int j = domain.Jmin; j <= domain.Jmax; j++){
 		for(int i = domain.Imin; i <= domain.Imax; i++){
 						
-			calc_FI(i, j);
-			calc_J(i, j);	
+		  calc_FI(i, j);
+		  calc_J(i, j);	
 
-			if(i == 10 && j == 10){
-				cout<<"\n Ax:";
-				spew_matrix(mesh[i][j].Ax);
+		  // if(i == 10 && j == 10){
+		  // 	cout<<"\n Ax:";
+		  // 	spew_matrix(mesh[i][j].Ax);
+		  
+		  // 	cout<<"\n Ay:";
+		  // 	spew_matrix(mesh[i][j].Ay);
+		  
+		  // 	cout<<"\n Bx:";
+		  // 	spew_matrix(mesh[i][j].Bx);
+		  
+		  // 	cout<<"\n By:";
+		  // 	spew_matrix(mesh[i][j].By);
+		  
+		  // 	cout<<"\n Cx:";
+		  // 	spew_matrix(mesh[i][j].Cx);
 				
-				cout<<"\n Ay:";
-				spew_matrix(mesh[i][j].Ay);
-				
-				cout<<"\n Bx:";
-				spew_matrix(mesh[i][j].Bx);
-				
-				cout<<"\n By:";
-				spew_matrix(mesh[i][j].By);
-				
-				cout<<"\n Cx:";
-				spew_matrix(mesh[i][j].Cx);
-				
-				cout<<"\n Cy:";
-				spew_matrix(mesh[i][j].Cy);
-				
-			}
+		  // 	cout<<"\n Cy:";
+		  // 	spew_matrix(mesh[i][j].Cy);
+		  //}
+		  
 		}
 	}
-		
-	ver_FI();	
-	calc_EJ();
+	
+	//ver_FI();	
+	//calc_EJ();
 }
 
 void Grid::calc_EJ()
@@ -346,149 +346,131 @@ Field Grid::ver_FI()
 	return l2norm;
 }
 
-// double Grid::march_IE(double dt)
-// {
+Field Grid::march_IE(double dt)
+{
 	
-// 	Field dU = dUmax = 0.0;
-// 	double RHS[MAXSIZE], LHS[MAXSIZE][3][3][3];
+	Field dU, dUmax;
+	double RHS[MAXSIZE][3], LHS[MAXSIZE][3][3][3];
+
+	dU = dUmax = 0.0;
+
+	// Construct flux integrals, and boundary conditions
+	calc_BC();
+	calc_IBC();
+	calc_Q();
 	
-// 	calc_BC();
-// 	calc_FI();
+
+	// Start approximate factorisation solution
+	for(int j = domain.Jmin; j <= domain.Jmax; j++){
+		
+		calc_LHS(LHS, Column, j);
+		calc_RHS(RHS, Column, j);		
+		solve_Thomas(LHS, RHS, Column, j);
+	}
 	
-// 	// Start approximate factorisation solution
-// 	for(int j = Jmin; j <= Jmax; j++){
+	for(int i = domain.Imin; i <= domain.Imax; i++){
 		
-// 		LHS = calc_LHS(Column, j);
-// 		RHS = calc_RHS(Column, j);
-		
-// 		SolveBlockTri(LHS, RHS, N);	
-		
-// 	}
+		calc_LHS(LHS, Row, i);
+		calc_RHS(RHS, Row, i);
+		solve_Thomas(LHS, RHS, Row, i);
+	}
+	// End approximate factorisation solution
 	
-// 	for(int j = Jmin; j <= Jmax; j++){
-		
-// 		LHS = calc_LHS();
-// 		RHS = calc_RHS(FIn);
-		
-// 		SolveBlockTri(LHS, RHS, N);
-// 	}
-// 	// End approximate factorisation solution
+	// Update solution
+	for(int i = domain.Imin; i <= domain.Imax; i++){
+		for(int j = domain.Jmin; j <= domain.Jmax; j++){      
 			
-//   // 		CopyToLHS(Dx, LHS, Imax + 1);
-		
-//   // 		CopyToRHS(FI, RHS, Imax + 1, j, Column);
-		
-//   // 		//   if (i == 1){
-//   // 		//     for(int i = Imin; i <= Imax; i++){
-		
-//   // 		// 	cout<<RHS[i]<<"\n";
-	
-//   // 		//     }
-//   // 		//     cout<<endl;
-//   // 		// }
-		
-//   // 		SolveBlockTri(LHS, RHS, Imax);
-//   // 		CopyFromRHS(FI, RHS, Imax + 1, j, Column);
-		
-//   // 	}
-	
-//   // 	for(int i = Imin; i <= Imax; i++){
-		
-//   //   EvaluateDy(i);  
-//   //   CopyToLHS(Dy, LHS, Jmax + 1);
-    
-    
-//   //   CopyToRHS(FI, RHS, Jmax + 1, i, Row);
-//   //   // if (i == 1){
-//   //   //   cout<<"\nbringing up dT tildas for i = 1\n";
-    
-//   //   //   for(int j = Jmin; j <= Jmax; j++){	
-//   //   // 	cout<<RHS[j]<<"\n";	
-//   //   //   }
-//   //   //   cout<<endl;
-//   //   // }
-    
-//   //   SolveThomas(LHS, RHS, Jmax);  
-//   //   CopyFromRHS(FI, RHS, Jmax + 1, i, Row);
-    
-//   // }  
-//   // End of Approximate factorisation solution
-	
-// 	// Update solution
-// 	for(int i = domain.Imin; i <= domain.Imax; i++){
-// 		for(int j = domain.Jmin; j <= domain.Jmax; j++){      
+			dU = mesh[i][j].FI;
+			mesh[i][j].U += dU;
 			
-// 			dU = mesh[i][j].dU = FI[i][j];
-// 			mesh[i][j].U += dU;
+			dU.abs();
+			if(dU >= dUmax)
+				dUmax = dU;
+		}
+	}
+	
+	return dUmax;	
+}
+	
+void Grid::calc_LHS(double LHS[MAXSIZE][3][3][3], Direction RC, int IJ)
+{	
+	if(RC == Column)
+		{
+			for(int k = 0; k <= domain.Imax + domain.Imin; k++)
+				{
+					copy_matrix(mesh[k][IJ].Ay, LHS[k][0]);
+					copy_matrix(mesh[k][IJ].IDy, LHS[k][0]);
+					copy_matrix(mesh[k][IJ].Cy, LHS[k][0]);
+					
+					// LHS[k][0] = mesh[k][IJ].Ay;
+					// LHS[k][1] = mesh[k][IJ].IDy;
+					// LHS[k][2] = mesh[k][IJ].Cy;
+				}
+		}
+
+	
+
+	if(RC == Row)
+		{
+			for(int k = 0; k <= domain.Jmax + domain.Jmin; k++)
+				{
+					copy_matrix(mesh[IJ][k].Ax, LHS[k][0]);
+					copy_matrix(mesh[IJ][k].IDx, LHS[k][0]);
+					copy_matrix(mesh[IJ][k].Cx, LHS[k][0]);
+
+					// LHS[k][0] = mesh[IJ][k].Ax;
+					// LHS[k][1] = mesh[IJ][k].IDx;
+					// LHS[k][2] = mesh[IJ][k].Cx;
+				}
+		}	
+}
+
+void Grid::calc_RHS(double RHS[MAXSIZE][3], Direction RC, int IJ)
+{	
+	if(RC == Column)
+		{
+			for(int k = 0; k <= domain.Imax + domain.Imin; k++)
+				{
+					RHS[k][0] = mesh[k][IJ].FI.C[0];
+					RHS[k][1] = mesh[k][IJ].FI.C[1];
+					RHS[k][2] = mesh[k][IJ].FI.C[2];
+				}
+		}
+	
+	if(RC == Row)
+		{
+			for(int k = 0; k <= domain.Jmax + domain.Jmin; k++)
+				{
+					RHS[k][0] = mesh[IJ][k].FI.C[0];
+					RHS[k][1] = mesh[IJ][k].FI.C[1];
+					RHS[k][2] = mesh[IJ][k].FI.C[2];
+				}
+		}
+}
+
+void Grid::solve_Thomas(double LHS[MAXSIZE][3][3][3], double RHS[MAXSIZE][3], Direction RC, int IJ)
+{
+	if(RC == Column)
+		{		
+			SolveBlockTri(LHS, RHS, domain.Imax + domain.Imin);
 			
-// 			dU.abs();
-// 			if(dU >= dUmax)
-// 				dUmax = dU;
-// 		}
-// 	}
+			for(int k = 0; k <= domain.Imax + domain.Imin; k++)
+				{					
+					mesh[k][IJ].FI.C[0] = RHS[k][0];
+					mesh[k][IJ].FI.C[1] = RHS[k][1];
+					mesh[k][IJ].FI.C[2] = RHS[k][2];
+				}
+		}
 	
-// 	return dUmax;	
-// }
-	
-// void Grid::calc_LHS(Direction RC, int IJ)
-// {
-// 	double LHS[MAXSIZE][3][3][3];
-	
-// 	if(RC == Column)
-// 		{
-// 			for(int k = 0; k <= domain.Imax + domain.Imin; k++)
-// 				{
-// 					LHS[k][0] = mesh[k][IJ].Ay;
-// 					LHS[k][1] = mesh[k][IJ].IDy;
-// 					LHS[k][2] = mesh[k][IJ].Cy;
-// 				}
-// 		}
-
-	
-
-// 	if(RC == Row)
-// 		{
-// 			for(int k = 0; k <= domain.Jmax + domain.Jmin; k++)
-// 				{
-// 					LHS[k][0] = mesh[IJ][k].Ax;
-// 					LHS[k][1] = mesh[IJ][k].IDx;
-// 					LHS[k][2] = mesh[IJ][k].Cx;
-// 				}
-// 		}
-	
-// 	return LHS;
-// }
-
-// void Grid::calc_RHS(Direction RC, int IJ)
-// {
-// 	double RHS[MAXSIZE][3];
-	
-// 	if(RC == Column)
-// 		{
-// 			for(int k = 0; k <= domain.Imax + domain.Imin; k++)
-// 				{
-// 					RHS[k][0] = mesh[k][IJ].FI.C[0];
-// 					RHS[k][1] = mesh[k][IJ].FI.C[1];
-// 					RHS[k][2] = mesh[k][IJ].FI.C[2];
-// 				}
-// 		}
-	
-// 	if(RC == Row)
-// 		{
-// 			for(int k = 0; k <= domain.Jmax + domain.Jmin; k++)
-// 				{
-// 					RHS[k][0] = mesh[IJ][k].FI.C[0];
-// 					RHS[k][1] = mesh[IJ][k].FI.C[1];
-// 					RHS[k][2] = mesh[IJ][k].FI.C[2];
-// 				}
-// 		}
-
-// 	return RHS;
-// }
-
-// void Grid::solve_T(LHS, RHS)
-// {
-
-
-
-// }
+	if(RC == Row)
+		{		
+			SolveBlockTri(LHS, RHS, domain.Jmax + domain.Jmin);
+			
+			for(int k = 0; k <= domain.Jmax + domain.Jmin; k++)
+				{					
+					mesh[IJ][k].FI.C[0] = RHS[k][0];
+					mesh[IJ][k].FI.C[1] = RHS[k][1];
+					mesh[IJ][k].FI.C[2] = RHS[k][2];
+				}
+		}		
+}

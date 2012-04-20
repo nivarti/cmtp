@@ -21,6 +21,16 @@ void mult_matrix(double M[][3], double K)
 	}			
 }
 
+void copy_matrix(double S[][3], double T[][3])
+{
+	for(int i = 0; i < 3; i++){
+		for(int j = 0; j < 3; j++){
+			
+			T[i][j] = S[i][j];
+		}
+	}			
+}
+
 void init_matrix(double M[][3], double K)
 {
 	for(int i = 0; i < 3; i++){
