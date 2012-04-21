@@ -14,6 +14,7 @@ Grid::Grid(Rectangle rect)
 			x = domain.dx*(2.0*(double)i - (double)domain.Imin)/2.0;
 			y = domain.dy*(2.0*(double)j - (double)domain.Jmin)/2.0;
 			
+			// Store coordinates, and exact values of fields
 			mesh[i][j].set_XY(x, y);
 			mesh[i][j].set_eQ();								
 		}
@@ -60,6 +61,7 @@ void Grid::calc_FI(int i, int j)
 		- (1/(Re*domain.dy))*(vN - 2.0*vP + vS);
 	Gy /= -domain.dy;
 	
+	// Set flux integral as -(Fx + Gy)
 	mesh[i][j].FI = Fx;
 	mesh[i][j].FI += Gy;
 }
@@ -83,10 +85,10 @@ void Grid::calc_J(int i, int j)
 	vE = mesh[i+1][j].U.C[2];
 	vW = mesh[i-1][j].U.C[2];
 	
-	if (i == 10 && j == 10){
-		cout<<"\n U: " <<setprecision(20)<< uP <<"  "<< uN <<"  "<< uE <<"  "<< uW <<"  "<< uS;
-		cout<<"\n V: " << vP <<"  "<< vN <<"  "<< vE <<"  "<< vW <<"  "<< vS;		
-	}
+	// if (i == 10 && j == 10){
+	// 	cout<<"\n U: " <<setprecision(20)<< uP <<"  "<< uN <<"  "<< uE <<"  "<< uW <<"  "<< uS;
+	// 	cout<<"\n V: " << vP <<"  "<< vN <<"  "<< vE <<"  "<< vW <<"  "<< vS;		
+	// }
 
 	// Ax
 	mesh[i][j].Ax[0][0] = 0.0;
@@ -168,9 +170,8 @@ void Grid::calc_J(int i, int j)
 	mesh[i][j].Cy[2][2] = ((vN + vP)/2.0 - 1.0/(Re*dy))/dy;
 }
 
-void Grid::calc_BC(){
-
-	
+void Grid::calc_BC()
+{	
 	for(int j = domain.Jmin; j <= domain.Jmax; j++){
 		
 		// Neumann on Pressure
@@ -182,50 +183,93 @@ void Grid::calc_BC(){
 		mesh[domain.Imin + domain.Imax][j].U.C[1] = -mesh[domain.Imax][j].U.C[1];
 		mesh[0][j].U.C[2] = -mesh[1][j].U.C[2];   		
 		mesh[domain.Imin + domain.Imax][j].U.C[2] = -mesh[domain.Imax][j].U.C[2];
-
 	}  
-  
+	
 	for(int i = domain.Imin; i <= domain.Imax; i++){
 		
 		// Neumann on Pressure
 		mesh[i][0].U.C[0] = mesh[i][1].U.C[0];   		
 		mesh[i][domain.Jmin + domain.Jmax].U.C[0] = mesh[i][domain.Jmax].U.C[0];
-
+		
 		// No Slip on velocities
 		mesh[i][0].U.C[1] = -mesh[i][1].U.C[1];   		
 		mesh[i][domain.Jmin + domain.Jmax].U.C[1] = -mesh[i][domain.Jmax].U.C[1];
 
 		mesh[i][0].U.C[2] = -mesh[i][1].U.C[2];   		
 		mesh[i][domain.Jmin + domain.Jmax].U.C[2] = -mesh[i][domain.Jmax].U.C[2];
-
   }  
 }
+
+
 
 void Grid::calc_IBC()
 {
 	for(int j = domain.Jmin; j <= domain.Jmax; j++){
 		
 		// Neumann on Pressure, No Slip of velocities
-		mesh[0][j].Cx[0][0] = -1.0;
-		mesh[0][j].Cx[1][1] = 1.0;
-		mesh[0][j].Cx[2][2] = 1.0;		
+		mesh[0][j].IDx[1][0][0] = 1.0;
+		mesh[0][j].IDx[1][1][1] = 1.0;
+		mesh[0][j].IDx[1][2][2] = 1.0;		
+
+		mesh[0][j].IDx[2][0][0] = -1.0;
+		mesh[0][j].IDx[2][1][1] = 1.0;
+		mesh[0][j].IDx[2][2][2] = 1.0;		
 		
-		mesh[domain.Imax + domain.Imin][j].Ax[0][0] = -1.0;
-		mesh[domain.Imax + domain.Imin][j].Ax[1][1] = 1.0;
-		mesh[domain.Imax + domain.Imin][j].Ax[2][2] = 1.0;
-		
+		mesh[domain.Imax + 1][j].IDx[0][0][0] = 1.0;
+		mesh[domain.Imax + 1][j].IDx[0][1][1] = 1.0;
+		mesh[domain.Imax + 1][j].IDx[0][2][2] = 1.0;		
+
+		mesh[domain.Imax + 1][j].IDx[1][0][0] = -1.0;
+		mesh[domain.Imax + 1][j].IDx[1][1][1] = 1.0;
+		mesh[domain.Imax + 1][j].IDx[1][2][2] = 1.0;		
 	}
 
 	for(int i = domain.Imin; i <= domain.Imax; i++){
 		
 		// Neumann on Pressure, No Slip of velocities
-		mesh[i][0].Cy[0][0] = -1.0;
-		mesh[i][0].Cy[1][1] = 1.0;
-		mesh[i][0].Cy[2][2] = 1.0;		
+		mesh[i][0].IDy[1][0][0] = 1.0;
+		mesh[i][0].IDy[1][1][1] = 1.0;
+		mesh[i][0].IDy[1][2][2] = 1.0;		
+
+		mesh[i][0].IDy[2][0][0] = -1.0;
+		mesh[i][0].IDy[2][1][1] = 1.0;
+		mesh[i][0].IDy[2][2][2] = 1.0;		
 		
-		mesh[i][domain.Jmax + domain.Jmin].Ay[0][0] = -1.0;
-		mesh[i][domain.Jmax + domain.Jmin].Ay[1][1] = 1.0;
-		mesh[i][domain.Jmax + domain.Jmin].Ay[2][2] = 1.0;
+		mesh[i][domain.Jmax + 1].IDy[0][0][0] = 1.0;
+		mesh[i][domain.Jmax + 1].IDy[0][1][1] = 1.0;
+		mesh[i][domain.Jmax + 1].IDy[0][2][2] = 1.0;		
+
+		mesh[i][domain.Jmax + 1].IDy[1][0][0] = -1.0;
+		mesh[i][domain.Jmax + 1].IDy[1][1][1] = 1.0;
+		mesh[i][domain.Jmax + 1].IDy[1][2][2] = 1.0;		
+	}
+}
+
+void Grid::calc_IDxDy(double dt)
+{	
+	for(int j = domain.Jmin; j <= domain.Jmax; j++){
+		for(int i = domain.Imin; i <= domain.Imax; i++){
+		
+			mesh[i][j].FI *= dt;
+			
+			for(int k = 0; k < 3; k++){
+				for(int l = 0; l < 3; l++){
+					
+					mesh[i][j].IDx[0][k][l] = dt*mesh[i][j].Ax[k][l];
+					mesh[i][j].IDx[1][k][l] = dt*mesh[i][j].Bx[k][l];					
+					mesh[i][j].IDx[2][k][l] = dt*mesh[i][j].Cx[k][l];					
+					
+					mesh[i][j].IDy[0][k][l] = dt*mesh[i][j].Ay[k][l];
+					mesh[i][j].IDy[1][k][l] = dt*mesh[i][j].By[k][l];					
+					mesh[i][j].IDy[2][k][l] = dt*mesh[i][j].Cy[k][l];
+
+
+				}
+
+				mesh[i][j].IDx[1][k][k] += 1.0;					
+				mesh[i][j].IDy[1][k][k] += 1.0;
+			}						
+		}
 	}
 }
 
@@ -236,7 +280,7 @@ void Grid::calc_Q()
 		for(int i = domain.Imin; i <= domain.Imax; i++){
 						
 		  calc_FI(i, j);
-		  calc_J(i, j);	
+		  calc_J(i, j);
 
 		  // if(i == 10 && j == 10){
 		  // 	cout<<"\n Ax:";
@@ -260,9 +304,6 @@ void Grid::calc_Q()
 		  
 		}
 	}
-	
-	//ver_FI();	
-	//calc_EJ();
 }
 
 void Grid::calc_EJ()
@@ -277,21 +318,21 @@ void Grid::calc_EJ()
 			mesh[i][j].Un = mesh[i][j].U;
 			mesh[i][j].U += mesh[i][j].dU;
 			
-			if (i==10 && j ==10){
+			// if (i==10 && j ==10){
 				
-				setprecision(30);
-				setw(40);
-				cout<<"\nInformation from cell: "<<i<<", "<<j;
-				cout<<"\n Coordinates: "<<mesh[i][j].x<<", "<<mesh[i][j].y;
-				cout<<"\n\n Value of eFI: "<<mesh[i][j].eFI;
-				cout<<"\n Value of FI(n): "<<mesh[i][j].FIn;				
+			// 	setprecision(30);
+			// 	setw(40);
+			// 	cout<<"\nInformation from cell: "<<i<<", "<<j;
+			// 	cout<<"\n Coordinates: "<<mesh[i][j].x<<", "<<mesh[i][j].y;
+			// 	cout<<"\n\n Value of eFI: "<<mesh[i][j].eFI;
+			// 	cout<<"\n Value of FI(n): "<<mesh[i][j].FIn;				
 				
-				cout<<"\n\n Exact Solution: "<<mesh[i][j].eU;
-				cout<<"\n Numerical Solution: "<<mesh[i][j].Un;
-				cout<<"\n Change in Solution: "<<mesh[i][j].dU;
-				cout<<"\n New Solution: "<<mesh[i][j].U;				
+			// 	cout<<"\n\n Exact Solution: "<<mesh[i][j].eU;
+			// 	cout<<"\n Numerical Solution: "<<mesh[i][j].Un;
+			// 	cout<<"\n Change in Solution: "<<mesh[i][j].dU;
+			// 	cout<<"\n New Solution: "<<mesh[i][j].U;				
 				
-			}
+			// }
 		}
 	}
 
@@ -311,15 +352,15 @@ void Grid::calc_EJ()
 						
 			E = LHS - RHS;
 			
-			if (i>=9 && i <= 11 && j >= 9 && j <= 11){
+			//if (i>=9 && i <= 11 && j >= 9 && j <= 11){
 			//if (i == 10 && j == 10){				
 				//cout<<"\n Value of FI(n + 1): "<<mesh[i][i].FI;				
-				cout<<"\n\n Information from cell: "<<i<<", "<<j;
-				cout<<"\n LHS: "<<LHS;
-				cout<<"\n RHS: "<<RHS;
-				cout<<"\n Error  = LHS - RHS = "<<E;
-				tab_EJ(i, j, E);
-			}
+				// cout<<"\n\n Information from cell: "<<i<<", "<<j;
+				// cout<<"\n LHS: "<<LHS;
+				// cout<<"\n RHS: "<<RHS;
+				// cout<<"\n Error  = LHS - RHS = "<<E;
+				// tab_EJ(i, j, E);
+			//}
 		}
 	}			
 }
@@ -347,8 +388,7 @@ Field Grid::ver_FI()
 }
 
 Field Grid::march_IE(double dt)
-{
-	
+{	
 	Field dU, dUmax;
 	double RHS[MAXSIZE][3], LHS[MAXSIZE][3][3][3];
 
@@ -356,18 +396,30 @@ Field Grid::march_IE(double dt)
 
 	// Construct flux integrals, and boundary conditions
 	calc_BC();
-	calc_IBC();
-	calc_Q();
-	
 
+	// Multiply FI by dt, Jacobians by dt
+	// Create IDx, and IDy
+	calc_IDxDy(dt);
+	calc_IBC();
+
+	// cout<<"\nShowing field values: ";
+	// spew_mesh(0);
+	// cout<<"\nShowing flux integral values: ";
+	// spew_mesh(1);
+
+	//calc_LHS(LHS, Column, 1);
+	//calc_RHS(RHS, Column, 1);
 	// Start approximate factorisation solution
 	for(int j = domain.Jmin; j <= domain.Jmax; j++){
 		
 		calc_LHS(LHS, Column, j);
-		calc_RHS(RHS, Column, j);		
+		calc_RHS(RHS, Column, j);
 		solve_Thomas(LHS, RHS, Column, j);
 	}
-	
+
+	cout<<"\nShowing values of dU after pass 1: ";
+	spew_mesh(1);
+
 	for(int i = domain.Imin; i <= domain.Imax; i++){
 		
 		calc_LHS(LHS, Row, i);
@@ -375,65 +427,134 @@ Field Grid::march_IE(double dt)
 		solve_Thomas(LHS, RHS, Row, i);
 	}
 	// End approximate factorisation solution
-	
-	// Update solution
-	for(int i = domain.Imin; i <= domain.Imax; i++){
-		for(int j = domain.Jmin; j <= domain.Jmax; j++){      
+	cout<<"\nShowing values of dU after pass 2: ";
+	spew_mesh(1);
+
+	// // // Update solution
+	// // for(int i = domain.Imin; i <= domain.Imax; i++){
+	// // 	for(int j = domain.Jmin; j <= domain.Jmax; j++){      
 			
-			dU = mesh[i][j].FI;
-			mesh[i][j].U += dU;
+	// // 		dU = mesh[i][j].FI;
+	// // 		mesh[i][j].U += dU;
 			
-			dU.abs();
-			if(dU >= dUmax)
-				dUmax = dU;
-		}
-	}
+	// // 		dU.abs();
+	// // 		if(dU >= dUmax)
+	// // 			dUmax = dU;
+	// // 	}
+	// // }
+	// // spew_mesh(2);
 	
 	return dUmax;	
 }
+
+// Field Grid::march_EE(double dt){
+
+// 	Field dU, dUmax;
 	
+// 	calc_BC();
+// 	calc_Q();
+// 	calc_IDxDy(dt);
+	
+// 	cout<<"\nShowing values of dU before pass: ";
+// 	spew_mesh(0);
+
+
+// 	for(int i = domain.Imin; i <= domain.Imax; i++){
+// 		for(int j = domain.Jmin; j <= domain.Jmax; j++){      
+			
+// 			dU = mesh[i][j].FI;
+// 			mesh[i][j].U += dU;
+
+// 			dU.abs();
+// 			if(dU >= dUmax)
+// 				dUmax = dU;			
+// 		}
+// 	}
+	
+// 	cout<<"\nShowing values of dU after pass: ";
+// 	spew_mesh(1);	
+      
+//   return dUmax;
+// }
+
 void Grid::calc_LHS(double LHS[MAXSIZE][3][3][3], Direction RC, int IJ)
 {	
+	for(int i = 0; i < MAXSIZE; i++){
+		for(int j = 0; j < 3; j++){
+			for(int k = 0; k < 3; k++){
+				for(int l = 0; l < 3; l++){
+
+					LHS[i][j][k][l] = 0.0;
+				}
+			}
+		}
+	}	
+	
 	if(RC == Column)
 		{
 			for(int k = 0; k <= domain.Imax + domain.Imin; k++)
 				{
-					copy_matrix(mesh[k][IJ].Ay, LHS[k][0]);
-					copy_matrix(mesh[k][IJ].IDy, LHS[k][0]);
-					copy_matrix(mesh[k][IJ].Cy, LHS[k][0]);
+					copy_matrix(mesh[k][IJ].IDx[0], LHS[k][0]);
+					copy_matrix(mesh[k][IJ].IDx[1], LHS[k][1]);
+					copy_matrix(mesh[k][IJ].IDx[2], LHS[k][2]);
 					
-					// LHS[k][0] = mesh[k][IJ].Ay;
-					// LHS[k][1] = mesh[k][IJ].IDy;
-					// LHS[k][2] = mesh[k][IJ].Cy;
+					// if(k == domain.Imax + 1 || k == 0){
+					// 	cout<<"\n Begin LHS["<<k<<"]";
+					// 	cout<<endl;
+					// 	spew_matrix(LHS[k][0]);
+					// 	cout<<endl;
+					// 	spew_matrix(LHS[k][1]);
+					// 	cout<<endl;
+					// 	spew_matrix(LHS[k][2]);
+
+					// 	cout<<"\n End of LHS["<<k<<"]";
+					// }
 				}
 		}
 
+	// if(IJ == 10)
+	// 	for(int i = 0; i < domain.Imax + 1; i++){
+	// 		for(int j = 0; j < 3; j++){
+	// 			for(int k = 0; k < 3; k++){
+	// 				for(int l = 0; l < 3; l++){
+						
+	// 					cout<<endl<<i<<" "<<j<<" "<<k<<" "<<l<<" "<<LHS[i][j][k][l];
+	// 				}
+	// 			}
+	// 		}
+	// 	}	
 	
 
 	if(RC == Row)
 		{
 			for(int k = 0; k <= domain.Jmax + domain.Jmin; k++)
 				{
-					copy_matrix(mesh[IJ][k].Ax, LHS[k][0]);
-					copy_matrix(mesh[IJ][k].IDx, LHS[k][0]);
-					copy_matrix(mesh[IJ][k].Cx, LHS[k][0]);
-
-					// LHS[k][0] = mesh[IJ][k].Ax;
-					// LHS[k][1] = mesh[IJ][k].IDx;
-					// LHS[k][2] = mesh[IJ][k].Cx;
+					copy_matrix(mesh[IJ][k].IDy[0], LHS[k][0]);
+					copy_matrix(mesh[IJ][k].IDy[1], LHS[k][1]);
+					copy_matrix(mesh[IJ][k].IDy[2], LHS[k][2]);
 				}
 		}	
 }
 
 void Grid::calc_RHS(double RHS[MAXSIZE][3], Direction RC, int IJ)
 {	
+	for(int i = 0; i < MAXSIZE; i++){
+		for(int j = 0; j < 3; j++){
+		
+			RHS[i][j] = 0.0;
+		}
+	}
+	
 	if(RC == Column)
 		{
+			cout<<endl;
 			for(int k = 0; k <= domain.Imax + domain.Imin; k++)
 				{
 					RHS[k][0] = mesh[k][IJ].FI.C[0];
 					RHS[k][1] = mesh[k][IJ].FI.C[1];
 					RHS[k][2] = mesh[k][IJ].FI.C[2];
+
+					cout<<"\nRHS["<<k<<"] = "<< RHS[k][0] << " " << RHS[k][1] << " " << RHS[k][2];
 				}
 		}
 	
@@ -452,7 +573,7 @@ void Grid::solve_Thomas(double LHS[MAXSIZE][3][3][3], double RHS[MAXSIZE][3], Di
 {
 	if(RC == Column)
 		{		
-			SolveBlockTri(LHS, RHS, domain.Imax + domain.Imin);
+			SolveBlockTri(LHS, RHS, domain.Imax + 2);
 			
 			for(int k = 0; k <= domain.Imax + domain.Imin; k++)
 				{					
@@ -464,7 +585,7 @@ void Grid::solve_Thomas(double LHS[MAXSIZE][3][3][3], double RHS[MAXSIZE][3], Di
 	
 	if(RC == Row)
 		{		
-			SolveBlockTri(LHS, RHS, domain.Jmax + domain.Jmin);
+			SolveBlockTri(LHS, RHS, domain.Jmax + 2);
 			
 			for(int k = 0; k <= domain.Jmax + domain.Jmin; k++)
 				{					
@@ -473,4 +594,21 @@ void Grid::solve_Thomas(double LHS[MAXSIZE][3][3][3], double RHS[MAXSIZE][3], Di
 					mesh[IJ][k].FI.C[2] = RHS[k][2];
 				}
 		}		
+}
+
+void Grid::spew_mesh(int F)
+{
+	
+	for(int i = domain.Imin; i <= domain.Imax; i++){
+		for(int j = domain.Jmin; j <= domain.Jmax; j++){
+			
+			if(F == 0)
+				cout<<"\nI = "<<setw(5)<<i<<", J = "<<setw(5)<<j<<" "<<mesh[i][j].U;			
+			else if(F == 1)
+				cout<<"\nI = "<<setw(5)<<i<<", J = "<<setw(5)<<j<<" "<<mesh[i][j].FI;			
+			else
+				cout<<"\nI = "<<setw(5)<<i<<", J = "<<setw(5)<<j<<" "<<mesh[i][j].dU;			
+		}
+		cout<<endl;
+	}
 }

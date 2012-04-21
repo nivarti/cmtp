@@ -101,3 +101,32 @@ void tab_EJ(int i, int j, Field E)
 	I++;
 	file.close();
 }
+
+
+void setup(Grid& grid)
+{
+	grid.calc_Q();
+}
+
+void solve(Grid& grid)
+{
+	int n = 0;
+	double dt = 0.05;       
+	Field dU, dUmin;
+	dUmin = 0.001;
+	
+	do{
+		//dU = grid.march_EE(dt);
+		grid.march_IE(dt);
+		n++;
+		
+	}while(n < 1);
+}
+
+void verify(Grid& grid)
+{
+	Field L2norm;
+	L2norm = grid.ver_FI();
+	//tab_L2N(Nx, Ny, L2norm);
+
+}

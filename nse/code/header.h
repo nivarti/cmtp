@@ -62,7 +62,7 @@ struct Cell
 	double Ax[3][3], Ay[3][3];
 	double Bx[3][3], By[3][3];
 	double Cx[3][3], Cy[3][3];
-	double IDx[3][3], IDy[3][3];
+	double IDx[3][3][3], IDy[3][3][3];
 	
 	Cell();
 	
@@ -101,13 +101,16 @@ public:
 	void calc_IBC();
 	void calc_J(int, int);
 	void calc_EJ();
-	
+	void calc_IDxDy(double);
+	void spew_mesh(int);
+
 	void calc_LHS(double LHS[][3][3][3], Direction, int);
 	void calc_RHS(double RHS[][3], Direction, int);
 	void solve_Thomas(double LHS[][3][3][3], double RHS[][3], Direction, int);
-
+	
 	Field march_IE(double);
-
+	Field march_EE(double);
+	
 	Field ver_FI();
 };
 
@@ -120,5 +123,8 @@ void copy_matrix(double S[][3], double T[][3]);
 void tab_L2N(int, int, Field);
 void tab_EJ(int, int, Field);
 
-//void solve(Grid&);
+void setup(Grid&);
+void solve(Grid&);
+void verify(Grid&);
+
 void SolveBlockTri(double LHS[MAXSIZE][3][3][3], double RHS[MAXSIZE][3], int);

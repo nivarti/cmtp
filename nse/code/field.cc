@@ -104,7 +104,7 @@ ostream& operator<<(ostream &out, Field &f)
 	// out<<"\nU1 =  "<<f.C[0];
 	// out<<"\nU2 =  "<<f.C[1];
 	// out<<"\nU3 =  "<<f.C[2];
-	out<<setprecision(10)<<f.C[0]<<" "<<f.C[1]<<" "<<f.C[2];
+	out<<setprecision(5)<<"U1: "<<setw(10)<<f.C[0]<<"  U2: "<<setw(10)<<f.C[1]<<"  U3: "<<setw(10)<<f.C[2];
 
 	return out;
 }

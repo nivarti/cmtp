@@ -9,26 +9,26 @@
 
 int main()
 {
-	int Nx = 20, Ny = 20;
+	int Nx = 10, Ny = 10;
 	clock_t ti, tf;
 	Field L2norm;
-
+	
+	// Start run-time calculation
 	ti = clock();
-	while(Nx <= 40)
+	
+	while(Nx <= 10)
 	{
 		Rectangle cavity(Nx, Ny, 1);
-		Grid nse(cavity);
+		Grid nse(cavity);				
 		
-		//nse.calc_Q();
-		//L2norm = nse.ver_FI();
-		//tab_L2N(Nx, Ny, L2norm);		
-
-		//solve(nse);
+		setup(nse);
+		solve(nse);
 		
 		Nx *= 2;
 		Ny *= 2;
-
-	}
+	};
+	
+	// End run-time calculation
 	tf = clock();
 
 	cout<<"\n\nCode run time = "<<(tf - ti)/CLOCKS_PER_SEC*1000<<" ms\n\n";
