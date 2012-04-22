@@ -5,7 +5,7 @@ Field sqrt(Field F)
 	Field sF;
 	
 	sF.C[0] = sqrt(F.C[0]);
-	sF.C[1] = sqrt(F.C[2]);
+	sF.C[1] = sqrt(F.C[1]);
 	sF.C[2] = sqrt(F.C[2]);
 	
 	return sF;	
@@ -28,9 +28,9 @@ double max(Field F)
 	
 	if(F.C[1] > Fmax)
 		Fmax = F.C[1];
-	else if(F.C[2] > Fmax)
-		Fmax = F.C[1];
-
+	if(F.C[2] > Fmax)
+		Fmax = F.C[2];
+	
 	return Fmax;
 }
 
@@ -122,11 +122,27 @@ void tab_EJ(int i, int j, Field E)
 	file.close();
 }
 
+// Mean pressure
+void plot_avP(int n, Field avP)
+{
+	ofstream file;
+	file.open("../plot/oscillation/avP", ios::app);
+	
+	for(int i = domain.Imin; i <= domain.Imax; i++){
+		for(int j = domain.Jmin; j <= domain.Jmax; j++){
+			
+	file<<n<<" "<<avP<<endl;
+	
+	file.close();
+}
+
+
+
 // Plot convergence history
 void plot_CH(int n, Field L2N)
 {
 	ofstream file;
-	file.open("./stability/conv", ios::app);
+	file.open("../plot/stability/conv", ios::app);
 	
 	file<<n<<" "<<L2N<<endl;
 	

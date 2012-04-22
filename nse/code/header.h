@@ -36,9 +36,6 @@ struct Field
 	double C[3];
 	
 	Field();
-
-	void sqroot();
-	void abs();
 	
 	// Overload operators for field algebra
 	Field& operator=(const double &RHS);

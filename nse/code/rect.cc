@@ -9,12 +9,18 @@ Rectangle::Rectangle()
 
 Rectangle::Rectangle(int Nx, int Ny, int Ngc)
 {
-	  dx = Lx/Nx;
-	  dy = Ly/Ny;
-
-	  Imin = Jmin = Ngc;
-	  Imax = Nx + Ngc - 1;
-	  Jmax = Ny + Ngc - 1;
+	// Calculate cell sizes in either direction
+	dx = Lx/Nx;
+	dy = Ly/Ny;
+	
+	// Set bounds for array indices
+	Imin = Jmin = Ngc;
+	Imax = Nx + Ngc - 1;
+	Jmax = Ny + Ngc - 1;
+	
+	// Output rectangle information
+	cout<<"\nSetting up geometry...";
+	cout<<"\n Cavity width: "<<Lx<<", cavity height: "<<Ly;
 }
 
 Rectangle& Rectangle::operator=(const Rectangle &RHS)

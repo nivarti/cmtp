@@ -135,17 +135,3 @@ ostream& operator<<(ostream &out, Field &f)
 	out<<setprecision(15)<<f.C[0]<<"  "<<f.C[1]<<"  "<<f.C[2];
 	return out;
 }
-
-void Field::sqroot()
-{
-	C[0] = sqrt(C[0]);
-	C[1] = sqrt(C[1]);
-	C[2] = sqrt(C[2]);     
-}
-
-void Field::abs()
-{	
-	C[0] = fabs(C[0]);
-	C[1] = fabs(C[1]);
-	C[2] = fabs(C[2]);	
-}

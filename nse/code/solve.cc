@@ -1,8 +1,9 @@
 #include "header.h"
 
+
 void setup(Grid& grid)
-{
-	grid.calc_Q();
+{	
+	//grid.calc_Q();
 }
 
 void tune(Grid& grid)
@@ -25,13 +26,20 @@ void solve(Grid& grid)
 
 		cout<<"\n Maximum change in solution at the end of "<<n<<" steps = "<<dU;
 		
-	}while(n < 600);
+		
+		plot_CH(n, dU);
+		plot_avP(n, avP);
+		//cout<<"\n End of step "<<n<<" ~~~~~~~~~~~~~~ \n\n\n ";
+		
+	}while(dU >= dUtol);
 	
-	cout<<"\n\n Solution converged to "<<max(dU)<<" in "<<n<<" steps\n\n";
+	cout<<"\n\n Solution converged to "<<dU<<" in "<<n<<" steps\n\n";
 
-	grid.spew_field(Pressure);cout<<endl<<endl;
-	grid.spew_field(xVelocity);cout<<endl<<endl;
-	grid.spew_field(yVelocity);
+	// grid.spew_field(Pressure);
+	// cout<<endl<<endl;
+	// grid.spew_field(xVelocity);
+	// cout<<endl<<endl;
+	// grid.spew_field(yVelocity);
 }
 
 void verify(Grid& grid)
