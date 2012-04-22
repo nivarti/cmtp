@@ -29,18 +29,22 @@
 using namespace std;
 
 enum Direction{Row, Column};
+enum FieldName{Pressure, xVelocity, yVelocity};
 
 struct Field
 {
 	double C[3];
 	
 	Field();
+
 	void sqroot();
 	void abs();
-
+	
+	// Overload operators for field algebra
 	Field& operator=(const double &RHS);
 	Field& operator=(const Field &RHS);
 	Field& operator+=(const Field &RHS);
+	Field operator/(const double &RHS);
 	Field& operator/=(const double &RHS);
 	Field& operator/=(const Field &RHS);
 	Field& operator*=(const double &RHS);
@@ -86,13 +90,14 @@ struct Rectangle
 
 class Grid
 {
-	Cell mesh[MAXSIZE][MAXSIZE];
+	Cell** mesh;
 	Rectangle domain;
 	
 public:
 
 	Grid(Rectangle);
-	
+	~Grid();
+
 	void calc_Q();
 	void calc_eU();
 	void calc_eFI();
@@ -102,29 +107,38 @@ public:
 	void calc_J(int, int);
 	void calc_EJ();
 	void calc_IDxDy(double);
+	
 	void spew_mesh(int);
+	void spew_field(FieldName);
 
 	void calc_LHS(double LHS[][3][3][3], Direction, int);
 	void calc_RHS(double RHS[][3], Direction, int);
 	void solve_Thomas(double LHS[][3][3][3], double RHS[][3], Direction, int);
 	
-	Field march_IE(double);
-	Field march_EE(double);
+	Field march_IE(double);	
 	
 	Field ver_FI();
 };
 
+// Field operations
+Field sqrt(Field);
+Field fabs(Field);
+
+// Matrix operations
 void spew_matrix(double M[][3]);
 void mult_matrix(double M[][3], double K);
 void init_matrix(double M[][3], double K);
 void copy_matrix(double S[][3], double T[][3]);
 
-//void plot_l2norm(Field, double);
-void tab_L2N(int, int, Field);
-void tab_EJ(int, int, Field);
-
+// Operations on Navier Stokes Equations
 void setup(Grid&);
+void tune(Grid&);
 void solve(Grid&);
 void verify(Grid&);
 
+// Carl's Thomasian Solver
 void SolveBlockTri(double LHS[MAXSIZE][3][3][3], double RHS[MAXSIZE][3], int);
+
+// tabulating and plotting
+void tab_L2N(int, int, Field);
+void tab_EJ(int, int, Field);

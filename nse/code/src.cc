@@ -1,5 +1,27 @@
 #include "header.h"
 
+Field sqrt(Field F)
+{
+	Field sF;
+	
+	sF.C[0] = sqrt(F.C[0]);
+	sF.C[1] = sqrt(F.C[2]);
+	sF.C[2] = sqrt(F.C[2]);
+	
+	return sF;	
+}
+
+Field fabs(Field F)
+{
+	Field aF;
+	
+	aF.C[0] = fabs(F.C[0]);
+	aF.C[1] = fabs(F.C[2]);
+	aF.C[2] = fabs(F.C[2]);
+	
+	return aF;	
+}
+
 void spew_matrix(double M[][3])
 {	
 	for(int i = 0; i < 3; i++){
@@ -100,33 +122,4 @@ void tab_EJ(int i, int j, Field E)
 	}
 	I++;
 	file.close();
-}
-
-
-void setup(Grid& grid)
-{
-	grid.calc_Q();
-}
-
-void solve(Grid& grid)
-{
-	int n = 0;
-	double dt = 0.05;       
-	Field dU, dUmin;
-	dUmin = 0.001;
-	
-	do{
-		//dU = grid.march_EE(dt);
-		grid.march_IE(dt);
-		n++;
-		
-	}while(n < 1);
-}
-
-void verify(Grid& grid)
-{
-	Field L2norm;
-	L2norm = grid.ver_FI();
-	//tab_L2N(Nx, Ny, L2norm);
-
 }

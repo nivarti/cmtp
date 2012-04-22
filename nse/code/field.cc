@@ -62,6 +62,17 @@ Field& Field::operator/=(const Field &RHS)
 	return *this;
 }
 
+Field Field::operator/(const double &RHS)
+{
+	Field temp;
+
+	temp.C[0] = this->C[0]/RHS;
+	temp.C[1] = this->C[1]/RHS;
+	temp.C[2] = this->C[2]/RHS;
+
+	return (temp);
+}
+
 Field& Field::operator*=(const double &RHS)
 {
 	C[0] *= RHS;

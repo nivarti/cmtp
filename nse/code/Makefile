@@ -1,11 +1,11 @@
-OBJS = main.o cell.o field.o grid.o rect.o src.o thomas.o
+OBJS = main.o cell.o field.o grid.o rect.o src.o thomas.o solve.o
 CC = g++
 DEBUG = -g
 LINK = -lm
 CFLAGS = -Wall -c $(LINK) $(DEBUG)
 LFLAGS = -Wall $(DEBUG)
 
-all : nse2d field.o cell.o rect.o grid.o src.o thomas.o main.o 
+all : 	nse2d field.o cell.o rect.o grid.o src.o thomas.o solve.o main.o 
 
 nse2d : $(OBJS)
 	$(CC) $(LFLAGS) $(OBJS) -o nse2d
@@ -28,6 +28,9 @@ grid.o : grid.cc header.h constant.h
 src.o : src.cc header.h constant.h
 	$(CC) $(CFLAGS) src.cc
 
+solve.o : solve.cc header.h constant.h
+	$(CC) $(CFLAGS) solve.cc
+
 thomas.o : thomas.c header.h constant.h
 	$(CC) $(CFLAGS) thomas.c
 
@@ -35,4 +38,4 @@ clean:
 	\rm *.o nse2d
 
 tar:
-	tar cfvz energy2D.tgz main.cc header.h field.cc cell.cc grid.cc src.cc thomas.c
+	tar cfvz energy2D.tgz main.cc header.h field.cc cell.cc grid.cc src.cc thomas.c solve.cc
