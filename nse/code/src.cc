@@ -22,6 +22,18 @@ Field fabs(Field F)
 	return aF;	
 }
 
+double max(Field F)
+{
+	double Fmax = F.C[0];
+	
+	if(F.C[1] > Fmax)
+		Fmax = F.C[1];
+	else if(F.C[2] > Fmax)
+		Fmax = F.C[1];
+
+	return Fmax;
+}
+
 void spew_matrix(double M[][3])
 {	
 	for(int i = 0; i < 3; i++){
@@ -66,27 +78,12 @@ void init_matrix(double M[][3], double K)
 	}			
 }
 
-// void plot_l2norm(Field F, double dx)
-// {
-// 	static int I = 1;
-// 	ostringstream counter;
-// 	string name;
-// 	ofstream file;
-
-// 	counter<<"./norm/mesh"<<I;
-// 	name = counter.str();	
-// 	file.open(name.c_str(), ios::app);
-
-// 	file<<dx<<" "<<F<<endl;	
-	
-// 	file.close();
-// }
-
+// Tabulate change in l2 norms
 void tab_L2N(int Nx, int Ny, Field L2N)
 {
 	static int I = 1;
 	ofstream file;
-	file.open("./norm/L2N", ios::app);
+	file.open("./norm/L2N.tex", ios::app);
 
 	if(I == 1){
 		file<<"\n\\begin{table}\n\\begin{center}\n\\begin{tabular}{|l | r | r | r |}\n\\hline";				
@@ -103,11 +100,12 @@ void tab_L2N(int Nx, int Ny, Field L2N)
 	file.close();	
 }
 
+// Tabulate errors in Jacobian
 void tab_EJ(int i, int j, Field E)
 {	
 	static int I = 1;
 	ofstream file;
-	file.open("./jacobian/EJ", ios::app);
+	file.open("./jacobian/EJ.tex", ios::app);
 
 	if(I == 1){
 		file<<"\n\\begin{table}\n\\begin{center}\n\\begin{tabular}{|l | r | r | r |}\n\\hline";				
@@ -122,4 +120,37 @@ void tab_EJ(int i, int j, Field E)
 	}
 	I++;
 	file.close();
+}
+
+// Plot convergence history
+void plot_CH(int n, Field L2N)
+{
+	ofstream file;
+	file.open("./stability/conv", ios::app);
+	
+	file<<n<<" "<<L2N<<endl;
+	
+	file.close();
+}
+
+// Symmetry check by comparison of solutions
+void plot_U(Grid& grid1, Grid& grid2)
+{
+	ofstream file;
+	double x, y, d;
+	
+	file.open("../plot/symmetry/uvel");
+	
+	for(int i = grid1.domain.Imin; i <= grid1.domain.Imax; i++){
+		for(int j = grid1.domain.Jmin; j <= grid1.domain.Jmax; j++){
+			
+			x = grid1.mesh[i][j].x;
+			y = grid2.mesh[i][j].y;
+			d = grid1.mesh[i][j].U.C[1] - grid1.mesh[grid1.domain.Imax - i][j].U.C[1];
+
+			file<<x<<" "<<y<<" "<<d<<endl;
+		}
+	}
+		
+	file.close();				
 }

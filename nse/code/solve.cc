@@ -7,26 +7,31 @@ void setup(Grid& grid)
 
 void tune(Grid& grid)
 {
-
-
+	//grid.add_FI();
+	grid.add_J();
 
 }
 
 void solve(Grid& grid)
 {
 	int n = 0;
-	double dt = 0.05;       
+	double dt = 0.05;
 	Field dU, dUtol;
-	dUtol = 0.00000001;
-	
+	dUtol = 0.000001;
+		
 	do{
-		//dU = grid.march_EE(dt);
 		dU = grid.march_IE(dt);
 		n++;
-		
-	}while(dU >= dUtol);
 
-	cout<<"\n Solution converged to "<<dUtol.C[0]<<" in "<<n<<" steps";
+		cout<<"\n Maximum change in solution at the end of "<<n<<" steps = "<<dU;
+		
+	}while(n < 600);
+	
+	cout<<"\n\n Solution converged to "<<max(dU)<<" in "<<n<<" steps\n\n";
+
+	grid.spew_field(Pressure);cout<<endl<<endl;
+	grid.spew_field(xVelocity);cout<<endl<<endl;
+	grid.spew_field(yVelocity);
 }
 
 void verify(Grid& grid)

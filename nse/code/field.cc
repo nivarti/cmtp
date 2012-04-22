@@ -91,6 +91,17 @@ Field& Field::operator*=(const Field &RHS)
 	return *this;
 }
 
+Field Field::operator*(const Field& F)
+{
+	Field Result;
+	
+	Result.C[0] = F.C[0]*this->C[0]; 
+	Result.C[1] = F.C[1]*this->C[1]; 
+	Result.C[2] = F.C[2]*this->C[2]; 
+
+	return Result;	
+}
+
 Field Field::operator*(const double A[][3])
 {
 	Field Result;
@@ -104,7 +115,12 @@ Field Field::operator*(const double A[][3])
 
 bool Field::operator>=(const Field &RHS)
 {
-	if(C[0] >= RHS.C[0] || C[1] >= RHS.C[1] || C[2] >= RHS.C[2])
+	double F1, F2;
+	
+	F1 = max(*this);
+	F2 = max(RHS);
+
+	if(F1 > F2)
 		return true;
 	else
 		return false;
@@ -115,8 +131,8 @@ ostream& operator<<(ostream &out, Field &f)
 	// out<<"\nU1 =  "<<f.C[0];
 	// out<<"\nU2 =  "<<f.C[1];
 	// out<<"\nU3 =  "<<f.C[2];
-	out<<setprecision(5)<<"U1: "<<setw(10)<<f.C[0]<<"  U2: "<<setw(10)<<f.C[1]<<"  U3: "<<setw(10)<<f.C[2];
-
+	//out<<setprecision(5)<<"U1: "<<setw(10)<<f.C[0]<<"  U2: "<<setw(10)<<f.C[1]<<"  U3: "<<setw(10)<<f.C[2];
+	out<<setprecision(15)<<f.C[0]<<"  "<<f.C[1]<<"  "<<f.C[2];
 	return out;
 }
 

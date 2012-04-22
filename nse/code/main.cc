@@ -22,8 +22,8 @@ int main()
 			Grid nse(cavity);				
 			
 			// Solve Navier Stokes Equations
-			setup(nse);
-			tune(nse);
+			//setup(nse);
+			//tune(nse);
 			solve(nse);
 			//verify(nse);
 			

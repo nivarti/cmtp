@@ -50,6 +50,8 @@ struct Field
 	Field& operator*=(const double &RHS);
 	Field& operator*=(const Field &RHS);
 	Field operator*(const double A[][3]);
+	Field operator*(const Field& F);
+	
 	bool operator>=(const Field &RHS);
 
 	Field operator-(const Field &RHS);
@@ -88,7 +90,7 @@ struct Rectangle
 	Rectangle& operator=(const Rectangle &RHS);
 };
 
-class Grid
+struct Grid
 {
 	Cell** mesh;
 	Rectangle domain;
@@ -102,9 +104,12 @@ public:
 	void calc_eU();
 	void calc_eFI();
 	void calc_FI(int, int);
+	void calc_FI();
 	void calc_BC();
 	void calc_IBC();
+	void add_J();
 	void calc_J(int, int);
+	void calc_J();
 	void calc_EJ();
 	void calc_IDxDy(double);
 	
@@ -118,11 +123,14 @@ public:
 	Field march_IE(double);	
 	
 	Field ver_FI();
+	void plot_u();
+	void plot_P();
 };
 
 // Field operations
 Field sqrt(Field);
 Field fabs(Field);
+double max(Field);
 
 // Matrix operations
 void spew_matrix(double M[][3]);
@@ -142,3 +150,4 @@ void SolveBlockTri(double LHS[MAXSIZE][3][3][3], double RHS[MAXSIZE][3], int);
 // tabulating and plotting
 void tab_L2N(int, int, Field);
 void tab_EJ(int, int, Field);
+void plot_CH(int, Field);

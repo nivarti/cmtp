@@ -12,7 +12,7 @@ Cell::Cell()
 			
 			Ax[i][j] = Ay[i][j] = 0.0;
 			Bx[i][j] = By[i][j] = 0.0;
-			Cx[i][j] = Cy[i][j] = 0.0;	
+			Cx[i][j] = Cy[i][j] = 0.0;
 
 			for(int k = 0; k < 3; k++){
 				
