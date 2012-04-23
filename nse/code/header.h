@@ -29,7 +29,7 @@
 using namespace std;
 
 enum Direction{Row, Column};
-enum FieldName{Pressure, xVelocity, yVelocity};
+enum FieldName{Pressure, xVelocity, yVelocity, All};
 
 struct Field
 {
@@ -47,11 +47,10 @@ struct Field
 	Field& operator*=(const double &RHS);
 	Field& operator*=(const Field &RHS);
 	Field operator*(const double A[][3]);
-	Field operator*(const Field& F);
-	
+	Field operator*(const Field& F);	
 	bool operator>=(const Field &RHS);
-
 	Field operator-(const Field &RHS);
+
 	friend ostream& operator<<(ostream&, Field&);
 };
 
@@ -69,6 +68,7 @@ struct Cell
 	
 	Cell();
 	
+	// Basic Calculations of Exact Variables
 	void set_XY(double, double);
 	void set_eU();
 	void set_eFI();
@@ -82,6 +82,7 @@ struct Rectangle
 
 	double dx, dy;
 		
+	// Constructors for rectangle
 	Rectangle();
 	Rectangle(int, int, int);
 	Rectangle& operator=(const Rectangle &RHS);
@@ -97,31 +98,38 @@ public:
 	Grid(Rectangle);
 	~Grid();
 
-	void calc_Q();
+	// Calculate exact values
 	void calc_eU();
 	void calc_eFI();
-	void calc_FI(int, int);
-	void calc_FI();
+	
+	//
+	void calc_Q();
 	void calc_BC();
 	void calc_IBC();
-	void add_J();
+	
+	void calc_FI(int, int);
 	void calc_J(int, int);
-	void calc_J();
-	void calc_EJ();
+	void calc_EJ();	
 	void calc_IDxDy(double);
+	
+	void add_J(int, int);
+	void add_FI(int, int);
 	
 	void spew_mesh(int);
 	void spew_field(FieldName);
 
+	// Functions for Thomas solution
 	void calc_LHS(double LHS[][3][3][3], Direction, int);
 	void calc_RHS(double RHS[][3], Direction, int);
 	void solve_Thomas(double LHS[][3][3][3], double RHS[][3], Direction, int);
 	
-	Field march_IE(double);	
+	// Implicit Euler time march with SOR
+	Field march_IE(double, double);	
 	
-	Field ver_FI();
-	void plot_u();
-	void plot_P();
+	Field calc_Uav();
+	Field ver_FI();	
+	void plot_U();
+	void plot_uSL();
 };
 
 // Field operations
@@ -137,7 +145,7 @@ void copy_matrix(double S[][3], double T[][3]);
 
 // Operations on Navier Stokes Equations
 void setup(Grid&);
-void tune(Grid&);
+void tune(Grid&, double);
 void solve(Grid&);
 void verify(Grid&);
 
@@ -147,4 +155,4 @@ void SolveBlockTri(double LHS[MAXSIZE][3][3][3], double RHS[MAXSIZE][3], int);
 // tabulating and plotting
 void tab_L2N(int, int, Field);
 void tab_EJ(int, int, Field);
-void plot_CH(int, Field);
+void plot_CH(int, Field, string);

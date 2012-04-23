@@ -9,7 +9,7 @@
 const double Lx = 1.0;
 const double Ly = 1.0;
 
-const double Re = 125.0;
+const double Re = 100.0;
 
 const double P0 = 1.0;
 const double u0 = 1.0;

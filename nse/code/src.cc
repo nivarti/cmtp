@@ -78,22 +78,76 @@ void init_matrix(double M[][3], double K)
 	}			
 }
 
+
+void Grid::spew_mesh(int F)
+{
+	Field dU;
+
+	for(int i = domain.Imin; i <= domain.Imax; i++){
+		for(int j = domain.Jmin; j <= domain.Jmax; j++){
+			
+			dU = mesh[i][j].dU;
+			
+			if(F == 0)
+				cout<<"\nI = "<<setw(5)<<i<<", J = "<<setw(5)<<j<<" "<<mesh[i][j].U;			
+			else if(F == 1)
+				cout<<"\nI = "<<setw(5)<<i<<", J = "<<setw(5)<<j<<" "<<mesh[i][j].FI;			
+			else
+				cout<<"\nI = "<<setw(5)<<i<<", J = "<<setw(5)<<j<<" "<<mesh[i][j].dU;			
+		}
+		cout<<endl;
+	}
+}
+
+void Grid::spew_field(FieldName FN)
+{
+	// for(int i = domain.Imin; i <= domain.Imax; i++){
+	// 	for(int j = domain.Jmin; j <= domain.Jmax; j++){
+			
+	// 		if(FN == Pressure)
+	// 			cout<<"\nI = "<<setw(5)<<i<<", J = "<<setw(5)<<j<<" "<<mesh[i][j].U.C[0];			
+	// 		else if(FN == xVelocity)
+	// 			cout<<"\nI = "<<setw(5)<<i<<", J = "<<setw(5)<<j<<" "<<mesh[i][j].U.C[1];			
+	// 		else if(FN == yVelocity)
+	// 			cout<<"\nI = "<<setw(5)<<i<<", J = "<<setw(5)<<j<<" "<<mesh[i][j].U.C[2];			
+	// 	}
+	// 	cout<<endl;
+	// }
+	
+	for(int i = domain.Imin; i <= domain.Imax; i++){
+		for(int j = domain.Jmin; j <= domain.Jmax; j++){
+			
+			if(FN == Pressure)
+				cout<<setw(10)<<setprecision(5)<<mesh[i][j].U.C[0]<<" ";
+
+			else if(FN == xVelocity)
+				cout<<setw(10)<<setprecision(5)<<mesh[i][j].U.C[1]<<" ";		       
+			
+			else if(FN == yVelocity)
+				cout<<setw(10)<<setprecision(5)<<mesh[i][j].U.C[2]<<" ";
+			else
+				cout<<setw(10)<<setprecision(5)<<mesh[i][j].FI.C[0]<<" ";
+		}
+		cout<<endl;
+	}	
+}
+
 // Tabulate change in l2 norms
 void tab_L2N(int Nx, int Ny, Field L2N)
 {
 	static int I = 1;
 	ofstream file;
-	file.open("./norm/L2N.tex", ios::app);
+	file.open("../table/norm/l2norm.tex", ios::app);
 
 	if(I == 1){
-		file<<"\n\\begin{table}\n\\begin{center}\n\\begin{tabular}{|l | r | r | r |}\n\\hline";				
-		file<<"\nMesh Size & Error (U1) & Error (U2) & Error (U3) \\\\\n\\hline";
+		file<<"\\begin{table}\n\\begin{center}\n\\begin{tabular}{|l | r | r | r |}\n\\hline";				
+		file<<"\nMesh Size & Error ($U_1$) & Error ($U_2$) & Error ($U_3$) \\\\\n\\hline";
 	}
 	
-	file<<"\n"<<Nx<<", "<<Ny<<" & "<<L2N.C[0]<<" & "<<L2N.C[1]<<" & "<<L2N.C[2]<<" \\\\";	
+	file<<"\n"<<Nx<<" $\\times$ "<<Ny<<" & "<<L2N.C[0]<<" & "<<L2N.C[1]<<" & "<<L2N.C[2]<<" \\\\";	
 	
-	if(I == 2){
-		file<<"\n\\hline\n\\end{tabular}\n\\caption{Tabulation of $L_2$ Norms for different mesh sizes.}";
+	if(I == 4){
+		file<<"\n\\hline\n\\end{tabular}\n\\caption{$L_2$ Norms for different mesh sizes for solution with $P_0$, $u_0$, $v_0$, and $\\beta$ set to 1.0, and $Re = 10.0$.}";
 		file<<"\n\\label{approxE}\n\\end{center}\n\\end{table}";	
 	}
 	I++;
@@ -105,14 +159,14 @@ void tab_EJ(int i, int j, Field E)
 {	
 	static int I = 1;
 	ofstream file;
-	file.open("./jacobian/EJ.tex", ios::app);
+	file.open("../table/jacobian/error.tex", ios::app);
 
 	if(I == 1){
-		file<<"\n\\begin{table}\n\\begin{center}\n\\begin{tabular}{|l | r | r | r |}\n\\hline";				
-		file<<"\nCell Index & Error (U1) & Error (U2) & Error (U3) \\\\\n\\hline";
+		file<<"\\begin{table}\n\\begin{center}\n\\begin{tabular}{|l | r | r | r |}\n\\hline";				
+		file<<"\nCell Location & Error ($U_1$) & Error ($U_2$) & Error ($U_3$) \\\\\n\\hline";
 	}
 	
-	file<<"\n"<<i<<", "<<j<<" & "<<E.C[0]<<" & "<<E.C[1]<<" & "<<E.C[2]<<" \\\\";	
+	file<<"\n\\["<<i<<"\\]\\["<<j<<"\\] & "<<E.C[0]<<" & "<<E.C[1]<<" & "<<E.C[2]<<" \\\\";	
 	
 	if(I == 9){
 		file<<"\n\\hline\n\\end{tabular}\n\\caption{Approximation error in change in flux integral with time step.}";
@@ -122,27 +176,11 @@ void tab_EJ(int i, int j, Field E)
 	file.close();
 }
 
-// Mean pressure
-void plot_avP(int n, Field avP)
-{
-	ofstream file;
-	file.open("../plot/oscillation/avP", ios::app);
-	
-	for(int i = domain.Imin; i <= domain.Imax; i++){
-		for(int j = domain.Jmin; j <= domain.Jmax; j++){
-			
-	file<<n<<" "<<avP<<endl;
-	
-	file.close();
-}
-
-
-
 // Plot convergence history
-void plot_CH(int n, Field L2N)
+void plot_CH(int n, Field L2N, string F)
 {
 	ofstream file;
-	file.open("../plot/stability/conv", ios::app);
+	file.open(F.c_str(), ios::app);
 	
 	file<<n<<" "<<L2N<<endl;
 	

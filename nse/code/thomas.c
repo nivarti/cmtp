@@ -202,3 +202,124 @@ void SolveBlockTri(double LHS[MAXSIZE][3][3][3],
 #undef C
 	}
 }
+
+void Grid::calc_LHS(double LHS[MAXSIZE][3][3][3], Direction RC, int IJ)
+{	
+	for(int i = 0; i < MAXSIZE; i++){
+		for(int j = 0; j < 3; j++){
+			for(int k = 0; k < 3; k++){
+				for(int l = 0; l < 3; l++){
+
+					LHS[i][j][k][l] = 0.0;
+				}
+			}
+		}
+	}	
+	
+	if(RC == Column)
+		{
+			for(int k = 0; k <= domain.Imax + domain.Imin; k++)
+			//for(int k = ; k <= domain.Imax; k++)
+				{
+					copy_matrix(mesh[k][IJ].IDx[0], LHS[k][0]);
+					copy_matrix(mesh[k][IJ].IDx[1], LHS[k][1]);
+					copy_matrix(mesh[k][IJ].IDx[2], LHS[k][2]);
+					
+					// if(IJ == 10){
+					// cout<<"\n\nBegin LHS["<<k<<"] \n";
+					
+					// for(int p = 0; p < 3; p++){
+					// 	for(int m = 0; m < 3; m++){
+					// 		for(int l = 0; l < 3; l++){
+								
+					// 			cout<<setprecision(5)<<k<<" "<<p<<" "<<m<<" "<<l<<" "<<setw(10)<<LHS[k][p][m][l]<<"\n";
+								
+					// 		}
+					// 		cout<<endl;
+					// 	}
+					// 	cout<<endl;
+					// }
+					
+					// cout<<"\n\nEnd LHS["<<k<<"] \n\n";
+					// }
+				}
+		}
+
+	if(RC == Row)
+		{
+			for(int k = 0; k <= domain.Jmax + domain.Jmin; k++)
+			//for(int k = domain.Imin; k <= domain.Jmax; k++)
+				{
+					copy_matrix(mesh[IJ][k].IDy[0], LHS[k][0]);
+					copy_matrix(mesh[IJ][k].IDy[1], LHS[k][1]);
+					copy_matrix(mesh[IJ][k].IDy[2], LHS[k][2]);
+				}
+		}	
+}
+
+void Grid::calc_RHS(double RHS[MAXSIZE][3], Direction RC, int IJ)
+{	
+	for(int i = 0; i < MAXSIZE; i++){
+		for(int j = 0; j < 3; j++){
+		
+			RHS[i][j] = 0.0;
+		}
+	}
+	
+	if(RC == Column)
+		{
+			//for(int k = 0; k <= domain.Imax + domain.Imin; k++)
+			for(int k = domain.Imin; k <= domain.Imax; k++)
+				{
+					RHS[k][0] = mesh[k][IJ].FI.C[0];
+					RHS[k][1] = mesh[k][IJ].FI.C[1];
+					RHS[k][2] = mesh[k][IJ].FI.C[2];
+					// if(IJ == 10){
+					// 	cout<<"\n\nBegin RHS["<<k<<"] \n";
+					// 	for(int p = 0; p < 3; p++){
+					// 		cout<<p<<" "<<RHS[k][p]<<" ";
+					// 	}
+					// 	cout<<"\n\nEnd RHS["<<k<<"] \n\n";
+					// }
+																
+				}
+		}
+	
+	if(RC == Row)
+		{
+			//for(int k = 0; k <= domain.Jmax + domain.Jmin; k++)
+			for(int k = domain.Imin; k <= domain.Jmax; k++)
+				{
+					RHS[k][0] = mesh[IJ][k].FI.C[0];
+					RHS[k][1] = mesh[IJ][k].FI.C[1];
+					RHS[k][2] = mesh[IJ][k].FI.C[2];
+				}
+		}
+}
+
+void Grid::solve_Thomas(double LHS[MAXSIZE][3][3][3], double RHS[MAXSIZE][3], Direction RC, int IJ)
+{
+	if(RC == Column)
+		{		
+			SolveBlockTri(LHS, RHS, domain.Imax + 2);
+			
+			for(int k = 0; k <= domain.Imax + domain.Imin; k++)
+				{					
+					mesh[k][IJ].FI.C[0] = RHS[k][0];
+					mesh[k][IJ].FI.C[1] = RHS[k][1];
+					mesh[k][IJ].FI.C[2] = RHS[k][2];
+				}
+		}
+	
+	if(RC == Row)
+		{		
+			SolveBlockTri(LHS, RHS, domain.Jmax + 2);
+			
+			for(int k = 0; k <= domain.Jmax + domain.Jmin; k++)
+				{					
+					mesh[IJ][k].FI.C[0] = RHS[k][0];
+					mesh[IJ][k].FI.C[1] = RHS[k][1];
+					mesh[IJ][k].FI.C[2] = RHS[k][2];
+				}
+		}		
+}
