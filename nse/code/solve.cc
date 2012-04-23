@@ -54,7 +54,7 @@ void solve(Grid& grid)
 		//plot_CH(n, grid.calc_Uav(), "../plot/convergence/Uav");
 		//if(n <= 200)
 		
-		plot_CH(n, dU, "../plot/basic/convergence/conv");
+		//plot_CH(n, dU, "../plot/basic/convergence/conv");
 
 	}while(dU >= dUtol);
 	
@@ -62,15 +62,16 @@ void solve(Grid& grid)
 	//cout<<"\n Solution with beta: " <<beta<<" converged to "<<dU<<" in "<<n<<" steps";
 	// dU = grid.calc_Uav();
 	// cout<<"\n Average fields: "<<dU;
-	grid.plot_U();
+	grid.mirror_U();
+	//grid.plot_U();
 	grid.plot_uSL();
 	
-	grid.spew_field(Pressure);
-	cout<<endl<<endl;
-	grid.spew_field(xVelocity);
-	cout<<endl<<endl;
-	grid.spew_field(yVelocity);
-	cout<<endl;
+	// grid.spew_field(Pressure);
+	// cout<<endl<<endl;
+	// grid.spew_field(xVelocity);
+	// cout<<endl<<endl;
+	// grid.spew_field(yVelocity);
+	// cout<<endl;
 }
 
 void verify(Grid& grid)

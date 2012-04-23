@@ -102,7 +102,7 @@ public:
 	void calc_eU();
 	void calc_eFI();
 	
-	//
+	// Calculate control volume based quantities
 	void calc_Q();
 	void calc_BC();
 	void calc_IBC();
@@ -117,7 +117,8 @@ public:
 	
 	void spew_mesh(int);
 	void spew_field(FieldName);
-
+	void mirror_U();
+	
 	// Functions for Thomas solution
 	void calc_LHS(double LHS[][3][3][3], Direction, int);
 	void calc_RHS(double RHS[][3], Direction, int);

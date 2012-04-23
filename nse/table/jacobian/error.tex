@@ -1,0 +1,27 @@
+\begin{table}
+\begin{center}
+\begin{tabular}{|l | r | r | r |}
+\hline
+Cell Location & Error ($U_1$) & Error ($U_2$) & Error ($U_3$) \\
+\hline
+10, 09 & 1.00018e-17 & 4.99997e-12 & 4.99994e-12 \\
+09, 10 & 1.00018e-17 & 4.99994e-12 & 5.00008e-12 \\
+10, 10 & 0 & 1.00668e-16 & 1.00668e-16 \\
+11, 10 & -1.00018e-17 & -4.99998e-12 & -4.99987e-12 \\
+10, 11 & -1.00018e-17 & -4.99987e-12 & -4.99998e-12 \\
+\hline
+\end{tabular}
+\caption{Approximation error in change in flux integral with time step.}
+\label{jacobian}
+\end{center}
+\end{table}
+\begin{table}
+\begin{center}
+\begin{tabular}{|l | r | r | r |}
+\hline
+Cell Location & Error ($U_1$) & Error ($U_2$) & Error ($U_3$) \\
+\hline
+\[9\]\[9\] & 0 & 0 & 0 \\
+\[10\]\[9\] & 2.54801e-16 & 2.5e-12 & 2.49998e-12 \\
+\[9\]\[10\] & -1.89288e-16 & 2.49998e-12 & 2.50006e-12 \\
+\[10\]\[10\] & 0 & -1.25988e-17 & -1.25988e-17 \\

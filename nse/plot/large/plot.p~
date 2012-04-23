@@ -1,0 +1,16 @@
+# set terminal pngcairo  transparent enhanced font "arial,10" fontscale 1.0 size 500, 350 
+# set output 'contours.24.png'
+set border 15 front linetype -1 linewidth 1.000
+set logscale z 10
+set view 20, 340, 1, 1
+set isosamples 60, 60
+unset surface
+set contour base
+set hidden3d back offset 1 trianglepattern 3 undefined 1 altdiagonal bentover
+set style data lines
+set ticslevel 0
+set noztics
+set title "Rosenbrock Function" 
+set xlabel "x" 
+set ylabel "y" 
+splot './field'

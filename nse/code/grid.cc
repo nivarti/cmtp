@@ -220,7 +220,7 @@ void Grid::add_J(int i, int j)
 }
 
 void Grid::calc_BC()
-{	
+{		
 	for(int j = domain.Jmin; j <= domain.Jmax; j++){
 		
 		// Neumann on Pressure
@@ -500,9 +500,9 @@ void Grid::plot_U()
 {
 	ofstream pfile, ufile, vfile;
 	
-	pfile.open("../plot/basic/pressure/P");
-	ufile.open("../plot/basic/u");
-	vfile.open("../plot/basic/v");	
+	pfile.open("../plot/basic/pressure/P2");
+	ufile.open("../plot/basic/velocity/u2");
+	vfile.open("../plot/basic/velocity/v2");
 	
 	for(int i = domain.Imin; i <= domain.Imax; i++){
 		for(int j = domain.Jmin; j <= domain.Jmax; j++){
@@ -529,13 +529,29 @@ void Grid::plot_uSL()
 	int I = domain.Imax/2;
 	ofstream file;
 	
-	file.open("../plot/basic/symmetry/uvel");
+	file.open("../plot/basic/symmetry/uvel2");
 	
 	for(int j = domain.Jmin; j <= domain.Jmax; j++){			
 		
 		uM = (mesh[I][j].U.C[1] + mesh[I][j].U.C[1])/2.0;
-		file<<mesh[I][j].x<<" "<<mesh[I][j].y<<" "<<uM<<endl;
+		file<<mesh[I][j].y<<" "<<uM<<endl;
 	}
 
 	file.close();				
+}
+
+void Grid::mirror_U()
+{	
+	for(int i = domain.Imin; i <= domain.Imax; i++){
+		for(int j = domain.Jmin; j <= domain.Jmax; j++){
+			
+			mesh[i][j].Un = mesh[i][j].U;
+		}
+	}
+	for(int i = 0; i <= domain.Imax - 1; i++){
+		for(int j = domain.Jmin; j <= domain.Jmax; j++){
+						
+			mesh[i + 1][j].U = mesh[domain.Imax - i][j].Un;
+		}
+	}	
 }

@@ -19,10 +19,10 @@ int main()
 	do{
 		// Initialise geometry, and mesh
 		Rectangle cavity(Nx, Ny, 1);
-		Grid nse(cavity);										
-		
+		Grid nse(cavity);												
 		//setup(nse);
 		//tune(nse, T);
+		
 		solve(nse);
 		//verify(nse);
 		
@@ -31,7 +31,7 @@ int main()
 		Ny *= 2;
 
 		//T += 0.05;
-       
+		
 	}while(Nx <= 20);	
 	// End run-time calculation
 	tf = clock();	
