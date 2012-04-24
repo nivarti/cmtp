@@ -95,8 +95,8 @@ void Grid::add_FI(int i, int j)
 	pW = mesh[i-1][j].U.C[0];
 	
 	// Calculate addition required in flux integral
-	dFx = (A/beta)*(pE - 2.0*pP + pW)/(dx*dx);
-	dGy = (A/beta)*(pN - 2.0*pP + pS)/(dy*dy);
+	dFx = (A*dy/beta)*(pE - 2.0*pP + pW)/(dx);
+	dGy = (A*dx/beta)*(pN - 2.0*pP + pS)/(dy);
 	
 	mesh[i][j].FI.C[0] += dFx;
 	mesh[i][j].FI.C[0] += dGy;
@@ -210,13 +210,13 @@ void Grid::add_J(int i, int j)
 	dy = domain.dy;
 	
 	// Set Jacobians to accommodate smoothing Pressure
-	mesh[i][j].Ax[0][0] += A/(beta*dx);
-	mesh[i][j].Bx[0][0] += 2.0*A/(beta*dx);
-	mesh[i][j].Cx[0][0] += -A/(beta*dx);
+	mesh[i][j].Ax[0][0] += - A*dy/(beta*dx);
+	mesh[i][j].Bx[0][0] += 2.0*A*dy/(beta*dx);
+	mesh[i][j].Cx[0][0] += - A*dy/(beta*dx);
 			
-	mesh[i][j].Ay[0][0] += A/(beta*dy);
-	mesh[i][j].By[0][0] += 2.0*A/(beta*dy);
-	mesh[i][j].Cy[0][0] += -A/(beta*dy);
+	mesh[i][j].Ay[0][0] += - A*dx/(beta*dy);
+	mesh[i][j].By[0][0] += 2.0*A*dx/(beta*dy);
+	mesh[i][j].Cy[0][0] += - A*dx/(beta*dy);
 }
 
 void Grid::calc_BC()
@@ -328,8 +328,8 @@ void Grid::calc_Q()
 			calc_J(i, j);
 			
 			// Smoothen by adding pressure laplacian
-			// add_FI(i, j);
-			// add_J(i, j);
+			add_FI(i, j);
+			add_J(i, j);
 		}
 	}
 	
@@ -525,7 +525,7 @@ void Grid::plot_U()
 // Velocity along line of symmetry
 void Grid::plot_uSL()
 {
-	double uM = 0.0;
+	double uM;
 	int I = domain.Imax/2;
 	ofstream file;
 	
@@ -538,6 +538,31 @@ void Grid::plot_uSL()
 	}
 
 	file.close();				
+}
+
+
+void Grid::plot_uSL(string F)
+{
+	double uM;
+	static int i = 0;
+	int I = domain.Imax/2;
+	stringstream myFN;
+	string name;
+	ofstream file;
+	
+	myFN << F << i;
+	
+	name = myFN.str();
+	file.open(name.c_str());
+	
+	for(int j = domain.Jmin; j <= domain.Jmax; j++){			
+		
+		uM = (mesh[I][j].U.C[1] + mesh[I][j].U.C[1])/2.0;
+		file<<mesh[I][j].y<<" "<<uM<<endl;
+	}
+	
+	i++;
+	file.close();
 }
 
 void Grid::mirror_U()
@@ -554,4 +579,29 @@ void Grid::mirror_U()
 			mesh[i + 1][j].U = mesh[domain.Imax - i][j].Un;
 		}
 	}	
+}
+
+void Grid::slice_U(int I, int J)
+{
+	double pM;
+	//int I = domain.Imax/2;
+	ofstream file1, file2;
+	
+	file1.open("../plot/oscillation/P6i");
+	file2.open("../plot/oscillation/P6j");
+	
+	for(int j = domain.Jmin; j <= domain.Jmax; j++){			
+		
+		pM = (mesh[I][j].U.C[0] + mesh[I][j].U.C[0])/2.0;
+		file1<<mesh[I][j].y<<" "<<pM<<endl;
+	}
+
+	for(int i = domain.Imin; i <= domain.Imax; i++){			
+		
+		pM = (mesh[i][J].U.C[0] + mesh[i][J].U.C[0])/2.0;
+		file2<<mesh[i][J].x<<" "<<pM<<endl;
+	}
+
+	file1.close();					
+	file2.close();
 }

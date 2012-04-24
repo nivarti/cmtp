@@ -17,6 +17,8 @@ Solution with SOR: 1.5 converged to 6.28665567737117e-07  8.88136285772837e-07  
 Average fields: 1.9519992854088e-15  -1.34855056741173e-17  -2.90050021523882e-17
 
 %sec 3.2
+U = 1.0:  Solution with SOR: 1 converged to 9.6660720727693e-07  9.96190587746852e-07  4.65312262596864e-07 in 413 steps
+U = -1: Solution with SOR: 1 converged to 9.5485765470563e-07  9.47307751656132e-07  1.47032202389875e-07 in 399 steps
 
 \end{center}
 \end{document}

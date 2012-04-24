@@ -16,13 +16,15 @@ void tune(Grid& grid, double T)
 	dUtol = 0.000001;
 	
 	//SOR = T;
-	dt = T;
+	//dt = T;
 
 	do{
 		// March in time with implicit euler
 		dU = grid.march_IE(dt, SOR);
-		n++;						
+		n++;		
 		
+		//cout<<"\n Maximum change in solution at the end of "<<n<<" steps = "<<dU;
+				
 		//plot_CH(n, dU, "../plot/relaxation/dU6");
 		
 	}while(dU >= dUtol);
@@ -30,13 +32,37 @@ void tune(Grid& grid, double T)
 	cout<<"\n Solution with dt: " <<dt<<" converged to "<<dU<<" in "<<n<<" steps";
 	//cout<<"\n\n Solution with SOR: " <<SOR<<" converged to "<<dU<<" in "<<n<<" steps";				
 	
+	//grid.slice_U(11, 11);
+	//grid.spew_field(Pressure, 11, -1);
+	//grid.spew_field(Pressure, -1, 11);
+
+	// for(int i = grid.domain.Imin; i <= grid.domain.Imax; i++){
+	// 	grid.spew_field(Pressure, i, -1);
+	// 	cout<<endl;
+	// }		
+	// for(int j = grid.domain.Jmin; j <= grid.domain.Jmax; j++){
+		
+	// 	grid.spew_field(Pressure, -1, j);
+	// 	cout<<endl;
+	// }
+	
+	
+	//cout<<"\n Pressure solution:\n";
+	//grid.spew_field(Pressure);
+	
+	//cout<<"\n Pressure solution:\n";
+	//grid.spew_field(Pressure);
+	
+	//cout<<"\n Pressure solution:\n";
+	//grid.spew_field(Pressure);
+	
 	//file.close();		
 }
 
 void solve(Grid& grid)
 {
 	int n = 0;
-	double dt = 0.05, SOR = 1.0;
+	double dt = 0.25, SOR = 1.0;
 	Field dU, dUtol;
 	
 	// Specify tolerance for convergence
@@ -54,7 +80,7 @@ void solve(Grid& grid)
 		//plot_CH(n, grid.calc_Uav(), "../plot/convergence/Uav");
 		//if(n <= 200)
 		
-		//plot_CH(n, dU, "../plot/basic/convergence/conv");
+		//plot_CH(n, dU, "../plot/basic/gci/conv");
 
 	}while(dU >= dUtol);
 	
@@ -62,16 +88,10 @@ void solve(Grid& grid)
 	//cout<<"\n Solution with beta: " <<beta<<" converged to "<<dU<<" in "<<n<<" steps";
 	// dU = grid.calc_Uav();
 	// cout<<"\n Average fields: "<<dU;
-	grid.mirror_U();
+	//grid.mirror_U();
 	//grid.plot_U();
-	grid.plot_uSL();
-	
-	// grid.spew_field(Pressure);
-	// cout<<endl<<endl;
-	// grid.spew_field(xVelocity);
-	// cout<<endl<<endl;
-	// grid.spew_field(yVelocity);
-	// cout<<endl;
+	//grid.plot_uSL();
+	grid.plot_uSL("../plot/basic/gci/mesh");
 }
 
 void verify(Grid& grid)

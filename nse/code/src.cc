@@ -132,6 +132,27 @@ void Grid::spew_field(FieldName FN)
 	}	
 }
 
+void Grid::spew_field(FieldName FN, int I, int J)
+{
+	if(J == -1){
+		cout<<"\n Printing field values at row: "<<I<<endl;
+		for(int j = domain.Jmin; j <= domain.Jmax; j++){			
+			
+			//pM = (mesh[I][j].U.C[0] + mesh[I][j].U.C[0])/2.0;
+			cout<<mesh[I][j].y<<" "<<mesh[I][j].U.C[0]<<endl;
+		}
+	}
+	
+	if(I == -1){
+		cout<<"\n Printing field values at column: "<<J<<endl;
+		for(int i = domain.Imin; i <= domain.Imax; i++){			
+			
+			//pM = (mesh[i][J].U.C[0] + mesh[i][J].U.C[0])/2.0;
+			cout<<mesh[i][J].x<<" "<<mesh[i][J].U.C[0]<<endl;
+		}
+	}	
+}
+
 // Tabulate change in l2 norms
 void tab_L2N(int Nx, int Ny, Field L2N)
 {

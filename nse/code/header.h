@@ -117,6 +117,7 @@ public:
 	
 	void spew_mesh(int);
 	void spew_field(FieldName);
+	void spew_field(FieldName, int, int);
 	void mirror_U();
 	
 	// Functions for Thomas solution
@@ -131,6 +132,8 @@ public:
 	Field ver_FI();	
 	void plot_U();
 	void plot_uSL();
+	void plot_uSL(string);
+	void slice_U(int, int);
 };
 
 // Field operations
