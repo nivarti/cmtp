@@ -62,7 +62,7 @@ void tune(Grid& grid, double T)
 void solve(Grid& grid)
 {
 	int n = 0;
-	double dt = 0.25, SOR = 1.0;
+	double dt = 0.05, SOR = 1.0;
 	Field dU, dUtol;
 	
 	// Specify tolerance for convergence
@@ -75,12 +75,12 @@ void solve(Grid& grid)
 		
 		cout<<"\n Maximum change in solution at the end of "<<n<<" steps = "<<dU;
 		
-		// Plot L2 norm, average field, etc for every step
+		//Plot L2 norm, average field, etc for every step
 		//plot_CH(n, dU, "../plot/oscillation/dU");
 		//plot_CH(n, grid.calc_Uav(), "../plot/convergence/Uav");
 		//if(n <= 200)
 		
-		//plot_CH(n, dU, "../plot/basic/gci/conv");
+		//plot_CH(n, dU, "../plot/vortex/conv");
 
 	}while(dU >= dUtol);
 	
@@ -88,8 +88,17 @@ void solve(Grid& grid)
 	//cout<<"\n Solution with beta: " <<beta<<" converged to "<<dU<<" in "<<n<<" steps";
 	// dU = grid.calc_Uav();
 	// cout<<"\n Average fields: "<<dU;
+	
 	//grid.mirror_U();
+	//grid.find_center();
+	//grid.calc_PSI();
 	//grid.plot_U();
+	
+	//cout<<"\n Pressure solution:\n";
+	//grid.spew_field(xVelocity);
+	//cout<<endl<<endl;
+	//cout<<"\n Pressure solution:\n";
+	//grid.spew_field(yVelocity);
 	//grid.plot_uSL();
 	grid.plot_uSL("../plot/basic/gci/mesh");
 }
@@ -99,7 +108,7 @@ void verify(Grid& grid)
 	Field L2norm;
 	
 	L2norm = grid.ver_FI();
-	//tab_L2N(grid.domain.Imax, grid.domain.Jmax, L2norm);
+	tab_L2N(grid.domain.Imax, grid.domain.Jmax, L2norm);
 	
 	cout<<"\nL2 norm for solution = "<<L2norm;
 	

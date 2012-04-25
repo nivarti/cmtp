@@ -16,6 +16,6 @@ const double u0 = 1.0;
 const double v0 = 1.0;
 
 const double beta = 1.0;
-const double A = 0.01;
+const double A = 0.0;
 
-const double U_TOP = 0.0;
+const double U_TOP = 1.0;

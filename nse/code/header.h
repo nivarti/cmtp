@@ -58,7 +58,9 @@ struct Cell
 {
 	Field U, eU, dU, Un;
 	Field FI, eFI, FIn;
-
+	
+	double psi;
+	
 	double x, y;
 
 	double Ax[3][3], Ay[3][3];
@@ -111,7 +113,8 @@ public:
 	void calc_J(int, int);
 	void calc_EJ();	
 	void calc_IDxDy(double);
-	
+	void calc_PSI();
+
 	void add_J(int, int);
 	void add_FI(int, int);
 	
@@ -119,7 +122,7 @@ public:
 	void spew_field(FieldName);
 	void spew_field(FieldName, int, int);
 	void mirror_U();
-	
+	void find_center();
 	// Functions for Thomas solution
 	void calc_LHS(double LHS[][3][3][3], Direction, int);
 	void calc_RHS(double RHS[][3], Direction, int);
@@ -160,3 +163,5 @@ void SolveBlockTri(double LHS[MAXSIZE][3][3][3], double RHS[MAXSIZE][3], int);
 void tab_L2N(int, int, Field);
 void tab_EJ(int, int, Field);
 void plot_CH(int, Field, string);
+void est_GCI();
+void calc_GCI();

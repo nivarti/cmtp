@@ -1,0 +1,16 @@
+set   autoscale                        # scale axes automatically
+unset log                              # remove any log-scaling
+unset label                            # remove any previous labels 
+   set xtic auto                          # set xtics automatically 
+   set ytic auto                          # set ytics automatically
+   set xlabel "x direction"
+   set ylabel "Steady State Pressure"
+   set key left top
+set grid
+   set term post "Helvetica" 18
+   set output 'osc.eps'
+   plot    "P1j" using 1:2 title 'A = 0.0' with linespoints pointtype 4, \
+      "P6j" using 1:2 title 'A = 0.01' with linespoints pointtype 11,\
+	 "P5j" using 1:2 title 'A = 0.1' with linespoints pointtype 6,\
+	    "P2j" using 1:2 title 'A = 0.5' with linespoints pointtype 12,\
+	       "P3j" using 1:2 title 'A = 1.0' with linespoints pointtype 10

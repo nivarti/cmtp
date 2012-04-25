@@ -1,13 +1,8 @@
-set   autoscale                        # scale axes automatically
-unset log                              # remove any log-scaling
-unset label                            # remove any previous labels 
-   set xtic auto                          # set xtics automatically 
-   set ytic auto                          # set ytics automatically
-#   set title "Error Profile for Solution"
-   set xlabel "x"
-   set ylabel "y"
-#   set key 0.01,100	
-#   set term post "Helvetica" 18
-#   set output 'P.eps'
-#   set hidden3d
-   splot    "< paste u u2" using 1:2:($3 + $6) title 'u(-1) + u(1)'  with lines
+set size square
+unset title
+set pm3d map
+#set format x""
+#set format y""
+set cbrange[-0.1:1.0]
+set palette rgbformulae 22,13,10
+splot './u'

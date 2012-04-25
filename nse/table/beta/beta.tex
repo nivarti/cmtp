@@ -1,8 +1,54 @@
-Solution with beta: 1.2 converged to 9.11969533183182e-07  4.27979481936932e-07  7.2030130338805e-07 in 281 steps
-Solution with beta: 1 converged to 9.44301326316753e-07  3.29472861330548e-07  8.78914671830617e-07 in 256 steps
-Solution with beta: 0.9 converged to 3.67014055208618e-07  2.17094389384209e-07  9.22635635110267e-07 in 249 steps
-Solution with beta: 0.8 converged to 5.32603833158466e-07  3.79660412609399e-07  9.59216144769778e-07 in 236 steps
-Solution with beta: 0.7 converged to 5.7496360264576e-07  9.63583958358859e-07  9.38262426101032e-07 in 224 steps
-Solution with beta: 0.6 converged to 8.37903257343103e-08  8.92256293049541e-07  9.89176926409004e-07 in 228 steps
-Solution with beta: 0.5 converged to 2.74084747758119e-08  9.69284617250733e-07  9.75559531615711e-07 in 232 steps
+\begin{table}
+\begin{center}
+\begin{tabular}{| l | r || r | r || r | r |}
+\hline
+$\beta$ & Iterations & $\omega$ & Iterations & $\Delta t$ & Iterations\\
+\hline
 
+0.5 & 232 & 1.0 & 256 & 0.05 & 256\\
+0.6 & 228 & 1.1 & 246 & 0.10 & 151\\ \cline{1-2}
+0.7 & 224 & 1.2 & 238 & 0.15 & 123\\ \cline{1-2}
+0.8 & 236 & 1.3 & 231 & 0.20 & 110\\ \cline{5-6}
+0.9 & 249 & 1.4 & 226 & 0.25 & 103\\ \cline{3-4} \cline{5-6}
+1.0 & 256 & 1.5 & 224 & 0.30 & 99\\ \cline{3-4}
+1.2 & 281 & 1.6 & 225 & 0.35 & 98\\
+1.3 & n/a & 1.7 & 224 & 0.40 & 98\\
+1.4 & n/a & 1.8 & 228 & 0.45 & 100\\
+
+\hline
+\end{tabular}
+\caption{Convergence behaviour of solution observed on independently varying $\beta$, successive-over-relaxation parameter $\omega$, and time step $\Delta t$, with a fixed $Re = 100$ for a mesh size of 20 $\times$ 20. The optimal parameters chosen for later excercises have been highlighted.}
+\label{tune}
+\end{center}
+\end{table}
+%% Solution with beta: 1.2 converged to 9.11969533183182e-07  4.27979481936932e-07  7.2030130338805e-07 in 281 steps
+%% Solution with beta: 1 converged to 9.44301326316753e-07  3.29472861330548e-07  8.78914671830617e-07 in 256 steps
+%% Solution with beta: 0.9 converged to 3.67014055208618e-07  2.17094389384209e-07  9.22635635110267e-07 in 249 steps
+%% Solution with beta: 0.8 converged to 5.32603833158466e-07  3.79660412609399e-07  9.59216144769778e-07 in 236 steps
+%% Solution with beta: 0.7 converged to 5.7496360264576e-07  9.63583958358859e-07  9.38262426101032e-07 in 224 steps
+%% Solution with beta: 0.6 converged to 8.37903257343103e-08  8.92256293049541e-07  9.89176926409004e-07 in 228 steps
+%% Solution with beta: 0.5 converged to 2.74084747758119e-08  9.69284617250733e-07  9.75559531615711e-07 in 232 steps
+
+ %% Solution with SOR: 2.2 converged to 9.37015914510813e-07  6.99745225715309e-07  5.38951653500861e-07 in 366 steps
+ %% Solution with SOR: 2.1 converged to 8.06081010694755e-07  9.06657874342554e-07  7.08664976911585e-07 in 266 steps
+ %% Solution with SOR: 2 converged to 3.52965190658196e-07  9.77040931079523e-07  9.95741947933958e-07 in 242 steps
+ %% Solution with SOR: 1.9 converged to 8.41119887293313e-07  9.06189431314842e-07  8.94752323482843e-07 in 232 steps
+ %% Solution with SOR: 1.8 converged to 6.62078737273958e-07  8.85821127353255e-07  8.83502748906094e-07 in 228 steps
+ %% Solution with SOR: 1.7 converged to 7.63752004364419e-07  8.56181711890409e-07  8.81869584441157e-07 in 224 steps
+ %% Solution with SOR: 1.6 converged to 8.6726066816062e-07  7.68110149095951e-07  6.78370720654392e-07 in 225 steps
+ %% Solution with SOR: 1.5 converged to 6.28665567737143e-07  8.88136285772826e-07  7.33122430161234e-07 in 224 steps
+ %% Solution with SOR: 1.4 converged to 6.86199414470014e-07  7.45339346361567e-07  9.27149817416412e-07 in 226 steps
+ %% Solution with SOR: 1.3 converged to 9.18378100467231e-07  7.74520331296658e-07  4.92195173193926e-07 in 231 steps
+ %% Solution with SOR: 1.2 converged to 8.67562966360854e-07  4.16687947760643e-07  7.54767341423407e-07 in 238 steps
+ %% Solution with SOR: 1.1 converged to 9.17431140778705e-07  7.85877821735947e-07  3.3126458863817e-07 in 246 steps
+ %% Solution with SOR: 1 converged to 9.44301326316753e-07  3.29472861330548e-07  8.78914671830617e-07 in 256 steps
+
+ %% Solution with dt: 0.05 converged to 9.44301326316753e-07  3.29472861330548e-07  8.78914671830617e-07 in 256 steps
+ %% Solution with dt: 0.1 converged to 2.47494716683907e-08  9.85919833493916e-07  9.85086072684939e-07 in 151 steps
+ %% Solution with dt: 0.15 converged to 2.50100012627708e-08  9.81679910491457e-07  9.80037618474944e-07 in 123 steps
+ %% Solution with dt: 0.2 converged to 2.98101853069845e-08  9.29042848628983e-07  9.26202521823676e-07 in 110 steps
+ %% Solution with dt: 0.25 converged to 4.01950649933332e-08  9.26968145563461e-07  9.22515279165748e-07 in 103 steps
+ %% Solution with dt: 0.3 converged to 5.58472798473289e-08  9.72979538606726e-07  9.66272070560794e-07 in 99 steps
+ %% Solution with dt: 0.35 converged to 7.11019303920279e-08  9.51116611327209e-07  9.41999138501301e-07 in 98 steps
+ %% Solution with dt: 0.4 converged to 9.72488484658789e-08  9.96865386563812e-07  9.83193882833143e-07 in 98 steps
+ %% Solution with dt: 0.45 converged to 1.24455702558706e-07  9.98367287571365e-07  9.79084118223986e-07 in 100 steps

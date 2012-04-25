@@ -6,7 +6,8 @@ Cell::Cell()
 	x = y = 0.0;
 	U = eU = dU = Un = 0.0;
 	FI = eFI = FIn = 0.0;
-
+	psi = 0.0;
+	
 	for(int i = 0; i < 3; i++){
 		for(int j = 0; j < 3; j++){
 			

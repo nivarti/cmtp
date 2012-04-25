@@ -1,47 +1,159 @@
-\documentclass{article}
-
-\usepackage{graphics, a4wide}
+\documentclass[a4paper, 10pt]{article}
+\usepackage{graphics, a4wide, graphicx,enumerate}
 \usepackage{nopageno}
 \usepackage{txfonts}
 \usepackage[usenames]{color}
 
+\title{Second Order Navier Stokes Solvers for Vortex Solutions in Lid-Driven Cavities}
+\author{Girish Nivarti}
+\date{\today}
+
 \begin{document}
-\begin{center}
+\maketitle
+\begin{enumerate}[I]
+
+\item The $L_2$ norms of error in flux integrals have been tabulated for various meshes in Table \ref{norm}. The errors in approximation to equation 1 (in Problem Sheet) have been tabulated for a 10x10 mesh in Table \ref{jacobian}. Spurious errors due to round-off were observed in even exact solution values. This, however, did not effect the significant digits in the error (where such spurious errors were seen at less significant digits).
 \input{../table/norm/l2norm.tex}
 \input{../table/jacobian/error.tex}
+
+\item Following are observations and relevant illustrations from the experiments on optimizing the code. The following results were achieved with $Re = 100$, ona  20x20 mesh.
+  \begin{enumerate} [a]
+  \item No pressure drift was observed in the solution. The pressure solution converged for a variety of parameters and Reynolds numbers, and hence no fixed boundary condition was applied for pressure at a single ghost cell. 
+    \item To reduce pressure oscillations due to coupling of pressure in alternate lines of the mesh, a laplacian term ($A\Delta x \Delta y \nabla P$)of pressure was introduced in the continuity (pressure) equation.  The value of A was varied to observe different results of smoothening as shown in Fig. \ref{smooth}, and Fig. \ref{smooth2} where slices of mesh with most oscillations ($i = 11$, and $j = 11$) have been plotted. 
+    \item The weight ($\beta$) given to transient pressure term in the continuity equation was varied to observe effects on convergence rate. Similarly successive over-relaxation coefficient ($\omega$), and time steps were tuned to give optimum convergence. The individual effects of each of these independent of other parameters have been tabulated in Table \ref{tune}.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.6\textwidth, angle = -90]{../plot/oscillation/osc.eps}
+  \caption{Pressure oscillations are damped along the x direction by adding a diffusion term. A = 0.1 gives best results.}
+  \label{smooth}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.6\textwidth, angle = -90]{../plot/oscillation/osci.eps}
+  \caption{Pressure oscillations are damped along the y direction by adding a diffusion term. A = 0.1 gives best results.}
+  \label{smooth2}
+\end{figure}
+
+\input{../table/beta/beta.tex}
+
+  \end{enumerate}
+
+\item The validation case of a square domain with moving top is explored here. The following results have been achieved without using the tuned parameters arrived at in the previous section. This was due to the fact that most of the parameters were mentioned explicitly in the question. Hence, $Re = 100$, $\beta = 1$, $A = 0$ have been used on a 20x20 mesh. Over-relaxation $\omega = 0$, and times step $\Delta t = 0.05$ were, however, varied as asked and have been reported accordingly. Convergence criterion used is for the $L_2$ norm of change in solution to be less than $10^{-6}$.
+  \begin{enumerate} [a]
+  \item Convergence history of solution with zero lide velocity has been plotted in Fig. \ref{ch1}. Alongside, steady state contour plots of pressure, and velocities have been plotted (Figures \ref{sol1p}, \ref{sol1u}, \ref{sol1v})to verify that the solution indeed reaches the stable values expected. There were minor oscillations in steady state pressure due to the lack of tuning parameter A. The average (over entire domain) values of respective fields were calculated as 1.9519992854088 $\times 10^{-15}$, -1.34855056741173 $\times 10^{-17}$, -2.90050021523882 $\times 10^{-17}$. An over-relaxation coefficient ($\omega = 1.5$) was used to attain convergence in 224 steps.
+  \item On a 20x20 mesh, results of using a driven lid ($U_{top} = 1$) have been shown here. The convergence history has been plotted until convergence was attained (Fig. \ref{ch2}, \ref{ch3}, \ref{ch4}). Velocity in x-direction has been plotted for both cases ($U_{top} = 1$ and $U_{top} = -1$), as comparison, along the vertical line of symmetry in Fig. \ref{uvel}. A surface plot of pressure has been provided (Fig. \ref{splotP}) alongside.
+  \item In order to guarantee symmetry in solutions of forward, and backward driven lids, a surface plot of $u_{U_{top} = 1}(x,y) + u_{U_{top} = -1}(1-x,y)$ has been constructed (Fig. \ref{splotU}).
+  \item Grid convergence has been established by successively refining the mesh, and plotting velocity (Fig. \ref{Ugci}) along the symmetry line for each case. For a quantitative reasoning, norms of change in solution across two successive meshes at 10 different points (those from the smallest mesh) were calculated, and plotted (Fig. \ref{dUgci}). An 80x80 mesh is sufficient for grid convergence.
+
+  \end{enumerate}
+    \begin{figure}
+      \centering
+      \includegraphics[width=0.6\textwidth, angle = -90]{../plot/stability/convergence/conv.eps}
+      \caption{Change in solution (in pressure, and velocities) plotted over iterations up to 200 iterations.}
+      \label{ch1}
+    \end{figure}
+    
+    \begin{figure}
+      \centering
+      \includegraphics[width=0.6\textwidth, angle = -90]{../plot/stability/solution/P.eps}
+      \caption{Steady state pressure contour plot for a 20x20 mesh with no lid velocity.}
+      \label{sol1p}
+    \end{figure}
+    \begin{figure}
+      \centering
+      \includegraphics[width=0.6\textwidth, angle = -90]{../plot/stability/solution/u.eps}
+      \caption{Steady state x velocity (u) contour plot for a 20x20 mesh with no lid velocity.}
+      \label{sol1u}
+    \end{figure}
+    \begin{figure}
+      \centering
+      \includegraphics[width=0.6\textwidth, angle = -90]{../plot/stability/solution/v.eps}
+      \caption{Steady state y velocity (v) contour plot for a 20x20 mesh with no lid velocity.}
+      \label{sol1v}
+    \end{figure}
+
+    
+    \begin{figure}
+      \centering
+      \includegraphics[width=0.6\textwidth, angle = -90]{../plot/basic/convergence/convP.eps}
+      \caption{Convergence history of pressure for a forward driven lid case in a square mesh for different combinations of $\Delta t$, and $\omega$.}
+      \label{ch2}
+    \end{figure}
+    \begin{figure}
+      \centering
+      \includegraphics[width=0.6\textwidth, angle = -90]{../plot/basic/convergence/convU.eps}
+      \caption{Convergence history of x velocity for a forward driven lid case in a square mesh for different combinations of $\Delta t$, and $\omega$.}
+      \label{ch3}
+    \end{figure}
+
+    \begin{figure}
+      \centering
+      \includegraphics[width=0.6\textwidth, angle = -90]{../plot/basic/convergence/convV.eps}
+      \caption{Convergence history of y velocity for a forward driven lid case in a square mesh for different combinations of $\Delta t$, and $\omega$.}
+      \label{ch4}
+    \end{figure}
+    
+    \begin{figure}
+      \centering
+      \includegraphics[width=0.6\textwidth, angle = -90]{../plot/basic/symmetry/uvel.eps}
+      \caption{Plot of u along the vertical line of symmetry for both froward, and backward driven cases.}
+      \label{uvel}
+    \end{figure}
+    
+    \begin{figure}
+      \centering
+      \includegraphics[width=0.6\textwidth, angle = -90]{../plot/basic/pressure/P.eps}
+      \caption{Surface plot of pressure for the forward driven case.}
+      \label{splotP}
+    \end{figure}
+    
+    \begin{figure}
+      \centering
+      \includegraphics[width=0.6\textwidth, angle = -90]{../plot/basic/velocity/UU.eps}
+      \caption{Surface plot of pressure for the forward driven case. Values do not attain exact zeros due to lack of complete iterative convergence.}
+      \label{splotU}
+    \end{figure}
+
+    \begin{figure}
+      \centering
+      \includegraphics[width=0.6\textwidth, angle = -90]{../plot/basic/gci/gci.eps}
+      \caption{Plot of velocity along vertical line of symmetry for different meshes.}
+      \label{Ugci}
+    \end{figure}
+
+    \begin{figure}
+      \centering
+      \includegraphics[width=0.6\textwidth, angle = -90]{../plot/basic/gci/gci2.eps}
+      \caption{Plot of change in velocity estimate along vertical line of symmetry between different meshes. The $L_2$ norms of these changes were calculated as 0.0210647, 0.00686623, 0.00188125, and 0.000458044. The changes are diminishingly small, and also smaller by a factor of 4 for the 80x80 mesh onwards.}
+      \label{dUgci}
+    \end{figure}
+
+\end{enumerate}
 %\input{../plot/stability/conv}
 
-
-%Sec 3.1
-Solution with SOR: 1.5 converged to 6.28665567737117e-07  8.88136285772837e-07  7.33122430161244e-07 in 224 steps
-Average fields: 1.9519992854088e-15  -1.34855056741173e-17  -2.90050021523882e-17
-
-%sec 2.2
-0.0
-0.5
-1.0
-0.2
-0.1
-0.01
-0.05
-
-%sec 3.2.1, 3.2.2
-dt = 0.05
-U = 1.0:  Solution with SOR: 1 converged to 9.6660720727693e-07  9.96190587746852e-07  4.65312262596864e-07 in 413 steps Code run time = 10000 ms
-U = -1: Solution with SOR: 1 converged to 9.5485765470563e-07  9.47307751656132e-07  1.47032202389875e-07 in 399 steps Code run time = 10000 ms
-
-dt = 0.05
- Solution with SOR: 1.5 converged to 9.33931991223728e-07  9.58859204246978e-07  5.84482577033519e-07 in 392 steps Code run time = 9000 ms
-
-dt = 0.25
- Solution with SOR: 1 converged to 2.76747563529065e-07  9.70727396324067e-07  9.0256255090202e-07 in 88 steps Code run time = 2000 ms
-
-dt = 0.25
- Solution with SOR: 1.5 converged to 2.59031812762338e-07  8.93762114854779e-07  8.26267053540912e-07 in 63 steps Code run time = 1000 ms
- Solution with SOR: 1.5 converged to 2.62338962584223e-07  9.08122099312736e-07  8.36681047064573e-07 in 76 steps Code run time = 1000 ms
-
-%3.2.3
+%% %Sec 3.1
 
 
-\end{center}
+%% %sec 3.2.1, 3.2.2
+%% dt = 0.05
+%% U = 1.0:  Solution with SOR: 1 converged to 9.6660720727693e-07  9.96190587746852e-07  4.65312262596864e-07 in 413 steps Code run time = 10000 ms
+%% U = -1: Solution with SOR: 1 converged to 9.5485765470563e-07  9.47307751656132e-07  1.47032202389875e-07 in 399 steps Code run time = 10000 ms
+
+%% dt = 0.05
+%%  Solution with SOR: 1.5 converged to 9.33931991223728e-07  9.58859204246978e-07  5.84482577033519e-07 in 392 steps Code run time = 9000 ms
+
+%% dt = 0.25
+%%  Solution with SOR: 1 converged to 2.76747563529065e-07  9.70727396324067e-07  9.0256255090202e-07 in 88 steps Code run time = 2000 ms
+
+%% dt = 0.25
+%%  Solution with SOR: 1.5 converged to 2.59031812762338e-07  8.93762114854779e-07  8.26267053540912e-07 in 63 steps Code run time = 1000 ms
+%%  Solution with SOR: 1.5 converged to 2.62338962584223e-07  9.08122099312736e-07  8.36681047064573e-07 in 76 steps Code run time = 1000 ms
+
+%% %3.2.3
+
+
+%% %4.1
+
 \end{document}

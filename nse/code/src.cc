@@ -114,17 +114,17 @@ void Grid::spew_field(FieldName FN)
 	// 	cout<<endl;
 	// }
 	
-	for(int i = domain.Imin; i <= domain.Imax; i++){
-		for(int j = domain.Jmin; j <= domain.Jmax; j++){
+		for(int j = domain.Jmax; j >= domain.Jmin; j--){
+			for(int i = domain.Imin; i <= domain.Imax; i++){		
 			
 			if(FN == Pressure)
 				cout<<setw(10)<<setprecision(5)<<mesh[i][j].U.C[0]<<" ";
 
 			else if(FN == xVelocity)
-				cout<<setw(10)<<setprecision(5)<<mesh[i][j].U.C[1]<<" ";		       
+				cout<<setw(12)<<setprecision(5)<<mesh[i][j].U.C[1]<<" ";		       
 			
 			else if(FN == yVelocity)
-				cout<<setw(10)<<setprecision(5)<<mesh[i][j].U.C[2]<<" ";
+				cout<<setw(12)<<setprecision(5)<<mesh[i][j].U.C[2]<<" ";
 			else
 				cout<<setw(10)<<setprecision(5)<<mesh[i][j].FI.C[0]<<" ";
 		}
@@ -228,4 +228,59 @@ void plot_U(Grid& grid1, Grid& grid2)
 	}
 		
 	file.close();				
+}
+
+void est_GCI()
+{
+	ifstream file1, file2, file3, file4, file5;
+	ofstream file;
+	double du1, du2, du3, du4;
+	double y, u1, u2, u3, u4, u5;
+
+	double e1, e2, e3, e4;
+
+	e1 = e2 = e3 = e4 = 0.0;
+	
+	file.open("../plot/basic/gci/gci");
+	file1.open("../plot/basic/gci/mesh00");
+	file2.open("../plot/basic/gci/mesh11");
+	file3.open("../plot/basic/gci/mesh22");
+	file4.open("../plot/basic/gci/mesh33");
+	file5.open("../plot/basic/gci/mesh44");
+
+	do
+		{
+			file1>>y>>u1;
+			file2>>y>>u2;
+			file3>>y>>u3;
+			file4>>y>>u4;
+			file5>>y>>u5;
+
+			du1 = u1 - u2;
+			du2 = u2 - u3;
+			du3 = u3 - u4;
+			du4 = u4 - u5;
+			
+			e1 += du1*du1;
+			e2 += du2*du2;
+			e3 += du3*du3;
+			e4 += du4*du4;
+
+			file<<y<<" "<<du1<<" "<<du2<<" "<<du3<<" "<<du4<<endl;
+		}while(y < 0.95);
+	
+
+	e1 = sqrt(e1/10.0);
+	e2 = sqrt(e2/10.0);
+	e3 = sqrt(e3/10.0);
+	e4 = sqrt(e4/10.0);
+
+	cout<<"Norms: "<<e1<<" "<<e2<<" "<<e3<<" "<<e4<<endl;
+	
+	file.close();
+	file1.close();
+	file2.close();
+	file3.close();
+	file4.close();
+	file5.close();
 }

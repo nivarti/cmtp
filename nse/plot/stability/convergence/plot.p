@@ -12,10 +12,10 @@ unset label                            # remove any previous labels
    set log x
    set grid
    set term post "Helvetica" 18
-   set output 'conv.eps'
+   set output 'conv1.eps'
 #   set terminal epslatex
 #  set output 'conv.tex'
-   plot "conv" using 1:2 title 'P' with points pointtype 4,\
-      "conv" using 1:3 title 'u' with points pointtype 6,\
-	 "conv" using 1:4 title 'v' with points pointtype 8
+   plot "conv1" using 1:2 title 'P' with points pointtype 4,\
+      "conv1" using 1:3 title 'u' with points pointtype 6,\
+	 "conv1" using 1:4 title 'v' with points pointtype 8
 

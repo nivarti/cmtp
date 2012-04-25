@@ -213,7 +213,7 @@ void Grid::add_J(int i, int j)
 	mesh[i][j].Ax[0][0] += - A*dy/(beta*dx);
 	mesh[i][j].Bx[0][0] += 2.0*A*dy/(beta*dx);
 	mesh[i][j].Cx[0][0] += - A*dy/(beta*dx);
-			
+	
 	mesh[i][j].Ay[0][0] += - A*dx/(beta*dy);
 	mesh[i][j].By[0][0] += 2.0*A*dx/(beta*dy);
 	mesh[i][j].Cy[0][0] += - A*dx/(beta*dy);
@@ -498,28 +498,32 @@ Field Grid::calc_Uav()
 // Plot fields
 void Grid::plot_U()
 {
-	ofstream pfile, ufile, vfile;
+	ofstream pfile, ufile, vfile, sfile;
 	
-	pfile.open("../plot/basic/pressure/P2");
-	ufile.open("../plot/basic/velocity/u2");
-	vfile.open("../plot/basic/velocity/v2");
-	
+	pfile.open("../plot/basic/pressure/P3");
+	ufile.open("../plot/basic/velocity/u");
+	vfile.open("../plot/basic/velocity/v");
+	//sfile.open("../plot/vortex/streamline/psi");
+
 	for(int i = domain.Imin; i <= domain.Imax; i++){
 		for(int j = domain.Jmin; j <= domain.Jmax; j++){
 			
 			pfile<<mesh[i][j].x<<" "<<mesh[i][j].y<<" "<<mesh[i][j].U.C[0]<<endl;
 			ufile<<mesh[i][j].x<<" "<<mesh[i][j].y<<" "<<mesh[i][j].U.C[1]<<endl;
 			vfile<<mesh[i][j].x<<" "<<mesh[i][j].y<<" "<<mesh[i][j].U.C[2]<<endl;
+			//sfile<<mesh[i][j].x<<" "<<mesh[i][j].y<<" "<<mesh[i][j].psi<<endl;
 		}
 		
 		pfile<<endl;
 		ufile<<endl;
 		vfile<<endl;
+		//sfile<<endl;
 	}
 		
 	pfile.close();
 	ufile.close();
 	vfile.close();
+	//sfile.close();
 }
 
 // Velocity along line of symmetry
@@ -533,7 +537,7 @@ void Grid::plot_uSL()
 	
 	for(int j = domain.Jmin; j <= domain.Jmax; j++){			
 		
-		uM = (mesh[I][j].U.C[1] + mesh[I][j].U.C[1])/2.0;
+		uM = (mesh[I][j].U.C[1] + mesh[I+1][j].U.C[1])/2.0;
 		file<<mesh[I][j].y<<" "<<uM<<endl;
 	}
 
@@ -544,25 +548,42 @@ void Grid::plot_uSL()
 void Grid::plot_uSL(string F)
 {
 	double uM;
-	static int i = 0;
+	static int i = 4;
 	int I = domain.Imax/2;
-	stringstream myFN;
-	string name;
-	ofstream file;
+	stringstream myFN, myFN2;
+	string name, name2;
+	ofstream file, file2;
 	
 	myFN << F << i;
-	
+	myFN2 << F << i << i;
 	name = myFN.str();
+	name2 = myFN2.str();
+
 	file.open(name.c_str());
+	file2.open(name2.c_str());
 	
 	for(int j = domain.Jmin; j <= domain.Jmax; j++){			
 		
-		uM = (mesh[I][j].U.C[1] + mesh[I][j].U.C[1])/2.0;
+		uM = (mesh[I][j].U.C[1] + mesh[I+1][j].U.C[1])/2.0;
 		file<<mesh[I][j].y<<" "<<uM<<endl;
+	}
+	
+	double yC = 0.05, yM;
+	for(int j = domain.Jmin; j < domain.Jmax; j++){
+		
+		yM = (mesh[I][j].y + mesh[I][j+1].y)/2.0;
+		
+		if(yM >= yC -0.00001 && yM <= yC + 0.00001){
+			
+			uM = (mesh[I][j].U.C[1] + mesh[I+1][j].U.C[1] + mesh[I][j+1].U.C[1] + mesh[I+1][j+1].U.C[1])/4.0;		
+			file2<<yM<<" "<<uM<<endl;				
+			yC += 0.1;			
+		}
 	}
 	
 	i++;
 	file.close();
+	file2.close();
 }
 
 void Grid::mirror_U()
@@ -604,4 +625,66 @@ void Grid::slice_U(int I, int J)
 
 	file1.close();					
 	file2.close();
+}
+
+void Grid::find_center()
+{
+	double Tol = 0.0001, x, y, uP, uE, uSE, uS, vP, vE, vSE, vS, uC1, uC2, vC1, vC2;
+	int N = 0, uFlag = 0, vFlag = 0;
+
+	for(int i = 2; i < domain.Imax; i++){
+		for(int j = 2; j < domain.Jmax; j++){
+			
+			x = (mesh[i][j].x + mesh[i+1][j].x + mesh[i][j-1].x + mesh[i+1][j-1].x)/4.0;
+			y = (mesh[i][j].y + mesh[i+1][j].y + mesh[i][j-1].y + mesh[i+1][j-1].y)/4.0;
+			
+			uP = mesh[i][j].U.C[1];
+			uE = mesh[i+1][j].U.C[1];
+			uSE = mesh[i+1][j-1].U.C[1];
+			uS = mesh[i][j-1].U.C[1];
+			
+			vP = mesh[i][j].U.C[2];
+			vE = mesh[i+1][j].U.C[2];
+			vSE = mesh[i+1][j-1].U.C[2];
+			vS = mesh[i][j-1].U.C[2];
+						
+			uC1 = (uP + uSE)/2.0;
+			uC2 = (uE + uS)/2.0;
+			
+			vC1 = (vP + vSE)/2.0;
+			vC2 = (vE + vS)/2.0;
+			
+			if(fabs(uC1) <= Tol)
+				if(fabs(uC2) <= Tol)
+					uFlag = 1;
+			
+			if(fabs(vC1) <= Tol)
+				if(fabs(vC2) <= Tol)
+					if(uFlag == 1)
+						vFlag = 1;
+
+			if(uFlag == 1 && vFlag == 1){				
+				cout<<"\n Vortex number: "<<N<<", centered at: "<<x<<", "<<y;
+				N++;
+			}
+			uFlag = vFlag = 0;
+		}
+	}
+}
+
+void Grid::calc_PSI()
+{
+	double sN = 0.0, sN1 = 0.0;
+	
+	for(int j = domain.Imin; j <= domain.Jmax; j++){
+		for(int i = domain.Imin; i <= domain.Imax; i++){
+			
+			sN1 += domain.dx*mesh[i][j].U.C[1];
+			if(i > domain.Imin)
+				sN += domain.dx*mesh[i-1][j].U.C[1];
+			
+			mesh[i][j].psi = (sN1 + sN)/2.0; 
+		}
+		sN = sN1 = 0.0;
+	}
 }

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=latex 2012.2.12)  22 APR 2012 17:49
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=latex 2012.2.12)  24 APR 2012 17:00
 entering extended mode
  %&-line parsing enabled.
 **nse
@@ -49,6 +49,20 @@ Package: a4wide 1994/08/30
 (/usr/share/texmf-texlive/tex/latex/ntgclass/a4.sty
 Package: a4 2004/04/15 v1.2g A4 based page layout
 ))
+(/usr/share/texmf-texlive/tex/latex/graphics/graphicx.sty
+Package: graphicx 1999/02/16 v1.0f Enhanced LaTeX Graphics (DPC,SPQR)
+
+(/usr/share/texmf-texlive/tex/latex/graphics/keyval.sty
+Package: keyval 1999/03/16 v1.13 key=value parser (DPC)
+\KV@toks@=\toks14
+)
+\Gin@req@height=\dimen103
+\Gin@req@width=\dimen104
+)
+(/usr/share/texmf-texlive/tex/latex/tools/enumerate.sty
+Package: enumerate 1999/03/05 v3.00 enumerate extensions (DPC)
+\@enLab=\toks15
+)
 (/usr/share/texmf-texlive/tex/latex/carlisle/nopageno.sty
 Package: nopageno 1989/01/01 no page numbers (DPC)
 )
@@ -141,70 +155,112 @@ File: dvipsnam.def 1999/02/16 v3.0i Driver-dependant file (DPC,SPQR)
 )) (./nse.aux)
 \openout1 = `nse.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/txmi/m/it on input line 8.
-LaTeX Font Info:    Try loading font information for OML+txmi on input line 8.
+LaTeX Font Info:    Checking defaults for OML/txmi/m/it on input line 11.
+LaTeX Font Info:    Try loading font information for OML+txmi on input line 11.
+
 
 (/usr/share/texmf-texlive/tex/latex/txfonts/omltxmi.fd
 File: omltxmi.fd 2000/12/15 v3.1
 )
-LaTeX Font Info:    ... okay on input line 8.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 8.
-LaTeX Font Info:    ... okay on input line 8.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 8.
-LaTeX Font Info:    ... okay on input line 8.
-LaTeX Font Info:    Checking defaults for OMS/txsy/m/n on input line 8.
-LaTeX Font Info:    Try loading font information for OMS+txsy on input line 8.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for OMS/txsy/m/n on input line 11.
+LaTeX Font Info:    Try loading font information for OMS+txsy on input line 11.
+
 
 (/usr/share/texmf-texlive/tex/latex/txfonts/omstxsy.fd
 File: omstxsy.fd 2000/12/15 v3.1
 )
-LaTeX Font Info:    ... okay on input line 8.
-LaTeX Font Info:    Checking defaults for OMX/txex/m/n on input line 8.
-LaTeX Font Info:    Try loading font information for OMX+txex on input line 8.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for OMX/txex/m/n on input line 11.
+LaTeX Font Info:    Try loading font information for OMX+txex on input line 11.
+
 
 (/usr/share/texmf-texlive/tex/latex/txfonts/omxtxex.fd
 File: omxtxex.fd 2000/12/15 v3.1
 )
-LaTeX Font Info:    ... okay on input line 8.
-LaTeX Font Info:    Checking defaults for U/txexa/m/n on input line 8.
-LaTeX Font Info:    Try loading font information for U+txexa on input line 8.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for U/txexa/m/n on input line 11.
+LaTeX Font Info:    Try loading font information for U+txexa on input line 11.
 
 (/usr/share/texmf-texlive/tex/latex/txfonts/utxexa.fd
 File: utxexa.fd 2000/12/15 v3.1
 )
-LaTeX Font Info:    ... okay on input line 8.
-LaTeX Font Info:    Try loading font information for OT1+txr on input line 8.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Try loading font information for OT1+txr on input line 11.
 
 (/usr/share/texmf-texlive/tex/latex/txfonts/ot1txr.fd
 File: ot1txr.fd 2000/12/15 v3.1
 )
-(../table/norm/l2norm.tex
-LaTeX Font Info:    Try loading font information for U+txmia on input line 3.
- (/usr/share/texmf-texlive/tex/latex/txfonts/utxmia.fd
+LaTeX Font Info:    Try loading font information for U+txmia on input line 12.
+
+(/usr/share/texmf-texlive/tex/latex/txfonts/utxmia.fd
 File: utxmia.fd 2000/12/15 v3.1
 )
-LaTeX Font Info:    Try loading font information for U+txsya on input line 3.
- (/usr/share/texmf-texlive/tex/latex/txfonts/utxsya.fd
+LaTeX Font Info:    Try loading font information for U+txsya on input line 12.
+
+(/usr/share/texmf-texlive/tex/latex/txfonts/utxsya.fd
 File: utxsya.fd 2000/12/15 v3.1
 )
-LaTeX Font Info:    Try loading font information for U+txsyb on input line 3.
+LaTeX Font Info:    Try loading font information for U+txsyb on input line 12.
 
 (/usr/share/texmf-texlive/tex/latex/txfonts/utxsyb.fd
 File: utxsyb.fd 2000/12/15 v3.1
 )
-LaTeX Font Info:    Try loading font information for U+txsyc on input line 3.
+LaTeX Font Info:    Try loading font information for U+txsyc on input line 12.
 
 (/usr/share/texmf-texlive/tex/latex/txfonts/utxsyc.fd
 File: utxsyc.fd 2000/12/15 v3.1
-))
-(../table/jacobian/error.tex) [1] (./nse.aux) ) 
-Here is how much of TeX's memory you used:
- 1449 strings out of 493849
- 18003 string characters out of 1152846
- 58203 words of memory out of 3000000
- 4729 multiletter control sequences out of 15000+50000
- 13567 words of font info for 44 fonts, out of 3000000 for 9000
- 714 hyphenation exceptions out of 8191
- 23i,9n,22p,220b,306s stack positions out of 5000i,500n,10000p,200000b,50000s
+)
+(../table/norm/l2norm.tex) (../table/jacobian/error.tex)
+File: ../plot/oscillation/osc.eps Graphic file (type eps)
 
-Output written on nse.dvi (1 page, 2856 bytes).
+<../plot/oscillation/osc.eps>
+File: ../plot/oscillation/osci.eps Graphic file (type eps)
+ <../plot/oscillation/osci.eps>
+(../table/beta/beta.tex) [1
+
+] [2]
+File: ../plot/stability/convergence/conv.eps Graphic file (type eps)
+ <../plot/stability/convergence/conv.eps>
+File: ../plot/stability/solution/P.eps Graphic file (type eps)
+
+<../plot/stability/solution/P.eps>
+File: ../plot/stability/solution/u.eps Graphic file (type eps)
+ <../plot/stability/solution/u.eps>
+File: ../plot/stability/solution/v.eps Graphic file (type eps)
+
+<../plot/stability/solution/v.eps>
+File: ../plot/basic/convergence/convP.eps Graphic file (type eps)
+ <../plot/basic/convergence/convP.eps>
+File: ../plot/basic/convergence/convU.eps Graphic file (type eps)
+
+<../plot/basic/convergence/convU.eps>
+File: ../plot/basic/convergence/convV.eps Graphic file (type eps)
+ <../plot/basic/convergence/convV.eps>
+File: ../plot/basic/symmetry/uvel.eps Graphic file (type eps)
+
+<../plot/basic/symmetry/uvel.eps>
+File: ../plot/basic/pressure/P.eps Graphic file (type eps)
+ <../plot/basic/pressure/P.eps>
+File: ../plot/basic/velocity/UU.eps Graphic file (type eps)
+
+<../plot/basic/velocity/UU.eps>
+File: ../plot/basic/gci/gci.eps Graphic file (type eps)
+ <../plot/basic/gci/gci.eps>
+File: ../plot/basic/gci/gci2.eps Graphic file (type eps)
+
+<../plot/basic/gci/gci2.eps> [3] [4] [5] [6] [7] [8] [9] (./nse.aux) ) 
+Here is how much of TeX's memory you used:
+ 1642 strings out of 493849
+ 20844 string characters out of 1152846
+ 71976 words of memory out of 3000000
+ 4888 multiletter control sequences out of 15000+50000
+ 24072 words of font info for 75 fonts, out of 3000000 for 9000
+ 714 hyphenation exceptions out of 8191
+ 23i,11n,22p,695b,443s stack positions out of 5000i,500n,10000p,200000b,50000s
+
+Output written on nse.dvi (9 pages, 18972 bytes).
