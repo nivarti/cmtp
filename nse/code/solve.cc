@@ -13,7 +13,7 @@ void tune(Grid& grid, double T)
 	Field dU, dUtol;
 	ofstream file;	
 	
-	dUtol = 0.000001;
+	dUtol = 0.00000001;
 	
 	//SOR = T;
 	//dt = T;
@@ -66,14 +66,14 @@ void solve(Grid& grid)
 	Field dU, dUtol;
 	
 	// Specify tolerance for convergence
-	dUtol = 0.000001;
+	dUtol = 0.00000001;
 	
 	do{
 		// March in time with implicit euler
 		dU = grid.march_IE(dt, SOR);
 		n++;
 		
-		//cout<<"\n Maximum change in solution at the end of "<<n<<" steps = "<<dU;
+		cout<<"\n Maximum change in solution at the end of "<<n<<" steps = "<<dU;
 		
 		//Plot L2 norm, average field, etc for every step
 		//plot_CH(n, dU, "../plot/oscillation/dU");
@@ -91,21 +91,22 @@ void solve(Grid& grid)
 	
 	//grid.mirror_U();
 	//grid.find_center();
-	grid.calc_PSI();
+	grid.calc_PSI(Column);
 	grid.calc_OMEGA();
+	grid.calc_PSImax();
 	//grid.plot_U();
 	
-	cout<<"\n x Velocity solution:\n";
-	grid.spew_field(xVelocity);
-	cout<<endl<<endl;
-	cout<<"\n y Velocity solution:\n";
-	grid.spew_field(yVelocity);
-	cout<<endl<<endl;
-	cout<<"\n Stream Function solution:\n";
-	grid.spew_field(StreamFunction);
-	cout<<endl<<endl;
-	cout<<"\n Vorticity solution:\n";
-	grid.spew_field(Vorticity);
+	// cout<<"\n x Velocity solution:\n";
+	// grid.spew_field(xVelocity);
+	// cout<<endl<<endl;
+	// cout<<"\n y Velocity solution:\n";
+	// grid.spew_field(yVelocity);
+	// cout<<endl<<endl;
+	// cout<<"\n Stream Function solution:\n";
+	// grid.spew_field(StreamFunction);
+	// cout<<endl<<endl;
+	// cout<<"\n Vorticity solution:\n";
+	// grid.spew_field(Vorticity);
 	//grid.plot_uSL();
 	//grid.plot_uSL("../plot/vortex/usl/mesh");
 }

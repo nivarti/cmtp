@@ -114,9 +114,11 @@ public:
 	void calc_J(int, int);
 	void calc_EJ();	
 	void calc_IDxDy(double);
-	void calc_PSI();
+	void calc_PSI(Direction);
 	void calc_OMEGA();
-	
+	void calc_PSImax();
+	void interpolate_PSImax(int, int);
+
 	void add_J(int, int);
 	void add_FI(int, int);
 	
@@ -167,3 +169,4 @@ void tab_EJ(int, int, Field);
 void plot_CH(int, Field, string);
 void est_GCI();
 void calc_GCI();
+void gauss_elimination(double A[][SIZE], double B[]);

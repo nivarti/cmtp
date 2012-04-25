@@ -673,36 +673,37 @@ void Grid::find_center()
 	}
 }
 
-void Grid::calc_PSI()
+void Grid::calc_PSI(Direction RC)
 {
 	double sN = 0.0, sN1 = 0.0;
 	
-	for(int j = domain.Imin; j <= domain.Jmax; j++){
-		for(int i = domain.Imin; i <= domain.Imax; i++){
-			
-			// Stream Function, psi = int{v*dx
-			sN1 += domain.dx*mesh[i][j].U.C[2];
-			if(i > domain.Imin)
-				sN += domain.dx*mesh[i-1][j].U.C[2];
-			
-			mesh[i][j].psi = (sN1 + sN)/2.0; 
+	if(RC == Row)
+		for(int j = domain.Jmin; j <= domain.Jmax; j++){
+			for(int i = domain.Imin; i <= domain.Imax; i++){
+				
+				// Stream Function, psi = int{v*dx
+				sN1 += domain.dx*mesh[i][j].U.C[2];
+				if(i > domain.Imin)
+					sN += domain.dx*mesh[i-1][j].U.C[2];
+				
+				mesh[i][j].psi = (sN1 + sN)/2.0; 
+			}
+			sN = sN1 = 0.0;
 		}
-		sN = sN1 = 0.0;
-	}
+	
+	if(RC == Column)
+		for(int i = domain.Imin; i <= domain.Imax; i++){
+			for(int j = domain.Jmin; j <= domain.Jmax; j++){
 
-	// for(int j = domain.Imin; j <= domain.Jmax; j++){
-	// 	for(int i = domain.Imin; i <= domain.Imax; i++){
-			
-	// 		// Stream Function, psi = int{v*dx
-	// 		sN1 += domain.dx*mesh[i][j].U.C[2];
-	// 		if(i > domain.Imin)
-	// 			sN += domain.dx*mesh[i-1][j].U.C[2];
-			
-	// 		mesh[i][j].psi = (sN1 + sN)/2.0; 
-	// 	}
-	// 	sN = sN1 = 0.0;
-	// }
-
+				// Stream Function, psi = int{v*dx
+				sN1 += -domain.dy*mesh[i][j].U.C[1];
+				if(j > domain.Jmin)
+					sN += -domain.dy*mesh[i][j-1].U.C[1];
+				
+				mesh[i][j].psi = (sN1 + sN)/2.0; 
+			}
+			sN = sN1 = 0.0;
+		}	
 }
 
 void Grid::calc_OMEGA()
@@ -722,7 +723,79 @@ void Grid::calc_OMEGA()
 			vW = mesh[i-1][j].U.C[2];
 			
 			// vorticity function						
-			mesh[i][j].omega = fabs((vE-vW)/dx - (uN-uS)/dy); 
+			mesh[i][j].omega = -(vE-vW)/dx + (uN-uS)/dy; 
 		}
 	}
+}
+
+void Grid::calc_PSImax()
+{
+	double psiP, psiE, psiN, psiW, psiS;
+	
+	// Find extremum values of streamfunction
+	for(int j = domain.Jmin + 1; j <= domain.Jmax - 1; j++){
+		for(int i = domain.Imin + 1; i <= domain.Imax - 1; i++){
+			
+			psiN = mesh[i][j+1].psi;
+			psiS = mesh[i][j-1].psi;
+			psiP = mesh[i][j].psi;
+			psiE = mesh[i+1][j].psi;
+			psiW = mesh[i-1][j].psi;
+
+			if(fabs(psiP) >= fabs(psiN) && fabs(psiP) >= fabs(psiE) && fabs(psiP) >= fabs(psiW) && fabs(psiP) >= fabs(psiS)){
+				
+				//cout<<"\nPotential vortex of strength "<<psiP<<" found at location "<<mesh[i][j].x<<", "<<mesh[i][j].y<<endl;
+				interpolate_PSImax(i, j);				
+			}
+		}
+	}
+}
+
+void Grid::interpolate_PSImax(int i, int j)
+{
+	double xM, yM, psiM;
+	double psiP, psiE, psiN, psiW, psiS;
+	double xP, xN, xE, xW, xS, yP, yN, yE, yW, yS;
+	double A[5][5], B[5], C[5][2];
+	double a, b, c, d, e;
+
+	
+	// The ordering in matrices is P, N, E, W, S
+	B[0] = psiP = mesh[i][j].psi;
+	B[1] = psiN = mesh[i][j+1].psi;
+	B[2] = psiE = mesh[i+1][j].psi;
+	B[3] = psiW = mesh[i-1][j].psi;
+	B[4] = psiS = mesh[i][j-1].psi;
+		
+	C[0][0] = xP = mesh[i][j].x;
+	C[1][0] = xN = mesh[i][j+1].x;
+	C[2][0] = xE = mesh[i+1][j].x;
+	C[3][0] = xW = mesh[i-1][j].x;	
+	C[4][0] = xS = mesh[i][j-1].x;
+	
+	C[0][1] = yP = mesh[i][j].y;
+	C[1][1] = yN = mesh[i][j+1].y;
+	C[2][1] = yE = mesh[i+1][j].y;
+	C[3][1] = yW = mesh[i-1][j].y;
+	C[4][1] = yS = mesh[i][j-1].y;
+
+	for(int i = 0; i < 5; i++)
+		{
+			A[i][0] = C[i][0]*C[i][0];
+			A[i][1] = C[i][1]*C[i][1];
+			A[i][2] = C[i][0];
+			A[i][3] = C[i][1];
+			A[i][4] = 1.0;
+		}
+
+	gauss_elimination(A, B);
+	
+	a = B[0]; b = B[1]; c = B[2]; d = B[3]; e = B[4];
+	
+	xM = -c/(2.0*a);
+	yM = -d/(2.0*b);
+	psiM = e - c*c/(4.0*a) - d*d/(4.0*b);
+		
+	cout<<"\nHurray! Vortex of strength "<<psiM<<" found at "<<xM<<", "<<yM<<endl;
+	
 }

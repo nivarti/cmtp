@@ -9,7 +9,7 @@
 
 int main()
 {
-	int Nx = 10, Ny = 30;
+	int Nx = 80, Ny = 240;
 	clock_t ti, tf;
 	
 	// tuning parameter for nse
@@ -18,6 +18,9 @@ int main()
 	// Start run-time calculation
 	ti = clock();
 	//est_GCI();
+
+	cout<<"\nCaution! Solving the Navier Stokes Equations...";
+	//cout<<"Paramters used:\n Mesh = ";
 	
 	do{
 		// Initialise geometry, and mesh

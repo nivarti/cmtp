@@ -288,3 +288,72 @@ void est_GCI()
 	file4.close();
 	file5.close();
 }
+
+void calc_GCI()
+{
+  
+	int m1,m2,m3;
+	double p, e,e32, e21, phi1, phi2, phi3, r21, ea21, gci, phi21;	     // Declare all variables needed 
+	ifstream errf;
+
+	errf.open("phi");						      // Open file with error profiles for 3 different meshes 
+  
+	errf>>m3>>phi3
+	    >>m2>>phi2
+	    >>m1>>phi1;
+	// Show Mesh Error Data already Recorded
+	cout<<"Mesh Size: "<<m3<<", Phi_1 = "<<phi3<<endl;
+	cout<<"Mesh Size: "<<m2<<", Phi_2 = "<<phi2<<endl;
+	cout<<"Mesh Size: "<<m1<<", Phi_3 = "<<phi1<<endl;
+  
+	e32 = phi3 - phi2;
+	e21 = phi2 - phi1;
+	e = e32/e21;
+  
+	r21 = 2;
+	ea21 = fabs((phi1 - phi2)/phi1);
+	
+	p = fabs(log(fabs(e))/log(r21));
+	phi21 = (pow(r21,p)*phi1 - phi2)/(pow(r21,p) - 1);
+	gci = 1.25*ea21/(pow(r21,p) - 1);
+  
+	cout<<"\nApparent Order for solution in P: "<< setprecision(10) << p<<endl;
+	cout<<"Solution estimate for P = "<< setprecision(10) << phi21<<" +/- "<< setprecision(10)<<fabs(gci)<<endl;  	
+}
+
+void gauss_elimination(double A[][5], double B[])
+{
+	double r;
+	int i, j, k;
+	
+	for(k = 0; k < SIZE-1; k++)
+		{
+			for(i = k+1; i < SIZE; i++)
+				{
+      
+					r = A[i][k]/A[k][k];
+					A[i][k] = 0.0;
+					
+					for(j = k+1 ; j < SIZE; j++)
+						{				
+							A[i][j] -= r*A[k][j];				
+						}       
+			
+					B[i] -= r*B[k];			
+				}      
+		}
+	
+	// k = SIZE - 1 at the end of iteration loop	
+	while(k >= 0){
+		
+		//x[k] = b[k];
+		
+		for(j = k + 1; j < SIZE; j++)
+			{			
+				B[k] = B[k] - A[k][j]*B[j];			
+			}
+		
+		B[k] = B[k]/A[k][k];
+		k--;		
+	}	
+}
