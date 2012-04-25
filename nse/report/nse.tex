@@ -45,17 +45,20 @@
   \item Convergence history of solution with zero lide velocity has been plotted in Fig. \ref{ch1}. Alongside, steady state contour plots of pressure, and velocities have been plotted (Figures \ref{sol1p}, \ref{sol1u}, \ref{sol1v})to verify that the solution indeed reaches the stable values expected. There were minor oscillations in steady state pressure due to the lack of tuning parameter A. The average (over entire domain) values of respective fields were calculated as 1.9519992854088 $\times 10^{-15}$, -1.34855056741173 $\times 10^{-17}$, -2.90050021523882 $\times 10^{-17}$. An over-relaxation coefficient ($\omega = 1.5$) was used to attain convergence in 224 steps.
   \item On a 20x20 mesh, results of using a driven lid ($U_{top} = 1$) have been shown here. The convergence history has been plotted until convergence was attained (Fig. \ref{ch2}, \ref{ch3}, \ref{ch4}). Velocity in x-direction has been plotted for both cases ($U_{top} = 1$ and $U_{top} = -1$), as comparison, along the vertical line of symmetry in Fig. \ref{uvel}. A surface plot of pressure has been provided (Fig. \ref{splotP}) alongside.
   \item In order to guarantee symmetry in solutions of forward, and backward driven lids, a surface plot of $u_{U_{top} = 1}(x,y) + u_{U_{top} = -1}(1-x,y)$ has been constructed (Fig. \ref{splotU}).
-  \item Grid convergence has been established by successively refining the mesh, and plotting velocity (Fig. \ref{Ugci}) along the symmetry line for each case. For a quantitative reasoning, norms of change in solution across two successive meshes at 10 different points (those from the smallest mesh) were calculated, and plotted (Fig. \ref{dUgci}). An 80x80 mesh is sufficient for grid convergence.
-
+  \item Grid convergence has been established by successively refining the mesh, and plotting velocity (Fig. \ref{Ugci}) along the symmetry line for each case. For a quantitative reasoning, norms of change in solution across two successive meshes at 10 different points (those from the smallest mesh) were calculated, and plotted (Fig. \ref{dUgci}). An 160x160 mesh is sufficient for grid convergence.
   \end{enumerate}
-    \begin{figure}
-      \centering
-      \includegraphics[width=0.6\textwidth, angle = -90]{../plot/stability/convergence/conv.eps}
-      \caption{Change in solution (in pressure, and velocities) plotted over iterations up to 200 iterations.}
-      \label{ch1}
+  
+  
+\item
+  
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth, angle = -90]{../plot/stability/convergence/conv.eps}
+    \caption{Change in solution (in pressure, and velocities) plotted over iterations up to 200 iterations.}
+    \label{ch1}
     \end{figure}
-    
-    \begin{figure}
+  
+  \begin{figure}
       \centering
       \includegraphics[width=0.6\textwidth, angle = -90]{../plot/stability/solution/P.eps}
       \caption{Steady state pressure contour plot for a 20x20 mesh with no lid velocity.}
@@ -126,7 +129,7 @@
     \begin{figure}
       \centering
       \includegraphics[width=0.6\textwidth, angle = -90]{../plot/basic/gci/gci2.eps}
-      \caption{Plot of change in velocity estimate along vertical line of symmetry between different meshes. The $L_2$ norms of these changes were calculated as 0.0210647, 0.00686623, 0.00188125, and 0.000458044. The changes are diminishingly small, and also smaller by a factor of 4 for the 80x80 mesh onwards.}
+      \caption{Plot of change in velocity estimate along vertical line of symmetry between different meshes. The $L_2$ norms of these changes were calculated as 0.0210647, 0.00686623, 0.00188125, and 0.000458044. The changes are diminishingly small, and smaller by a factor of four for the 160x160 mesh.}
       \label{dUgci}
     \end{figure}
 

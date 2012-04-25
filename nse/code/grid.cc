@@ -95,8 +95,8 @@ void Grid::add_FI(int i, int j)
 	pW = mesh[i-1][j].U.C[0];
 	
 	// Calculate addition required in flux integral
-	dFx = (A*dy/beta)*(pE - 2.0*pP + pW)/(dx);
-	dGy = (A*dx/beta)*(pN - 2.0*pP + pS)/(dy);
+	dFx = ((A*dy)/(beta*dx))*(pE - 2.0*pP + pW);
+	dGy = ((A*dx)/(beta*dy))*(pN - 2.0*pP + pS);
 	
 	mesh[i][j].FI.C[0] += dFx;
 	mesh[i][j].FI.C[0] += dGy;
@@ -210,13 +210,13 @@ void Grid::add_J(int i, int j)
 	dy = domain.dy;
 	
 	// Set Jacobians to accommodate smoothing Pressure
-	mesh[i][j].Ax[0][0] += - A*dy/(beta*dx);
-	mesh[i][j].Bx[0][0] += 2.0*A*dy/(beta*dx);
-	mesh[i][j].Cx[0][0] += - A*dy/(beta*dx);
+	mesh[i][j].Ax[0][0] += - (A*dy)/(beta*dx);
+	mesh[i][j].Bx[0][0] += (2.0*A*dy)/(beta*dx);
+	mesh[i][j].Cx[0][0] += - (A*dy)/(beta*dx);
 	
-	mesh[i][j].Ay[0][0] += - A*dx/(beta*dy);
-	mesh[i][j].By[0][0] += 2.0*A*dx/(beta*dy);
-	mesh[i][j].Cy[0][0] += - A*dx/(beta*dy);
+	mesh[i][j].Ay[0][0] += - (A*dx)/(beta*dy);
+	mesh[i][j].By[0][0] += (2.0*A*dx)/(beta*dy);
+	mesh[i][j].Cy[0][0] += - (A*dx)/(beta*dy);
 }
 
 void Grid::calc_BC()
@@ -434,8 +434,8 @@ Field Grid::march_IE(double dt, double SOR)
 	calc_IDxDy(dt);
 	calc_IBC();
 	
-	// cout<<"\n Flux integral...\n";
-	// spew_mesh(1);
+	//cout<<"\n Flux integral...\n";
+	//spew_mesh(1);
 
 	// Start approximate factorisation solution
 	for(int j = domain.Jmin; j <= domain.Jmax; j++){
@@ -444,8 +444,8 @@ Field Grid::march_IE(double dt, double SOR)
 		calc_RHS(RHS, Column, j);
 		solve_Thomas(LHS, RHS, Column, j);
 	}
-	// cout<<"\n Lines of constant j...\n";
-	// spew_mesh(1);
+	//cout<<"\n Lines of constant j...\n";
+	//spew_mesh(1);
 
 	for(int i = domain.Imin; i <= domain.Imax; i++){
 		
@@ -455,8 +455,8 @@ Field Grid::march_IE(double dt, double SOR)
 	}
 	// End approximate factorisation solution
 	
-	// cout<<"\n Lines of constant i...\n";
-	// spew_mesh(1);
+	//cout<<"\n Lines of constant i...\n";
+	//spew_mesh(1);
 	
 	// Update solution, use successive-over-relaxation
 	for(int i = domain.Imin; i <= domain.Imax; i++){
@@ -568,18 +568,19 @@ void Grid::plot_uSL(string F)
 		file<<mesh[I][j].y<<" "<<uM<<endl;
 	}
 	
-	double yC = 0.05, yM;
-	for(int j = domain.Jmin; j < domain.Jmax; j++){
+	// double yC = 0.05, yM;
+	// for(int j = domain.Jmin; j < domain.Jmax; j++){
 		
-		yM = (mesh[I][j].y + mesh[I][j+1].y)/2.0;
+	// 	yM = (mesh[I][j].y + mesh[I][j+1].y)/2.0;
 		
-		if(yM >= yC -0.00001 && yM <= yC + 0.00001){
+	// 	if(yM >= yC -0.00001 && yM <= yC + 0.00001){
 			
-			uM = (mesh[I][j].U.C[1] + mesh[I+1][j].U.C[1] + mesh[I][j+1].U.C[1] + mesh[I+1][j+1].U.C[1])/4.0;		
-			file2<<yM<<" "<<uM<<endl;				
-			yC += 0.1;			
-		}
-	}
+	// 		uM = (mesh[I][j].U.C[1] + mesh[I+1][j].U.C[1] + mesh[I][j+1].U.C[1] + mesh[I+1][j+1].U.C[1])/4.0;		
+	// 		file2<<yM<<" "<<uM<<endl;				
+	// 		yC += 0.1;
+			
+	// 	}
+	// }
 	
 	i++;
 	file.close();
@@ -679,12 +680,49 @@ void Grid::calc_PSI()
 	for(int j = domain.Imin; j <= domain.Jmax; j++){
 		for(int i = domain.Imin; i <= domain.Imax; i++){
 			
-			sN1 += domain.dx*mesh[i][j].U.C[1];
+			// Stream Function, psi = int{v*dx
+			sN1 += domain.dx*mesh[i][j].U.C[2];
 			if(i > domain.Imin)
-				sN += domain.dx*mesh[i-1][j].U.C[1];
+				sN += domain.dx*mesh[i-1][j].U.C[2];
 			
 			mesh[i][j].psi = (sN1 + sN)/2.0; 
 		}
 		sN = sN1 = 0.0;
+	}
+
+	// for(int j = domain.Imin; j <= domain.Jmax; j++){
+	// 	for(int i = domain.Imin; i <= domain.Imax; i++){
+			
+	// 		// Stream Function, psi = int{v*dx
+	// 		sN1 += domain.dx*mesh[i][j].U.C[2];
+	// 		if(i > domain.Imin)
+	// 			sN += domain.dx*mesh[i-1][j].U.C[2];
+			
+	// 		mesh[i][j].psi = (sN1 + sN)/2.0; 
+	// 	}
+	// 	sN = sN1 = 0.0;
+	// }
+
+}
+
+void Grid::calc_OMEGA()
+{
+	double dx, dy, uN, uS, vE, vW;
+	
+	for(int j = domain.Imin; j <= domain.Jmax; j++){
+		for(int i = domain.Imin; i <= domain.Imax; i++){
+			
+			dx = domain.dx;
+			dy = domain.dy;
+			
+			uN = mesh[i][j+1].U.C[1];
+			uS = mesh[i][j-1].U.C[1];
+			
+			vE = mesh[i+1][j].U.C[2];
+			vW = mesh[i-1][j].U.C[2];
+			
+			// vorticity function						
+			mesh[i][j].omega = fabs((vE-vW)/dx - (uN-uS)/dy); 
+		}
 	}
 }

@@ -1,0 +1,21 @@
+set   autoscale                        # scale axes automatically
+#unset log                              # remove any log-scaling
+unset label                            # remove any previous labels 
+   set xtic auto                          # set xtics automatically 
+   set ytic auto                          # set ytics automatically
+#   set title "Error Norms with Iteration"
+   set xlabel "x Velocity"
+   set ylabel "y direction"
+#   set key 0.01,100
+#   set label "Slope = 1.9906" at 0.02, 0.005
+#   set log xy
+#   set log x
+   set key right bottom
+set grid
+   set term post "Helvetica" 18
+   set output 'uvel.eps'
+#   set terminal epslatex
+#  set output 'conv.tex'
+   plot "mesh0" using 2:1 title 'U(top) = 1.0' with points pointtype 4,\
+      "mesh1" using 2:1 title 'U(top) = -1.0' with points pointtype 6
+

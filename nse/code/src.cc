@@ -125,8 +125,12 @@ void Grid::spew_field(FieldName FN)
 			
 			else if(FN == yVelocity)
 				cout<<setw(12)<<setprecision(5)<<mesh[i][j].U.C[2]<<" ";
+			else if(FN == StreamFunction)
+				cout<<setw(12)<<setprecision(5)<<mesh[i][j].psi<<" ";			
+			else if(FN == Vorticity)
+				cout<<setw(12)<<setprecision(5)<<mesh[i][j].omega<<" ";			
 			else
-				cout<<setw(10)<<setprecision(5)<<mesh[i][j].FI.C[0]<<" ";
+				cout<<setw(12)<<setprecision(5)<<mesh[i][j].FI.C[0]<<" ";
 		}
 		cout<<endl;
 	}	
@@ -275,7 +279,7 @@ void est_GCI()
 	e3 = sqrt(e3/10.0);
 	e4 = sqrt(e4/10.0);
 
-	cout<<"Norms: "<<e1<<" "<<e2<<" "<<e3<<" "<<e4<<endl;
+	cout<<"Norms: "<<e1<<" "<<e2<<" "<<e3<<" "<<e4<<endl;\
 	
 	file.close();
 	file1.close();

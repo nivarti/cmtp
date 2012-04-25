@@ -288,7 +288,7 @@ void Grid::calc_RHS(double RHS[MAXSIZE][3], Direction RC, int IJ)
 	if(RC == Row)
 		{
 			//for(int k = 0; k <= domain.Jmax + domain.Jmin; k++)
-			for(int k = domain.Imin; k <= domain.Jmax; k++)
+			for(int k = domain.Jmin; k <= domain.Jmax; k++)
 				{
 					RHS[k][0] = mesh[IJ][k].FI.C[0];
 					RHS[k][1] = mesh[IJ][k].FI.C[1];

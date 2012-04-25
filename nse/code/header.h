@@ -29,7 +29,7 @@
 using namespace std;
 
 enum Direction{Row, Column};
-enum FieldName{Pressure, xVelocity, yVelocity, All};
+enum FieldName{Pressure, xVelocity, yVelocity, StreamFunction, Vorticity, All};
 
 struct Field
 {
@@ -59,7 +59,8 @@ struct Cell
 	Field U, eU, dU, Un;
 	Field FI, eFI, FIn;
 	
-	double psi;
+	// Define streamfunction, and vorticity
+	double psi, omega;
 	
 	double x, y;
 
@@ -114,7 +115,8 @@ public:
 	void calc_EJ();	
 	void calc_IDxDy(double);
 	void calc_PSI();
-
+	void calc_OMEGA();
+	
 	void add_J(int, int);
 	void add_FI(int, int);
 	
